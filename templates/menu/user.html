@@ -17,15 +17,15 @@
         	<a href="/createjob">Create Job</a>
         </li>
         
-        {% if uri == "/crackingqueue" %}
+        {% if uri == "/queuedjobs" %}
         	<li class="active">
         {% else %}
         	<li>
         {% end %}
-        	<a href="/crackingqueue">Cracking Queue</a>
+        	<a href="/queuedjobs">Queued Jobs</a>
         </li>
 
-        {% if uri == "/competedjobs" %}
+        {% if uri == "/completedjobs" %}
             <li class="active">
         {% else %}
             <li>

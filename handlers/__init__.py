@@ -56,6 +56,9 @@ application = Application([
 
         # Job Handlers - Serves job related pages
         (r'/createjob', CreateJobHandler, {'dbsession': dbsession}),
+        (r'/queuedjobs', QueuedJobsHandler, {'dbsession': dbsession}),
+        (r'/completedjobs', CompletedJobsHandler, {'dbsession': dbsession}),
+
         
         # Admin Handlers - Administration pages
         (r'/manageusers(.*)', ManageUsersHandler, {'dbsession':dbsession}),

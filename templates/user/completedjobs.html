@@ -1,0 +1,29 @@
+{% extends "../main.html" %}
+
+{% block title %}Completed Job{% end %}
+
+{% block content %}
+	<script>
+	
+	</script>
+	<div class="container-fluid">
+		<div class="row-fluid">
+	    	<div class="span2">
+				<div class="well" style="padding: 8px 0;">
+					<ul class="nav nav-list">
+				  	<li class="nav-header">
+				    	Completed Jobs
+				  	</li>
+				    {% for job in user.jobs %}
+						<li id="job{{ job.id }}">
+						    <a href="#job.name" onclick="">{{ job.name }}</a>
+						</li>
+				    {% end %}
+					</ul>
+				</div>
+			</div>
+			<div class="span10">
+			</div>
+		</div>
+	</div>
+{% end %}

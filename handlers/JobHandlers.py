@@ -41,7 +41,6 @@ class CreateJobHandler(UserBaseHandler):
             self.render("user/create_job.html", message = "No Hashes")
             return
         user = self.get_current_user()
-        print '[**] Current User', user, type(user)
         job = Job(
             user_id = user.id,
             name = unicode(job_name),
@@ -49,7 +48,7 @@ class CreateJobHandler(UserBaseHandler):
         self.dbsession.add(job)
         self.dbsession.flush()
         for passwd in hashes:
-            if len(passwd) != 0:
+            if 0 < len(passwd) <= 64:
                 password_hash = PasswordHash(
                     job_id = job.id,
                     algorithm = unicode(algorithm),
@@ -62,3 +61,17 @@ class CreateJobHandler(UserBaseHandler):
     def filter_string(self, string):
         char_white_list = ascii_letters + digits
         return filter(lambda char: char in char_white_list, string)
+
+class QueuedJobsHandler(UserBaseHandler):
+
+    @authenticated
+    def get(self, *args, **kwargs):
+        ''' Renders the cracking queue '''
+        self.render("user/queuedjobs.html", all_users = User.get_all())
+
+class CompletedJobsHandler(UserBaseHandler):
+
+    @authenticated
+    def get(self, *args, **kwargs):
+        ''' Renders the completed jobs page '''
+        self.render("user/completedjobs.html", user = self.get_current_user())

@@ -49,7 +49,7 @@ class SettingsHandler(UserBaseHandler):
     def post(self, *args, **kwargs):
         ''' Calls function based on parameter '''
         if len(args) == 1 and args[0] in self.post_functions.keys():
-            self.post_functions[args[0]](*args, **kwargs)
+            self.change_password(*args, **kwargs)
         else:
             self.render("user/error.html")
 

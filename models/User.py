@@ -60,6 +60,11 @@ class User(BaseObject):
         return dbsession.query(cls).filter_by(approved = False).all()
     
     @classmethod
+    def get_all(cls):
+        """ Return all non-admin user objects """
+        return dbsession.query(cls).filter(cls.user_name != 'admin').all() 
+
+    @classmethod
     def by_user_name(cls, user_name):
         """ Return the user object whose user name is ``user_name`` """
         return dbsession.query(cls).filter_by(user_name = unicode(user_name)).first()
