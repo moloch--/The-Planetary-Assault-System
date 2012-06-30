@@ -1,0 +1,48 @@
+<div class="nav-collapse">
+    <ul class="nav">
+        
+        {% if uri == "/user" %}
+        	<li class="active">
+        {% else %}
+        	<li>
+        {% end %}
+        	<a href="/user">User Home</a>
+        </li>
+        
+        {% if uri == "/createjob" %}
+        	<li class="active">
+        {% else %}
+        	<li>
+        {% end %}
+        	<a href="/createjob">Create Job</a>
+        </li>
+        
+        {% if uri == "/crackingqueue" %}
+        	<li class="active">
+        {% else %}
+        	<li>
+        {% end %}
+        	<a href="/crackingqueue">Cracking Queue</a>
+        </li>
+
+        {% if uri == "/competedjobs" %}
+            <li class="active">
+        {% else %}
+            <li>
+        {% end %}
+            <a href="/completedjobs">Completed Jobs</a>
+        </li>
+    </ul>
+</div>
+<div class="btn-group pull-right">
+    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="icon-user"></i> 
+        {{ user_name }}
+        <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a href="/settings">Settings</a></li>
+        <li class="divider"></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul>
+</div>

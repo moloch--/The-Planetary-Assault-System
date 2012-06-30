@@ -1,0 +1,55 @@
+{% extends "../main.html" %}
+
+{% block header %}
+<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+{% end %}
+
+{% block title %}Settings{% end %}
+
+{% block content %}
+	<!-- Wrapping the Recaptcha create method in a javascript function -->
+	<script type="text/javascript">
+		function showRecaptcha(element) {
+	    	Recaptcha.create("6LcJJ88SAAAAAFzcmQqDPWGKRQXmJ0DCiZoPWTZf", element, {
+	    	theme: "clean",
+	    	callback: null
+	   		});
+		}
+		$(document).ready(function() {
+			showRecaptcha('recaptcha_div'); 
+		});
+	</script>
+
+	<h1>Settings</h1>
+	{% if message != None %}
+		<h3>{{ message }}</h3>
+	{% end %}
+    <form action="/settings" method="post" autocomplete="off">  
+      {% raw xsrf_form_html() %}
+      <fieldset>
+      	<legend>Change Password</legend>
+        <p>
+          <br />
+          <label for="old_password">Old Password</label>
+          <input type="password" name="old_password" id="old_password" />
+        </p>  
+        <p>
+          <label for="new_password">New Password</label>
+          <input type="password" name="new_password" id="new_password" size="7" />
+        </p>
+        <p>
+          <label for="new_password2">Confirm New Password</label>
+          <input type="password" name="new_password2" id="new_password2" size="7" />
+        </p>
+        <p>
+          <label for="recaptch_div">
+            What is love?
+          </label>
+          <div id="recaptcha_div"></div>
+        </p>      
+      </fieldset>
+      <p class="submit">
+        <button class="btn btn-primary btn-large" type="submit"> Change Password </button>
+      </p>   
+    </form>
+{% end %}

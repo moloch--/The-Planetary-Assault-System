@@ -1,0 +1,10 @@
+{% extends "../main.html" %}
+
+{% block title %}Home{% end %}
+
+{% block content %}
+<h1>Welcome {{ user.user_name }}</h1>
+<h2>Cracking Jobs</h2>
+	<p>Queued Jobs: {{ len(user.queued_jobs) }} </p>
+	<p>Completed Jobs: {{ len(user.completed_jobs) }}</p>
+{% end %}

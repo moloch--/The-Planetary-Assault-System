@@ -1,0 +1,30 @@
+{% extends "../main.html" %}
+
+{% block title %}Manage Users{% end %}
+
+{% block content %}
+	<h1>Manage Users</h1>
+	<br />
+	{% if len(unapproved_users) == 0 %}
+	    <strong>No users awaiting approval</strong>
+    {% else %}
+		<form action="/manageusers" method="post">  
+	      {% raw xsrf_form_html() %}
+	      <fieldset>
+	      <legend>Approve Users</legend>
+	        <p>
+	          <br />
+		      <label for="username">Username</label>
+		        <select name="username">
+		          	{% for user in unapproved_users %}
+		  				<option value="{{ user.user_name }}">{{ user.user_name }}</option>
+		  			{% end %}
+		  		</select>
+	        </p>
+	      </fieldset>
+	      <p class="submit">
+	        <button class="btn btn-primary btn-large" type="submit"> Approve User </button>
+	      </p>   
+	    </form>
+    {% end %}
+{% end %}

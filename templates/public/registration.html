@@ -1,0 +1,57 @@
+{% extends "../main.html" %}
+
+{% block header %}
+<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+{% end %}
+
+{% block title %}Registration{% end %}
+
+{% block content %}
+  <script type="text/javascript">
+     function showRecaptcha(element) {
+       Recaptcha.create("6LcJJ88SAAAAAFzcmQqDPWGKRQXmJ0DCiZoPWTZf", element, {
+         theme: "clean",
+         callback: null});
+     }
+     $(document).ready(function() {
+  	  showRecaptcha('recaptcha_div'); 
+     });
+  </script>
+  <h2>Register a New Account</h2>
+      <form action="/register" method="post" autocomplete="off">  
+        {% raw xsrf_form_html() %}
+        <fieldset>
+          <legend>{{ message }}</legend>
+          <p>
+            <br />
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" rel="popover" data-content="Your username must be 3-15 alpha-numeric characters" data-original-title="Username Selection" />
+          </p>
+          <p>
+            <label for="pass1">Password</label>
+            <input type="password" name="pass1" id="pass1" rel="popover" data-content="Your password must be at least 12 characters long" data-original-title="Password Security" />
+          </p>
+          <p>
+            <label for="pass2">Confirm Password</label>
+            <input type="password" name="pass2" id="pass2" />
+          </p>
+          <p>
+            <label for="recaptch_div">Are you human?</label>
+            <div id="recaptcha_div">
+            </div>
+            <br />
+          </p>
+        </fieldset>
+        <p class="submit">
+          <button class="btn btn-primary btn-large" type="submit">&nbsp;Register Account&nbsp;</button>
+        </p>
+      </form>
+      <script>
+        document.getElementById('username').focus();
+        $(function ()
+        {
+          $("#pass1").popover({placement:'right'});
+          $("#username").popover({placement:'right'});
+        });
+      </script>
+{% end %}

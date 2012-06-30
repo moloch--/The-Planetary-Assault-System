@@ -1,0 +1,51 @@
+{% extends "../main.html" %}
+
+{% block title %}Login{% end %}
+
+{% block header %}
+<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+{% end %}
+
+{% block content %}
+    <!-- Wrapping the Recaptcha create method in a javascript function -->
+    <script type="text/javascript">
+    function showRecaptcha(element) {
+       Recaptcha.create("6LcJJ88SAAAAAFzcmQqDPWGKRQXmJ0DCiZoPWTZf", element, {
+         theme: "clean",
+         callback: null});
+     }
+    $(document).ready(function() {
+  	  showRecaptcha('recaptcha_div'); 
+     });
+  </script>
+  <h2>Login</h2>
+    <form action="/login" method="post" autocomplete="off">  
+      {% raw xsrf_form_html() %}
+      <fieldset>
+      <legend>{{ message }}</legend>
+        <p>
+          <br />
+          <label for="username">Username</label>
+          <input type="text" name="username" id="username" />
+        </p>
+        <p>
+          <br />
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" />
+        </p>
+        <p>
+          <label for="recaptch_div">Are you a Cylon?</label>
+          <div id="recaptcha_div">
+          </div>
+          <br />
+        </p>
+      </fieldset>
+      <p class="submit">
+        <button class="btn btn-primary btn-large" type="submit"> Authenticate </button>
+      </p>   
+    </form>
+    <script>
+      document.getElementById('username').focus();
+    </script>
+
+{% end %}
