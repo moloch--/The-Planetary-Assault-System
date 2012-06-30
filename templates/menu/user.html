@@ -35,14 +35,11 @@
     </ul>
 </div>
 <div class="btn-group pull-right">
-    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
-        <i class="icon-user"></i> 
-        {{ user_name }}
-        <span class="caret"></span>
-    </a>
+    <a class="btn btn-primary" href="/settings"><i class="icon-user icon-white"></i>&nbsp;{{ user_name }}&nbsp;</a>
+    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
     <ul class="dropdown-menu">
-        <li><a href="/settings">Settings</a></li>
-        <li class="divider"></li>
-        <li><a href="/logout">Logout</a></li>
+            <li><a href="/settings"><i class="icon-pencil"></i>&nbsp;Settings&nbsp;</a></li>
+            <li class="divider"></li>
+            <li><a href="/logout"><i class="icon-ban-circle"></i>&nbsp;Logout&nbsp;</a></li>
     </ul>
 </div>

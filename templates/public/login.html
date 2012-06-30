@@ -11,7 +11,7 @@
     <script type="text/javascript">
     function showRecaptcha(element) {
        Recaptcha.create("6LcJJ88SAAAAAFzcmQqDPWGKRQXmJ0DCiZoPWTZf", element, {
-         theme: "clean",
+         theme: "blackglass",
          callback: null});
      }
     $(document).ready(function() {
@@ -19,6 +19,7 @@
      });
   </script>
   <h2>Login</h2>
+  <div class="well">
     <form action="/login" method="post" autocomplete="off">  
       {% raw xsrf_form_html() %}
       <fieldset>
@@ -26,12 +27,12 @@
         <p>
           <br />
           <label for="username">Username</label>
-          <input type="text" name="username" id="username" />
+          <input placeholder="Username" type="text" name="username" id="username" />
         </p>
         <p>
           <br />
           <label for="password">Password</label>
-          <input type="password" name="password" id="password" />
+          <input placeholder="Password" type="password" name="password" id="password" />
         </p>
         <p>
           <label for="recaptch_div">Are you a Cylon?</label>
@@ -47,5 +48,5 @@
     <script>
       document.getElementById('username').focus();
     </script>
-
+  </div>
 {% end %}
