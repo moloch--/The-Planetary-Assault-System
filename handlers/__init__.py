@@ -4,21 +4,22 @@ Created on June 23, 2012
 
 @author: moloch
 
- Copyright [2012] [Redacted Labs]
+    Copyright [2012] [Redacted Labs]
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 '''
 
+import os
 import sys
 import models
 import logging
@@ -27,10 +28,10 @@ from os import urandom, path
 from base64 import b64encode
 from models import dbsession
 from modules.Menu import Menu
-from libs.ConsoleColors import *
+from libs.ConfigManager import ConfigManager
 from libs.Session import SessionManager
 from libs.HostIpAddress import HostIpAddress
-from tornado import netutil, options
+from tornado import netutil, options, process
 from tornado.web import Application, StaticFileHandler 
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
@@ -43,6 +44,18 @@ from handlers.PublicHandlers import *
 
 ### Logging configuration
 logging.basicConfig(format = '[%(levelname)s] %(asctime)s - %(message)s', level = logging.DEBUG)
+logging.info("The Planetary Assault System Booting Up ...")
+
+### Check required files
+cfg_path = os.path.abspath("PlanetaryAssaultSystem.cfg")
+charset_path = os.path.abspath("charset.txt")
+if not (os.path.exists(cfg_path) and os.path.isfile(cfg_path)):
+    logging.error("No configuration file found at %s, cannot continue." % cfg_path)
+    os._exit(1)
+if not (os.path.exists(charset_path) and os.path.isfile(charset_path)):
+    logging.error("No charset file found at %s, cannot continue." % charset_path)
+    os._exit(1)
+config = ConfigManager.Instance()
 
 ### Application setup
 application = Application([
@@ -80,19 +93,15 @@ application = Application([
     
     # Ip addresses that access the admin interface
     admin_ips = ('127.0.0.1'),
-
-    # Rainbow table dictionary
-    rainbow_tables = {
-        "MD5": "/media/data/RainbowTables/MD5/",
-        "NTLM": "/media/data/RainbowTables/NTLM/",
-        "LM": "/media/data/RainbowTables/LM/",
-    },
     
     # Template directory
     template_path = 'templates',
     
     # Request that does not pass @authorized will be redirected here
     forbidden_url = '/403',
+
+    # Rainbow table directories
+    rainbow_tables = config.rainbow_tables,
     
     # Requests that does not pass @authenticated  will be redirected here
     login_url = '/login',
@@ -116,14 +125,10 @@ application = Application([
     version = '0.1'
 )
 
-### Settings
-LISTEN_PORT = 8888
-
 ### Main entry point
 def start_server():
     ''' Main entry point for the application '''
-    logging.info("Server starting up, please wait ... ")
-    sockets = netutil.bind_sockets(LISTEN_PORT)
+    sockets = netutil.bind_sockets(config.listen_port)
     server = HTTPServer(application)
     server.add_sockets(sockets)
     io_loop = IOLoop.instance()
@@ -134,7 +139,7 @@ def start_server():
         io_loop = io_loop
     )
     try:
-        logging.info("Server event loop started. ")
+        logging.info("Planetary Assault System main event loop started, good hunting.")
         io_loop.start()
         session_clean_up.start()
     except KeyboardInterrupt:

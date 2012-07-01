@@ -19,46 +19,59 @@ Created on June 30, 2012
     limitations under the License.
 '''
 
-
+import os
 import thread
 import logging
-import libs.RainbowCrack
+import ConfigParser
+import RainbowCrack
 
 from models import dbsession
 from models import Job, User
 from threading import Lock
 from datetime import datetime
 from libs.Singleton import Singleton
+from libs.ConfigManager import ConfigManager
 
 @Singleton
 class Dispatch(object):
 
     def __init__(self):
+        self.__config__()
         self.isBusy = False
         self.mutex = Lock()
 
+    def __config__(self):
+        self.config = ConfigManager.Instance()
+
     def start(self, job_id):
-        self.mutex.aquire()
+        ''' Thread safe, starts a job or adds it to the queue '''
+        self.mutex.acquire()
         if not self.isBusy:
             self.isBusy = True
             self.mutex.release()
             self.__dispatch__(job_id)
-        self.mutex.release()
+        else:
+            self.mutex.release()
 
     def __dispatch__(self, job_id):
-        thread.start_new_thread(self.__crack__, (job_id))
+        ''' Spawns a seperate cracking thread '''
+        thread.start_new_thread(self.__crack__, (job_id,))
 
     def __crack__(self, job_id):
-        job.started = datetime.now()
+        ''' Does the actual password cracking '''
         job = Job.by_id(job_id)
         user = User.by_id(job.user_id)
         if user == None or job == None:
             logging.error("Invalid job passed to dispatcher.")
             raise ValueError
-        logging.info("Cracking %d hashes for %s" % (len(job.hashes), user.user_name))
-        results = RainbowCrack.crack(len(hashes), hashes, path, maxThreads = 3)
+        algo = job.hashes[0].algorithm
+        tables_path = self.config.rainbow_tables[algo]
+        logging.info("Cracking %d %s hashes for %s" % (len(job.hashes), algo, user.user_name))
+        job.started = datetime.now()
+        results = RainbowCrack.crack(len(job), job.to_list(), tables_path, maxThreads = self.config.max_threads)
         job.save_results(results)
         job.completed = True
+        job.finished = datetime.now()
         dbsession.add(job)
         dbsession.flush()
         if 0 < Job.qsize():
@@ -67,7 +80,6 @@ class Dispatch(object):
             self.__dispatch__(next_job.id)
         else:
             logging.info("No jobs remain in queue, cracking thread is stopping.")
-            self.isBusy = False 
-
-
-        
+            self.mutex.acquire()
+            self.isBusy = False
+            self.mutex.release()

@@ -40,18 +40,18 @@ class Job(BaseObject):
 
     @classmethod
     def by_id(cls, job_id):
-        """ Return the user object whose user id is ``job_id`` """
+        """ Return the user object whose user id is 'job_id' """
         return dbsession.query(cls).filter_by(id = job_id).first()
     
     @classmethod
     def by_job_name(cls, job_name):
-        """ Return the user object whose user name is ``user_name`` """
+        """ Return the user object whose user name is 'job_name' """
         return dbsession.query(cls).filter_by(name = unicode(job_name)).first()
 
     @classmethod
     def qsize(cls):
         ''' Returns the number of incompelte jobs left in the data base '''
-        return len(dbsession.query(cls).filter_by(completed = False).order_by(created).all())
+        return dbsession.query(cls).filter_by(completed = False).count()
 
     @classmethod
     def pop(cls):
@@ -60,10 +60,12 @@ class Job(BaseObject):
 
     @property
     def solved_hashes(self):
+        ''' Returns only solved hashes in the job '''
         return filter(lambda password_hash: password_hash.sovled == True, self.hashes)
 
     @property
     def unsolved_hashes(self):
+        ''' Returns only unsolved hashes in the job '''
         return filter(lambda password_hash: password_hash.sovled == False, self.hashes)
 
     def save_results(self, results):
@@ -76,5 +78,13 @@ class Job(BaseObject):
             except KeyError:
                 logging.error("A database hash is missing from the result set (%s)" % (password.digest))
 
+    def to_list(self):
+        ''' Returns all hash digests as a Python list '''
+        ls = []
+        for passwordHash in self.hashes:
+            ls.append(passwordHash.digest.encode('ascii', 'ignore'))
+        return ls
+
     def __len__(self):
+        ''' Returns the number of hashes in the job '''
         return len(self.hashes)

@@ -59,6 +59,9 @@ class CreateJobHandler(UserBaseHandler):
         # Get hashes
         try:
             hashes = self.get_argument('hashes').replace('\r', '').split('\n')
+            hashes = list(set(hashes)) # Remove any duplicates
+            if len(hashes) == 0:
+                raise ValueError
         except:
             self.render("user/create_job.html", message = "No Hashes")
             return
@@ -78,11 +81,18 @@ class CreateJobHandler(UserBaseHandler):
                 )
                 self.dbsession.add(password_hash)
         self.dbsession.flush()
+        self.start_job(job)
         self.render("user/created_job.html", count = len(job))
 
     def filter_string(self, string):
+        ''' Removes erronious chars from a string '''
         char_white_list = ascii_letters + digits
         return filter(lambda char: char in char_white_list, string)
+
+    def start_job(self, job):
+        ''' Sends the new job to the dispather '''
+        dispather = Dispatch.Instance()
+        dispather.start(job.id)
 
 class QueuedJobsHandler(UserBaseHandler):
 

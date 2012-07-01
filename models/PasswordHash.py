@@ -20,6 +20,7 @@ Created on Mar 12, 2012
 
 import logging
 
+from sqlalchemy import and_
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean
@@ -30,16 +31,17 @@ class PasswordHash(BaseObject):
 
     job_id = Column(Integer, ForeignKey('job.id'), nullable = False)
     algorithm = Column(Unicode(16), nullable = False)
+    user_name = Column(Unicode(128))
     digest = Column(Unicode(128), nullable = False)
     solved = Column(Boolean, default = False, nullable = False)
     plain_text = Column(Unicode(64))
 
     @classmethod
     def by_id(cls, hash_id):
-        """ Return the PasswordHash object whose user id is ``hash_id`` """
+        """ Return the PasswordHash object whose user id is 'hash_id' """
         return dbsession.query(cls).filter_by(id = hash_id).first()
 
     @classmethod
-    def by_digest(cls, digest):
-        """ Return the PasswordHash object whose user id is ``hash_id`` """
-        return dbsession.query(cls).filter_by(digest = digest).all()
+    def by_digest(cls, digest_value, job_id_value):
+        """ Return the digest based on valud and job_id """
+        return dbsession.query(cls).filter(and_(digest == digest_value, job_id == job_id_value)).first()

@@ -13,6 +13,9 @@ sdist
 develop-eggs
 .installed.cfg
 
+# RainbowCrack files
+rcracki.*
+
 # Installer logs
 pip-log.txt
 
