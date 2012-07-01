@@ -6,7 +6,9 @@
 	{% if 0 != len(user.completed_jobs) %}
 		<script>
 			function get_details(job_id) {
-
+				$.get('/ajax/jobdetails?job_id=' + job_id, function(data) {
+			  		document.getElementById('job_details').innerHTML = data;
+				});
 			}
 		</script>
 		<div class="container-fluid">
@@ -25,7 +27,7 @@
 						</ul>
 					</div>
 				</div>
-				<div class="span10" id="content">
+				<div class="span10" id="job_details">
 					
 				</div>
 			</div>

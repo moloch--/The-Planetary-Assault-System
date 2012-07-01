@@ -1,0 +1,23 @@
+<div class="animated bounceInRight">
+	<h1>{{ job.name }}</h1>
+	<div class="well">
+		<table class="table table-striped">
+	        <thead>
+	          <tr>
+	            <th>#</th>
+	            <th>Hash</th>
+	            <th>Plain Text</th>
+	          </tr>
+	        </thead>
+	        <tbody>
+	        	{% for password in job.hashes %}
+			          <tr>
+			            <td>{{ job.hashes.index(password) + 1 }}</td>
+			            <td>{{ password.digest }}</td>
+			            <td>{{ password.plain_text }}</td>
+			          </tr>
+			    {% end %}
+	        </tbody>
+	    </table>
+	</div>
+</div>

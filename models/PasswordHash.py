@@ -31,7 +31,7 @@ class PasswordHash(BaseObject):
 
     job_id = Column(Integer, ForeignKey('job.id'), nullable = False)
     algorithm = Column(Unicode(16), nullable = False)
-    user_name = Column(Unicode(128))
+    #user_name = Column(Unicode(128))
     digest = Column(Unicode(128), nullable = False)
     solved = Column(Boolean, default = False, nullable = False)
     plain_text = Column(Unicode(64))

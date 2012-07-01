@@ -56,7 +56,7 @@ class Job(BaseObject):
     @classmethod
     def pop(cls):
         ''' Pop a job off the "queue" or return None if not jobs remain '''
-        return dbsession.query(cls).filter_by(completed = False).order_by(created).first()
+        return dbsession.query(cls).filter_by(completed = False).order_by(cls.created).first()
 
     @property
     def solved_hashes(self):

@@ -68,14 +68,14 @@ class Dispatch(object):
         tables_path = self.config.rainbow_tables[algo]
         logging.info("Cracking %d %s hashes for %s" % (len(job.hashes), algo, user.user_name))
         job.started = datetime.now()
-        results = RainbowCrack.crack(len(job), job.to_list(), tables_path, maxThreads = self.config.max_threads)
+        results = RainbowCrack.crack(len(job), job.to_list(), tables_path, debug = True, maxThreads = self.config.max_threads)
         job.save_results(results)
         job.completed = True
         job.finished = datetime.now()
         dbsession.add(job)
         dbsession.flush()
         if 0 < Job.qsize():
-            logging.info("Popping job off queue, %d job(s) remain.")
+            logging.info("Popping job off queue, %d job(s) remain." % Job.qsize())
             next_job = Job.pop()
             self.__dispatch__(next_job.id)
         else:

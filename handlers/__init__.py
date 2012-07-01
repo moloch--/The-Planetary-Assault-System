@@ -43,7 +43,7 @@ from handlers.PublicHandlers import *
 
 
 ### Logging configuration
-logging.basicConfig(format = '[%(levelname)s] %(asctime)s - %(message)s', level = logging.DEBUG)
+logging.basicConfig(format = '\r[%(levelname)s] %(asctime)s - %(message)s', level = logging.DEBUG)
 logging.info("The Planetary Assault System Booting Up ...")
 
 ### Check required files
@@ -71,8 +71,8 @@ application = Application([
         (r'/createjob', CreateJobHandler, {'dbsession': dbsession}),
         (r'/queuedjobs', QueuedJobsHandler, {'dbsession': dbsession}),
         (r'/completedjobs', CompletedJobsHandler, {'dbsession': dbsession}),
+        (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {'dbsession': dbsession}),
 
-        
         # Admin Handlers - Administration pages
         (r'/manageusers', ManageUsersHandler, {'dbsession':dbsession}),
         
@@ -139,7 +139,7 @@ def start_server():
         io_loop = io_loop
     )
     try:
-        logging.info("Planetary Assault System main event loop started, good hunting.")
+        logging.info("Weapon systems online, good hunting.")
         io_loop.start()
         session_clean_up.start()
     except KeyboardInterrupt:

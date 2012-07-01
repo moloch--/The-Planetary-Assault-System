@@ -99,7 +99,7 @@ class QueuedJobsHandler(UserBaseHandler):
     @authenticated
     def get(self, *args, **kwargs):
         ''' Renders the cracking queue '''
-        self.render("user/queuedjobs.html", all_users = User.get_all())
+        self.render("user/queuedjobs.html", all_users = User.get_all(), queue_size = Job.qsize())
 
 class CompletedJobsHandler(UserBaseHandler):
 
@@ -107,3 +107,22 @@ class CompletedJobsHandler(UserBaseHandler):
     def get(self, *args, **kwargs):
         ''' Renders the completed jobs page '''
         self.render("user/completedjobs.html", user = self.get_current_user())
+
+class AjaxJobDetailsHandler(UserBaseHandler):
+
+    @authenticated
+    def get(self, *args, **kwargs):
+        ''' This method is called via ajax '''
+        try:
+            job_id = self.get_argument("job_id")
+        except:
+            logging.warn("Bad argument passed to jobs ajax handler.")
+            self.render("blank.html")
+            return
+        user = self.get_current_user()
+        job = Job.by_id(job_id)
+        if job == None or user.id != job.user_id:
+            logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
+            self.render("user/ajax_error.html", message = "Job does not exist")
+        else:
+            self.render("user/ajax_jobdetails.html", job = job)

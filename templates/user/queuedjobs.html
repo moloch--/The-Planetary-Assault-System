@@ -9,27 +9,31 @@
 {% block content %}
 <h2>Queued Jobs</h2>
 	<div class="well">
-		<div class="accordion" id="accordion1">
-	        {% for user in all_users %}
-	        	{% for job in user.jobs %}
-		            <div class="accordion-group">
-		              <div class="accordion-heading">
-		                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapse{{ user.jobs.index(job) }}">
-		                  <strong>{{ user.jobs.index(job) + 1 }}. {{ user.user_name }} - {{ job.name }} ({{ job.hashes[0].algorithm }})</strong>
-		                </a>
-		              </div>
-		              <div id="collapse{{ user.jobs.index(job) }}" class="accordion-body collapse" style="height: 0px; ">
-		                <div class="accordion-inner">
-		                	<ol>
-			                  	{% for hash in job.hashes %}
-			                  		<li> {{ hash.digest }} </li>
-			                  	{% end %}
-		                  	</ol>
-		                </div>
-		              </div>
-		            </div>
-	            {% end %}
-	        {% end %}
-		</div>
+		{% if queue_size != 0 %}
+			<div class="accordion" id="accordion1">
+		        {% for user in all_users %}
+		        	{% for job in user.queued_jobs %}
+			            <div class="accordion-group">
+			              <div class="accordion-heading">
+			                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapse{{ user.jobs.index(job) }}">
+			                  <strong>{{ user.queued_jobs.index(job) + 1 }}. {{ user.user_name }} - {{ job.name }} ({{ job.hashes[0].algorithm }})</strong>
+			                </a>
+			              </div>
+			              <div id="collapse{{ user.jobs.index(job) }}" class="accordion-body collapse" style="height: 0px; ">
+			                <div class="accordion-inner">
+			                	<ol>
+				                  	{% for hash in job.hashes %}
+				                  		<li> {{ hash.digest }} </li>
+				                  	{% end %}
+			                  	</ol>
+			                </div>
+			              </div>
+			            </div>
+		            {% end %}
+		        {% end %}
+			</div>
+		{% else %}
+			<h3>There are no jobs in the queue.</h3>
+		{% end %}
 	</div>
 {% end %}
