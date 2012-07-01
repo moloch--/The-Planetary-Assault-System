@@ -61,7 +61,7 @@ application = Application([
 
         
         # Admin Handlers - Administration pages
-        (r'/manageusers(.*)', ManageUsersHandler, {'dbsession':dbsession}),
+        (r'/manageusers', ManageUsersHandler, {'dbsession':dbsession}),
         
         # Public handlers - Serves all public pages
         (r'/', WelcomeHandler),

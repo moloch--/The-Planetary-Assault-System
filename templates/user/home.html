@@ -3,8 +3,10 @@
 {% block title %}Home{% end %}
 
 {% block content %}
-<h1>Welcome {{ user.user_name }}</h1>
-<h2>Cracking Jobs</h2>
-	<p>Queued Jobs: {{ len(user.queued_jobs) }} </p>
-	<p>Completed Jobs: {{ len(user.completed_jobs) }}</p>
+	<h2>Welcome {{ user.user_name }}</h2>
+	<div class="well">
+		<h2>Cracking Jobs</h2>
+		<p>Queued Jobs: {{ len(user.queued_jobs) }} </p>
+		<p>Completed Jobs: {{ len(user.completed_jobs) }}</p>
+	</div>
 {% end %}

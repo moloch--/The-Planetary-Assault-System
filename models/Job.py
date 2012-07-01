@@ -1,21 +1,22 @@
+# -*- coding: utf-8 -*-
 '''
 Created on Mar 12, 2012
 
 @author: moloch
 
- Copyright [2012] [Redacted Labs]
+    Copyright [2012] [Redacted Labs]
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 '''
 
 import logging
@@ -48,6 +49,11 @@ class Job(BaseObject):
         return dbsession.query(cls).filter_by(name = unicode(job_name)).first()
 
     @classmethod
+    def qsize(cls):
+        ''' Returns the number of incompelte jobs left in the data base '''
+        return len(dbsession.query(cls).filter_by(completed = False).order_by(created).all())
+
+    @classmethod
     def pop(cls):
         ''' Pop a job off the "queue" or return None if not jobs remain '''
         return dbsession.query(cls).filter_by(completed = False).order_by(created).first()
@@ -59,6 +65,16 @@ class Job(BaseObject):
     @property
     def unsolved_hashes(self):
         return filter(lambda password_hash: password_hash.sovled == False, self.hashes)
+
+    def save_results(self, results):
+        ''' Save the results of the cracking session to the database '''
+        for password in self.hashes:
+            try:
+                password.plain_text = unicode(results[password.digest])
+                if results[password.digest] != "<Not Found>":
+                    password.solved = True
+            except KeyError:
+                logging.error("A database hash is missing from the result set (%s)" % (password.digest))
 
     def __len__(self):
         return len(self.hashes)

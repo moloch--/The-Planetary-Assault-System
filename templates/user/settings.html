@@ -11,7 +11,7 @@
 	<script type="text/javascript">
 		function showRecaptcha(element) {
 	    	Recaptcha.create("6LcJJ88SAAAAAFzcmQqDPWGKRQXmJ0DCiZoPWTZf", element, {
-	    	theme: "clean",
+	    	theme: "blackglass",
 	    	callback: null
 	   		});
 		}
@@ -20,9 +20,10 @@
 		});
 	</script>
 
-	<h1>Settings</h1>
+	<h1>User Settings</h1>
+  <div class="well">
 	{% if message != None %}
-		<h3>{{ message }}</h3>
+		<h2>{{ message }}</h2>
 	{% end %}
     <form action="/settings" method="post" autocomplete="off">  
       {% raw xsrf_form_html() %}
@@ -31,15 +32,15 @@
         <p>
           <br />
           <label for="old_password">Old Password</label>
-          <input type="password" name="old_password" id="old_password" />
+          <input placeholder="Old Password" type="password" name="old_password" id="old_password" />
         </p>  
         <p>
           <label for="new_password">New Password</label>
-          <input type="password" name="new_password" id="new_password" size="7" />
+          <input placeholder="New Password" type="password" name="new_password" id="new_password" size="7" />
         </p>
         <p>
-          <label for="new_password2">Confirm New Password</label>
-          <input type="password" name="new_password2" id="new_password2" size="7" />
+          <label for="new_password2">Confirm Password</label>
+          <input placeholder="Confirm Password" type="password" name="new_password2" id="new_password2" size="7" />
         </p>
         <p>
           <label for="recaptch_div">
@@ -52,4 +53,5 @@
         <button class="btn btn-primary btn-large" type="submit"> Change Password </button>
       </p>   
     </form>
+  </div>
 {% end %}

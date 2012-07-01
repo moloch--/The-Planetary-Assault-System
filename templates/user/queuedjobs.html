@@ -15,7 +15,7 @@
 		            <div class="accordion-group">
 		              <div class="accordion-heading">
 		                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapse{{ user.jobs.index(job) }}">
-		                  {{ user.jobs.index(job) + 1 }}. {{ user.user_name }} - {{ job.name }} ({{ job.hashes[0].algorithm }})
+		                  <strong>{{ user.jobs.index(job) + 1 }}. {{ user.user_name }} - {{ job.name }} ({{ job.hashes[0].algorithm }})</strong>
 		                </a>
 		              </div>
 		              <div id="collapse{{ user.jobs.index(job) }}" class="accordion-body collapse" style="height: 0px; ">
