@@ -24,6 +24,7 @@ import os
 import sys
 import getpass
 
+from libs.ConsoleColors import *
 from libs.ConfigManager import ConfigManager
 from models import dbsession, User, Permission
 
@@ -41,7 +42,7 @@ else:
     if password1 == password2 and 12 <= len(password1):
         password = password1
     else:
-        print '[!] Error: Passwords did not match, or were too short'
+        print WARN+'Error: Passwords did not match, or were less than 12 chars'
         os._exit(1)
 
 # User Account
@@ -62,8 +63,10 @@ permission = Permission(
 )
 dbsession.add(permission)
 dbsession.flush()
-if ENVIRONMENT == 'dev':
-    environ = "Developement"
+if config.debug:
+    environ = bold+R+"Developement boot strap"+W
+    details = ", default admin password is '%s'." % password
 else:
-    environ = "Production"
-print '[*] %s boot strap complete successfully' % environ
+    environ = bold+"Production boot strap"+W
+    details = '.'
+print INFO+'%s complete successfully%s' % (environ,  details)

@@ -38,19 +38,32 @@ class ConfigManager(object):
         self.__tables__()
         self.__system__()
         self.__network__()
+        self.__security__()
 
     def __tables__(self):
         ''' Load rainbow table configurations '''
         self.rainbow_tables = {}
         self.rainbow_tables['LM'] = self.config.get("RainbowTables", 'lm')
+        if not os.path.exists(self.rainbow_tables['LM']):
+            logging.warn("LM rainbow table directory not found (%s)" % self.rainbow_tables['LM'])
         self.rainbow_tables['NTLM'] = self.config.get("RainbowTables", 'ntlm')
+        if not os.path.exists(self.rainbow_tables['NTLM']):
+            logging.warn("NTLM rainbow table directory not found (%s)" % self.rainbow_tables['NTLM'])
         self.rainbow_tables['MD5'] = self.config.get("RainbowTables", 'md5')
+        if not os.path.exists(self.rainbow_tables['MD5']):
+            logging.warn("MD5 rainbow table directory not found (%s)" % self.rainbow_tables['MD5'])
 
     def __system__(self):
         ''' Load system configurations '''
-        self.max_threads = self.config.getint("System", 'threads')
+        threads = self.config.getint("System", 'threads')
+        self.max_threads = 1 if threads <= 0 else threads
         self.debug = self.config.getboolean("System", 'debug')
 
     def __network__(self):
         ''' Load network configurations '''
         self.listen_port = self.config.getint("Network", 'port')
+
+    def __security__(self):
+        ''' Load security configurations '''
+        ips = self.config.get("Security", 'admin_ips').split(',')
+        self.admin_ips = tuple(ips)
