@@ -120,7 +120,7 @@ application = Application([
     clean_up_timeout = int(60 * 1000),
 
     # Debug mode
-    debug = True,
+    debug = config.debug,
     
     # Application version
     version = '0.1'

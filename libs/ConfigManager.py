@@ -49,6 +49,7 @@ class ConfigManager(object):
     def __system__(self):
         ''' Load system configurations '''
         self.max_threads = self.config.getint("System", 'threads')
+        self.debug = self.config.getboolean("System", 'debug')
 
     def __network__(self):
         ''' Load network configurations '''

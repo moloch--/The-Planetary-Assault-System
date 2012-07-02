@@ -24,11 +24,12 @@ import os
 import sys
 import getpass
 
+from libs.ConfigManager import ConfigManager
 from models import dbsession, User, Permission
 
-ENVIRONMENT = 'dev'
+config = ConfigManager.Instance()
 
-if ENVIRONMENT == 'dev':
+if config.debug:
     password = 'nimda123'
 else:
     sys.stdout.write("[?] New Admin ")
