@@ -72,8 +72,9 @@ application = Application([
         (r'/queuedjobs', QueuedJobsHandler, {'dbsession': dbsession}),
         (r'/completedjobs', CompletedJobsHandler, {'dbsession': dbsession}),
         (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {'dbsession': dbsession}),
+        (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {'dbsession': dbsession}),
 
-        # Admin Handlers - Administration pages
+        # Admin Handlers - Admin only pages
         (r'/manageusers', ManageUsersHandler, {'dbsession':dbsession}),
         
         # Public handlers - Serves all public pages
@@ -84,7 +85,7 @@ application = Application([
         
         # Error handlers - Serves error pages
         (r'/403', UnauthorizedHandler),
-        (r'/(.*).php', PhpHandler),
+        (r'/(.*).php(.*)', PhpHandler),
         (r'/(.*)', NotFoundHandler)
     ],
                           

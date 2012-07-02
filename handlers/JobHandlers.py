@@ -4,19 +4,19 @@ Created on June 30, 2012
 
 @author: moloch
 
- Copyright [2012] [Redacted Labs]
+    Copyright [2012] [Redacted Labs]
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 '''
 
 
@@ -108,11 +108,18 @@ class CompletedJobsHandler(UserBaseHandler):
         ''' Renders the completed jobs page '''
         self.render("user/completedjobs.html", user = self.get_current_user())
 
+class DeleteJobHandler(UserBaseHandler):
+
+    @authenticated
+    def post(self, *args, **kwargs):
+        ''' Deletes a job from the database '''
+        pass
+
 class AjaxJobDetailsHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
-        ''' This method is called via ajax '''
+        ''' This method is called via ajax, renders job details '''
         try:
             job_id = self.get_argument("job_id")
         except:
@@ -126,3 +133,29 @@ class AjaxJobDetailsHandler(UserBaseHandler):
             self.render("user/ajax_error.html", message = "Job does not exist")
         else:
             self.render("user/ajax_jobdetails.html", job = job)
+
+class AjaxJobStatisticsHandler(UserBaseHandler):
+
+    @authenticated
+    def get(self, *args, **kwargs):
+        ''' This method is called via ajax, renders job statistics'''
+        try:
+            job_id = self.get_argument("job_id")
+        except:
+            logging.warn("Bad argument passed to jobs ajax handler.")
+            self.render("blank.html")
+            return
+        user = self.get_current_user()
+        job = Job.by_id(job_id)
+        if job == None or user.id != job.user_id:
+            logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
+            self.render("user/ajax_error.html", message = "Job does not exist")
+        else:
+            self.render("user/ajax_jobstatistics.html", job = job)
+
+class DownloadHandler(UserBaseHandler):
+
+    @authenticated
+    def post(self, *args, **kwargs):
+        '''  '''
+        pass

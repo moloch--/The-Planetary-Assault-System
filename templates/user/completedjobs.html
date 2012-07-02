@@ -10,7 +10,11 @@
 			  		document.getElementById('job_details').innerHTML = data;
 				});
 			}
+			function setDownloadFormat(format) {
+				document.getElementById('download-format').value = format;
+			}
 		</script>
+        <!-- Static Parts -->
 		<div class="container-fluid">
 			<div class="row-fluid">
 		    	<div class="span2">
@@ -27,8 +31,13 @@
 						</ul>
 					</div>
 				</div>
+				<!-- Ajaxy stuff goes here -->
 				<div class="span10" id="job_details">
-					
+					<br />
+					<!-- Fuck strict html5, I'm lazy -->
+					<center>
+						<strong>No Job Selected</strong>
+					</center>
 				</div>
 			</div>
 		</div>

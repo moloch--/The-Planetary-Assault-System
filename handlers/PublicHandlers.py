@@ -4,19 +4,19 @@ Created on Mar 13, 2012
 
 @author: moloch
 
- Copyright [2012] [Redacted Labs]
+    Copyright [2012] [Redacted Labs]
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 '''
 
 import os
@@ -52,10 +52,13 @@ class LoginHandler(RequestHandler):
             user = User.by_user_name(user_name)
         except:
             self.render('public/login.html', message = "Type in an account name")
+            return
         try:
             password = self.get_argument('password')
         except:
             self.render('public/login.html', message = "Type in a password")
+            return
+        response = None
         try:
             response = captcha.submit(
                 self.get_argument('recaptcha_challenge_field'),
@@ -65,7 +68,8 @@ class LoginHandler(RequestHandler):
             )
         except:
             self.render('public/login.html', message = "Please fill out recaptcha!")
-        if not response.is_valid:
+            return
+        if response == None or not response.is_valid:
             self.render('public/login.html', message = "Invalid captcha")
         elif user != None and user.validate_password(password):
             if not user.approved:
