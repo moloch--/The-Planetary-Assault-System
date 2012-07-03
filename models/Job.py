@@ -21,7 +21,7 @@ Created on Mar 12, 2012
 
 import logging
 
-from sqlalchemy import Column, ForeignKey
+from sqlalchemy import Column, ForeignKey, and_
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean, DateTime
 from models import dbsession
@@ -56,17 +56,57 @@ class Job(BaseObject):
     @classmethod
     def pop(cls):
         ''' Pop a job off the "queue" or return None if not jobs remain '''
-        return dbsession.query(cls).filter_by(completed = False).order_by(cls.created).first()
+        return dbsession.query(cls).filter_by(completed = False).order_by(cls.priority).order_by(cls.created).first()
 
     @property
     def solved_hashes(self):
         ''' Returns only solved hashes in the job '''
-        return filter(lambda password_hash: password_hash.sovled == True, self.hashes)
+        return filter(lambda password_hash: password_hash.solved == True, self.hashes)
 
     @property
     def unsolved_hashes(self):
         ''' Returns only unsolved hashes in the job '''
-        return filter(lambda password_hash: password_hash.sovled == False, self.hashes)
+        return filter(lambda password_hash: password_hash.solved == False, self.hashes)
+
+    @property
+    def lower_case_passwords(self):
+        ''' Returns all lower case passwords in the job '''
+        return filter(lambda password_hash: password_hash.lower_case == True, self.solved_hashes)
+
+    @property
+    def upper_case_passwords(self):
+        ''' Returns all upper case passwords in the job '''
+        return filter(lambda password_hash: password_hash.upper_case == True, self.solved_hashes)
+
+    @property
+    def numeric_passwords(self):
+        ''' Returns all upper case passwords in the job '''
+        return filter(lambda password_hash: password_hash.numeric == True, self.solved_hashes)
+
+    @property
+    def mixed_case_passwords(self):
+        ''' Returns all mixed case passwords in the job '''
+        return filter(lambda password_hash: password_hash.mixed_case == True, self.solved_hashes)
+
+    @property
+    def lower_alpha_numeric_passwords(self):
+        ''' Returns all lower case alpha-numeric passwords in the job '''
+        return filter(lambda password_hash: password_hash.lower_alpha_numeric == True, self.solved_hashes)
+
+    @property
+    def upper_alpha_numeric_passwords(self):
+        ''' Returns all upper case alpha-numeric passwords in the job '''
+        return filter(lambda password_hash: password_hash.upper_alpha_numeric == True, self.solved_hashes)
+
+    @property
+    def mixed_alpha_numeric_passwords(self):
+        ''' Returns all mixed case alpha-numeric passwords in the job '''
+        return filter(lambda password_hash: password_hash.mixed_alpha_numeric == True, self.solved_hashes)
+
+    @property
+    def common_passwords(self):
+        ''' Returns all common passwords in the job '''
+        return filter(lambda password_hash: password_hash.is_common == True, self.solved_hashes)
 
     def save_results(self, results):
         ''' Save the results of the cracking session to the database '''

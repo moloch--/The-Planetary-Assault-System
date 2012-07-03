@@ -14,7 +14,7 @@ Setup
 ========
 * Run __/setup/depends.sh__ (Debian/Ubuntu only) to automatically install all required libs
 * Setup MySQL connection string in __/models/\_\_init\_\_.py__
-* Edit __PlanetaryAssaultSystem.cfg__ be sure to set __debug__ to __false__
+* Edit __PlanetaryAssaultSystem.cfg__ be sure to set __debug__ to __false__ for production systems
 	* Edit the RainbowTables section to point to your rainbow table directories
 	* Edit threads, this is the max number of threads used for cracking
 * Run __"python . create bootstrap"__ to initialize the database, you only need to run this once

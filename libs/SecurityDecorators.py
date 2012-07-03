@@ -3,19 +3,19 @@ Created on Mar 13, 2012
 
 @author: moloch
 
- Copyright [2012] [Redacted Labs]
+    Copyright [2012] [Redacted Labs]
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 '''
 
 import logging
@@ -44,7 +44,7 @@ def restrict_ip_address(method):
         if self.request.remote_ip in self.application.settings['admin_ips']:
             return method(self, *args, **kwargs)
         else:
-            logging.warn("Attempted unauthorized access from %s to %s" % (self.request.remote_ip, self.request.uri))
+            logging.warn("Attempted unauthorized access from %s to %s (restricted ip)" % (self.request.remote_ip, self.request.uri))
             self.redirect(self.application.settings['forbidden_url'])
     return wrapper
 
@@ -60,7 +60,7 @@ def authorized(permission):
                 user = User.by_user_name(session.data['user_name'])
                 if user != None and user.has_permission(permission):
                     return method(self, *args, **kwargs)
-            logging.warn("Attempted unauthorized access from %s to %s" % (self.request.remote_ip, self.request.uri))
+            logging.warn("Attempted unauthorized access from %s to %s (no permission)" % (self.request.remote_ip, self.request.uri))
             self.redirect(self.application.settings['forbidden_url'])
         return wrapper
     return func

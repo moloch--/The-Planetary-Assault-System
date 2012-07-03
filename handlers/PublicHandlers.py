@@ -49,7 +49,7 @@ class LoginHandler(RequestHandler):
         ''' Checks login creds '''
         try:
             user_name = self.get_argument('username')
-            user = User.by_user_name(user_name)
+            user = User.by_user_name(user_name.encode('utf-8', 'ignore'))
         except:
             self.render('public/login.html', message = "Type in an account name")
             return
@@ -145,7 +145,7 @@ class RegistrationHandler(RequestHandler):
             self.dbsession.add(user)
             self.dbsession.flush()
             # Set password for user
-            user.password = password
+            user.password = password.encode('utf-8', 'ignore')
             self.dbsession.add(user)
             self.dbsession.flush()
             self.render("public/account_created.html", user = user)

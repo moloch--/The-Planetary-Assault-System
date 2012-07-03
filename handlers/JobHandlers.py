@@ -21,6 +21,7 @@ Created on June 30, 2012
 
 
 import os
+import json
 import logging
 
 from models import Job, User, PasswordHash
@@ -29,6 +30,7 @@ from libs.Dispatch import Dispatch
 from libs.Session import SessionManager
 from libs.SecurityDecorators import authenticated
 from BaseHandlers import UserBaseHandler
+
 
 class CreateJobHandler(UserBaseHandler):
 
@@ -113,7 +115,22 @@ class DeleteJobHandler(UserBaseHandler):
     @authenticated
     def post(self, *args, **kwargs):
         ''' Deletes a job from the database '''
-        pass
+        try:
+            job_id = self.get_argument("job_id")
+        except:
+            self.render("user/deletejob_error.html")
+            return
+        job = Job.by_id(job_id)
+        user = self.get_current_user()
+        if job != None and user != None and job.user_id == user.id:
+            job_name = str(job.name)
+            self.dbsession.remove(job)
+            seld.dbsession.flush()
+            self.render("user/deletejob_success.html", job_name = job_name )
+        else:
+            logging.warn("%s attempted to delete a non-existant job, or does not own job." % user.user_name)
+            self.render("user/deletejob_error.html")
+
 
 class AjaxJobDetailsHandler(UserBaseHandler):
 
@@ -128,7 +145,7 @@ class AjaxJobDetailsHandler(UserBaseHandler):
             return
         user = self.get_current_user()
         job = Job.by_id(job_id)
-        if job == None or user.id != job.user_id:
+        if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
             self.render("user/ajax_error.html", message = "Job does not exist")
         else:
@@ -147,15 +164,35 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
             return
         user = self.get_current_user()
         job = Job.by_id(job_id)
-        if job == None or user.id != job.user_id:
+        if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
             self.render("user/ajax_error.html", message = "Job does not exist")
         else:
             self.render("user/ajax_jobstatistics.html", job = job)
 
+class AjaxJobDataHandler(UserBaseHandler):
+
+    @authenticated
+    def get(self, *args, **kwargs):
+        ''' Called via AJAX, returns a JSON message containting stats data '''
+        try:
+            job_id = self.get_argument("job_id")
+            job = Job.by_id(job_id)
+            user = self.get_current_user()
+            if job == None or user == None or job.user_id != user.id:
+                raise ValueError
+        except:
+            logging.warn("Bad argument passed to job data ajax handler.")
+            self.write(json.dumps(['error', 0]))
+            self.finish()
+            return
+        stats = [{'Solved': len(job.solved_hashes)}, {'Unsolved': len(job.unsolved_hashes)}]
+        self.write(json.dumps(stats))
+        self.finish()
+
 class DownloadHandler(UserBaseHandler):
 
     @authenticated
     def post(self, *args, **kwargs):
-        '''  '''
+        ''' Download a job as a file  '''
         pass

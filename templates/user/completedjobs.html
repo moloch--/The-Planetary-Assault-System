@@ -1,13 +1,94 @@
 {% extends "../main.html" %}
 
+{% block header %}
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+{% end %}
+
 {% block title %}Completed Job{% end %}
 
 {% block content %}
 	{% if 0 != len(user.completed_jobs) %}
+				<!-- Graph Code -->
 		<script>
-			function get_details(job_id) {
+			var pieChart;
+			Highcharts.theme = {
+			   title: {
+			      style: {
+			         color: '#FFFFFF',
+			         font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
+			      }
+			   },
+			   subtitle: {
+			      style: {
+			         color: '#666666',
+			         font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
+			      }
+			   },
+			};
+
+			function createGraph() {
+				pieChart = new Highcharts.Chart({
+					chart: {
+						renderTo: 'pie',
+						plotBackgroundColor: null,
+						plotBorderWidth: null,
+						plotShadow: false,
+						backgroundColor:'transparent'
+					},
+					title: {
+						text: 'Password Distribution'
+					},
+					tooltip: {
+						formatter: function() {
+							return '<strong>'+ this.point.name +'</strong>: '+ this.percentage +' %';
+						}
+					},
+					plotOptions: {
+						pie: {
+							allowPointSelect: true,
+							showInLegend: true,
+							cursor: 'pointer',
+							dataLabels: {
+								enabled: true,
+								color: '#FFFFFF',
+								connectorColor: '#FFFFFF',
+								formatter: function() {
+									return '<strong>'+this.point.name+'</strong>';
+								}
+							}
+						}
+					},
+					series: [{
+						type: 'pie',
+						name: 'PasswordDistribution',
+						data: []
+					}]
+				});
+			}
+			function getDetails(job_id) {
 				$.get('/ajax/jobdetails?job_id=' + job_id, function(data) {
-			  		document.getElementById('job_details').innerHTML = data;
+			  		document.getElementById('job_view').innerHTML = data;
+				});
+			}
+			function getStats(job_id){
+				$('#job_view').load('/ajax/jobstatistics?job_id='+job_id, function() {
+					console.log("[*] Create graph ...");
+					createGraph();
+					/* Load stats data */
+					console.log("[*] Loading data ...");
+					$.get('/ajax/jobdata?job_id=' + job_id, function(data) {
+						console.log(data);
+					  	var dataSet = $.parseJSON(data);
+					  	console.log(dataSet);
+					  	for (var index = 0; index < dataSet.length; ++index) {
+					  		$.each(dataSet[index], function(key, val) {
+							    pieChart.series[0].addPoint([key, val]);
+							});
+					  	}
+					});
+					Highcharts.setOptions(Highcharts.theme);
+					pieChart.redraw();
 				});
 			}
 			function setDownloadFormat(format) {
@@ -25,14 +106,14 @@
 						  	</li>
 						    {% for job in user.completed_jobs %}
 								<li id="job{{ job.id }}">
-								    <a href="#job{{ job.id }}" onclick="get_details({{ job.id }})">{{ job.name }}</a>
+								    <a href="#job{{ job.id }}" onclick="getDetails({{ job.id }})">{{ job.name }}</a>
 								</li>
 						    {% end %}
 						</ul>
 					</div>
 				</div>
 				<!-- Ajaxy stuff goes here -->
-				<div class="span10" id="job_details">
+				<div class="span10" id="job_view">
 					<br />
 					<!-- Fuck strict html5, I'm lazy -->
 					<center>

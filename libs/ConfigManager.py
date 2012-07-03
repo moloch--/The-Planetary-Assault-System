@@ -66,4 +66,6 @@ class ConfigManager(object):
     def __security__(self):
         ''' Load security configurations '''
         ips = self.config.get("Security", 'admin_ips').split(',')
+        if not '127.0.0.1' in ips:
+            ips.append('127.0.0.1')
         self.admin_ips = tuple(ips)

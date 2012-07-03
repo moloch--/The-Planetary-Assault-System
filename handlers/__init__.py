@@ -30,7 +30,6 @@ from models import dbsession
 from modules.Menu import Menu
 from libs.ConfigManager import ConfigManager
 from libs.Session import SessionManager
-from libs.HostIpAddress import HostIpAddress
 from tornado import netutil, options, process
 from tornado.web import Application, StaticFileHandler 
 from tornado.httpserver import HTTPServer
@@ -73,6 +72,7 @@ application = Application([
         (r'/completedjobs', CompletedJobsHandler, {'dbsession': dbsession}),
         (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {'dbsession': dbsession}),
         (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {'dbsession': dbsession}),
+        (r'/ajax/jobdata(.*)', AjaxJobDataHandler, {'dbsession': dbsession}),
 
         # Admin Handlers - Admin only pages
         (r'/manageusers', ManageUsersHandler, {'dbsession':dbsession}),
@@ -90,7 +90,7 @@ application = Application([
     ],
                           
     # Randomly generated 64-byte secret key
-    cookie_secret = b64encode(urandom(64)),
+    cookie_secret = '1234' if config.debug else b64encode(urandom(64)),
     
     # Ip addresses that access the admin interface
     admin_ips = config.admin_ips,

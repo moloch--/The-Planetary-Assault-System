@@ -68,7 +68,7 @@ class Dispatch(object):
         tables_path = self.config.rainbow_tables[algo]
         logging.info("Cracking %d %s hashes for %s" % (len(job.hashes), algo, user.user_name))
         job.started = datetime.now()
-        results = RainbowCrack.crack(len(job), job.to_list(), tables_path, debug = True, maxThreads = self.config.max_threads)
+        results = RainbowCrack.crack(len(job), job.to_list(), tables_path, maxThreads = self.config.max_threads)
         job.save_results(results)
         job.completed = True
         job.finished = datetime.now()
