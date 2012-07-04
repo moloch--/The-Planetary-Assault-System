@@ -39,7 +39,8 @@ class PasswordHash(BaseObject):
     plain_text = Column(Unicode(64))
     common_passwords = ['123456', '12345', '123456789', 'password', 'iloveyou', 'princess',
         'rockyou', '1234567', '12345678', 'abc123', 'nicole', 'daniel', 'babygirl', 'monkey',
-        'jessica', 'lovely', 'michael', 'ashley', '654321', 'qwerty', 'letmein', 'admin'
+        'jessica', 'lovely', 'michael', 'ashley', '654321', 'qwerty', 'letmein', 'admin', 'fuck',
+        'fuckyou', 'love', 'sex', 'secret', 'god',
     ]
 
     @classmethod

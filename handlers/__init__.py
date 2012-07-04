@@ -58,6 +58,7 @@ config = ConfigManager.Instance()
 
 ### Application setup
 application = Application([
+
         # Static Handlers - Serves static CSS, JavaScript and image files
         (r'/static/(.*)', StaticFileHandler, {'path': 'static'}),
         
@@ -98,13 +99,13 @@ application = Application([
     # Template directory
     template_path = 'templates',
     
-    # Request that does not pass @authorized will be redirected here
+    # Requests that do not pass @authorized will be redirected here
     forbidden_url = '/403',
 
     # Rainbow table directories
     rainbow_tables = config.rainbow_tables,
     
-    # Requests that does not pass @authenticated  will be redirected here
+    # Requests that do not pass @authenticated  will be redirected here
     login_url = '/login',
     
     # UI Modules

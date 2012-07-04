@@ -84,7 +84,7 @@ class CreateJobHandler(UserBaseHandler):
                 self.dbsession.add(password_hash)
         self.dbsession.flush()
         self.start_job(job)
-        self.render("user/created_job.html", count = len(job))
+        self.render("user/created_job.html", job = job)
 
     def filter_string(self, string):
         ''' Removes erronious chars from a string '''

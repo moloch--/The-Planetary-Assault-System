@@ -19,6 +19,7 @@ Created on Mar 14, 2012
 '''
 
 from libs.Session import SessionManager
+from libs.Dispatch import Dispatch
 from tornado.web import UIModule
 
 class Menu(UIModule):
@@ -28,7 +29,12 @@ class Menu(UIModule):
         session = session_manager.get_session(self.handler.get_secure_cookie('auth'), self.request.remote_ip)
         if session != None:
             if session.data['menu'] == 'user':
-                return self.render_string('menu/user.html', uri = self.handler.request.uri, user_name = session.data['user_name'])
+                dispatch = Dispatch.Instance()
+                return self.render_string('menu/user.html', 
+                    current_job = dispatch.current_job_name,
+                    uri = self.handler.request.uri, 
+                    user_name = session.data['user_name']
+                )
             elif session.data['menu'] == 'admin':
                 return self.render_string('menu/admin.html', uri = self.handler.request.uri)
         return self.render_string('menu/public.html', uri = self.handler.request.uri)

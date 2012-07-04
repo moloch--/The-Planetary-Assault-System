@@ -14,17 +14,6 @@
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-
--------
-
-this serves as a 'loader' for some commonly basic use function
-every womyn (or man) needs in the process of a web app development
-
-it's called __\_\_main\_\_.py__ so u'll be able to type 'python . [command]'
-and it'll fulfill your wishes.
-
-feel free to change the filename if you wish.
-as I said before. nothing in this template is hardcoded
 """
 
 from os import system

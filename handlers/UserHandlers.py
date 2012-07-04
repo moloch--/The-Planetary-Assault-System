@@ -23,6 +23,7 @@ import os
 import logging
 
 from models import User
+from libs.Dispatch import Dispatch
 from libs.Session import SessionManager
 from libs.SecurityDecorators import authenticated
 from tornado.web import RequestHandler
@@ -35,7 +36,8 @@ class HomeHandler(UserBaseHandler):
     def get(self, *args, **kwargs):
         ''' Display the default user page '''
         user = User.by_user_name(self.session.data['user_name'])
-        self.render('user/home.html', user = user)
+        dispatch = Dispatch.Instance()
+        self.render('user/home.html', user = user, current_job = dispatch.current_job_name)
 
 class SettingsHandler(UserBaseHandler):
     ''' Does NOT extend BaseUserHandler '''

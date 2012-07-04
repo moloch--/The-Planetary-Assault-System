@@ -72,7 +72,7 @@ class User(BaseObject):
     
     @classmethod
     def _hash_password(cls, password, salt):
-        ''' Hashes the password using 25,000 rounds of salted SHA-256 '''
+        ''' Hashes the password using 25,000 rounds of salted SHA-256, come at me bro '''
         sha = sha256()
         sha.update(password + salt)
         for count in range(0, 25000):

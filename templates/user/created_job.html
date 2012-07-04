@@ -3,5 +3,8 @@
 {% block title %}Successfully Created Job{% end %}
 
 {% block content %}
-<h1>Created new job with {{ count }} hash(es), good hunting.</h1>
+	<h1>Target Acquired</h1>
+	<div class="well">
+		Weapon systems now targeting {{ job.name }} with {{ len(job) }} hashes, good hunting.
+	</div>
 {% end %}

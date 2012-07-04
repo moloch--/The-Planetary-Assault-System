@@ -9,24 +9,24 @@
 
 {% block content %}
 	{% if 0 != len(user.completed_jobs) %}
-				<!-- Graph Code -->
+		<!-- Graph Code -->
 		<script>
 			var pieChart;
 			Highcharts.theme = {
 			   title: {
 			      style: {
 			         color: '#FFFFFF',
-			         font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
+			         font: 'bold 20px "Trebuchet MS", Verdana, sans-serif'
 			      }
 			   },
 			   subtitle: {
-			      style: {
-			         color: '#666666',
-			         font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
-			      }
+			      	style: {
+			        	color: '#FFFFFF',
+			        	font: '14px "Trebuchet MS", Verdana, sans-serif'
+			      	}
 			   },
 			};
-
+			Highcharts.setOptions(Highcharts.theme);
 			function createGraph() {
 				pieChart = new Highcharts.Chart({
 					chart: {
@@ -34,10 +34,13 @@
 						plotBackgroundColor: null,
 						plotBorderWidth: null,
 						plotShadow: false,
-						backgroundColor:'transparent'
+						backgroundColor: 'transparent'
 					},
 					title: {
-						text: 'Password Distribution'
+						text: 'Password Analysis'
+					},
+					subtitle: {
+						text: 'Cracked Passwords'
 					},
 					tooltip: {
 						formatter: function() {
@@ -47,14 +50,14 @@
 					plotOptions: {
 						pie: {
 							allowPointSelect: true,
-							showInLegend: true,
+							showInLegend: false,
 							cursor: 'pointer',
 							dataLabels: {
 								enabled: true,
 								color: '#FFFFFF',
 								connectorColor: '#FFFFFF',
 								formatter: function() {
-									return '<strong>'+this.point.name+'</strong>';
+									return '<strong>'+this.point.name+'</strong> '+ this.percentage +' %';
 								}
 							}
 						}
@@ -73,21 +76,16 @@
 			}
 			function getStats(job_id){
 				$('#job_view').load('/ajax/jobstatistics?job_id='+job_id, function() {
-					console.log("[*] Create graph ...");
 					createGraph();
 					/* Load stats data */
-					console.log("[*] Loading data ...");
 					$.get('/ajax/jobdata?job_id=' + job_id, function(data) {
-						console.log(data);
 					  	var dataSet = $.parseJSON(data);
-					  	console.log(dataSet);
 					  	for (var index = 0; index < dataSet.length; ++index) {
 					  		$.each(dataSet[index], function(key, val) {
 							    pieChart.series[0].addPoint([key, val]);
 							});
 					  	}
 					});
-					Highcharts.setOptions(Highcharts.theme);
 					pieChart.redraw();
 				});
 			}

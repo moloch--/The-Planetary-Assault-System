@@ -128,3 +128,7 @@ class Job(BaseObject):
     def __len__(self):
         ''' Returns the number of hashes in the job '''
         return len(self.hashes)
+
+    def __str__(self):
+        ''' Returns name when str() is called '''
+        return self.name
