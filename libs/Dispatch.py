@@ -37,7 +37,7 @@ class Dispatch(object):
 
     def __init__(self):
         self.__config__()
-        self.isBusy = False
+        self.is_busy = False
         self.current_job_name = None
         self.mutex = Lock()
 
@@ -47,8 +47,8 @@ class Dispatch(object):
     def start(self, job_id):
         ''' Mostly thread safe, starts a job or adds it to the queue '''
         self.mutex.acquire()
-        if not self.isBusy:
-            self.isBusy = True
+        if not self.is_busy:
+            self.is_busy = True
             job = Job.by_id(job_id)
             self.current_job_name = str(job)
             self.mutex.release()
@@ -63,12 +63,12 @@ class Dispatch(object):
     def __crack__(self, job):
         ''' Does the actual password cracking '''
         user = User.by_id(job.user_id)
-        if user == None or job == None:
+        if user == None or job == None or len(job) == 0:
             logging.error("Invalid job passed to dispatcher.")
         else:
             algo = job.hashes[0].algorithm
             tables_path = self.config.rainbow_tables[algo]
-            logging.info("Cracking %d %s hashes for %s" % (len(job.hashes), algo, user.user_name))
+            logging.info("Cracking %d %s hashes for %s." % (len(job.hashes), algo, user.user_name))
             job.started = datetime.now()
             results = RainbowCrack.crack(len(job), job.to_list(), tables_path, maxThreads = self.config.max_threads)
             job.save_results(results)
@@ -76,13 +76,17 @@ class Dispatch(object):
             job.finished = datetime.now()
             dbsession.add(job)
             dbsession.flush()
+            self.__next__()
+
+    def __next__(self):
+        ''' Determines what to do next depending on queue state '''
         if 0 < Job.qsize():
-            logging.info("Popping job off queue, %d job(s) remain." % Job.qsize())
+            logging.info("Popping a job off the queue, %d job(s) remain." % Job.qsize())
             next_job = Job.pop()
             self.__dispatch__(next_job)
         else:
             logging.info("No jobs remain in queue, cracking thread is stopping.")
             self.mutex.acquire()
             self.current_job_name = None
-            self.isBusy = False
+            self.is_busy = False
             self.mutex.release()

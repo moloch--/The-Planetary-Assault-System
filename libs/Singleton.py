@@ -1,8 +1,5 @@
+# -*- coding: utf-8 -*-
 '''
-Created on Mar 13, 2012
-
-    Copyright [2012] [Redacted Labs]
-
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at

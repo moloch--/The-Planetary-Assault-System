@@ -49,3 +49,15 @@ class ManageUsersHandler(RequestHandler):
         self.dbsession.add(user)
         self.dbsession.flush()
         self.render("admin/approved_user.html", user = user)
+
+class ManageJobsHandler(RequestHandler):
+
+    @authorized('admin')
+    @restrict_ip_address
+    def get(self, *args, **kwargs):
+        pass
+
+    @authorized('admin')
+    @restrict_ip_address
+    def post(sefl, *args, **kwargs):
+        pass

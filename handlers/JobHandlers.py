@@ -37,7 +37,7 @@ class CreateJobHandler(UserBaseHandler):
     @authenticated
     def get(self, *args, **kwargs):
         ''' Renders the create jbo page '''
-        self.render("user/create_job.html", message = "Create a new job")
+        self.render("job/create_job.html", message = "Create a new job")
 
     @authenticated
     def post(self, *args, **kwargs):
@@ -48,7 +48,7 @@ class CreateJobHandler(UserBaseHandler):
             if len(job_name) < 3 or 15 < len(job_name):
                 raise ValueError
         except:
-            self.render("user/create_job.html", message = "Invalid Job Name")
+            self.render("job/create_job.html", message = "Invalid Job Name")
             return
         # Get algorithm
         try:
@@ -56,7 +56,7 @@ class CreateJobHandler(UserBaseHandler):
             if not algorithm in self.application.settings['rainbow_tables'].keys():
                 raise ValueError
         except:
-            self.render("user/create_job.html", message = "Invalid algorithm")
+            self.render("job/create_job.html", message = "Invalid algorithm")
             return
         # Get hashes
         try:
@@ -65,7 +65,7 @@ class CreateJobHandler(UserBaseHandler):
             if len(hashes) == 0:
                 raise ValueError
         except:
-            self.render("user/create_job.html", message = "No Hashes")
+            self.render("job/create_job.html", message = "No Hashes")
             return
         user = self.get_current_user()
         job = Job(
@@ -84,7 +84,7 @@ class CreateJobHandler(UserBaseHandler):
                 self.dbsession.add(password_hash)
         self.dbsession.flush()
         self.start_job(job)
-        self.render("user/created_job.html", job = job)
+        self.render("job/created_job.html", job = job)
 
     def filter_string(self, string):
         ''' Removes erronious chars from a string '''
@@ -101,20 +101,20 @@ class QueuedJobsHandler(UserBaseHandler):
     @authenticated
     def get(self, *args, **kwargs):
         ''' Renders the cracking queue '''
-        self.render("user/queuedjobs.html", all_users = User.get_all(), queue_size = Job.qsize())
+        self.render("job/queuedjobs.html", all_users = User.get_all(), queue_size = Job.qsize())
 
 class CompletedJobsHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
         ''' Renders the completed jobs page '''
-        self.render("user/completedjobs.html", user = self.get_current_user())
+        self.render("job/completedjobs.html", user = self.get_current_user())
 
 class DeleteJobHandler(UserBaseHandler):
 
     @authenticated
-    def post(self, *args, **kwargs):
-        ''' Deletes a job from the database '''
+    def get(self, *args, **kwargs):
+        ''' Renders the delete job modal '''
         try:
             job_id = self.get_argument("job_id")
         except:
@@ -122,14 +122,31 @@ class DeleteJobHandler(UserBaseHandler):
             return
         job = Job.by_id(job_id)
         user = self.get_current_user()
+        if job.user_id == user.id:
+            self.render("job/deletejob.html")
+
+    @authenticated
+    def post(self, *args, **kwargs):
+        ''' Deletes a job from the database '''
+        try:
+            job_id = self.get_argument("job_id")
+        except:
+            self.render("job/deletejob_error.html")
+            return
+        job = Job.by_id(job_id)
+        user = self.get_current_user()
         if job != None and user != None and job.user_id == user.id:
-            job_name = str(job.name)
-            self.dbsession.remove(job)
-            seld.dbsession.flush()
-            self.render("user/deletejob_success.html", job_name = job_name )
+            dispather = Dispatch.Instance()
+            if job.name == dispather.current_job_name:
+                self.render("job/deletejob_error.html")
+            else:
+                job_name = str(job.name)
+                self.dbsession.remove(job)
+                seld.dbsession.flush()
+                self.render("job/deletejob_success.html", job_name = job_name)
         else:
-            logging.warn("%s attempted to delete a non-existant job, or does not own job." % user.user_name)
-            self.render("user/deletejob_error.html")
+            logging.warn("%s attempted to delete a non-existant job, or a job he/she does not own." % user.user_name)
+            self.render("job/deletejob_error.html")
 
 
 class AjaxJobDetailsHandler(UserBaseHandler):
@@ -147,9 +164,9 @@ class AjaxJobDetailsHandler(UserBaseHandler):
         job = Job.by_id(job_id)
         if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
-            self.render("user/ajax_error.html", message = "Job does not exist")
+            self.render("job/ajax_error.html", message = "Job does not exist")
         else:
-            self.render("user/ajax_jobdetails.html", job = job)
+            self.render("job/ajax_jobdetails.html", job = job)
 
 class AjaxJobStatisticsHandler(UserBaseHandler):
 
@@ -166,9 +183,9 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
         job = Job.by_id(job_id)
         if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
-            self.render("user/ajax_error.html", message = "Job does not exist")
+            self.render("job/ajax_error.html", message = "Job does not exist")
         else:
-            self.render("user/ajax_jobstatistics.html", job = job)
+            self.render("job/ajax_jobstatistics.html", job = job)
 
 class AjaxJobDataHandler(UserBaseHandler):
 
