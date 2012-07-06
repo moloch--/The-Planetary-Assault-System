@@ -30,12 +30,14 @@ class ManageUsersHandler(RequestHandler):
     def initialize(self, dbsession):
         self.dbsession = dbsession
 
+    @authenticated
     @authorized('admin')
     @restrict_ip_address
     def get(self, *args, **kwargs):
         ''' Renders the manage users page '''
         self.render("admin/manage_users.html", unapproved_users = User.get_unapproved())
     
+    @authenticated
     @authorized('admin')
     @restrict_ip_address
     def post(self, *args, **kwargs):
@@ -52,11 +54,13 @@ class ManageUsersHandler(RequestHandler):
 
 class ManageJobsHandler(RequestHandler):
 
+    @authenticated
     @authorized('admin')
     @restrict_ip_address
     def get(self, *args, **kwargs):
         pass
 
+    @authenticated
     @authorized('admin')
     @restrict_ip_address
     def post(sefl, *args, **kwargs):

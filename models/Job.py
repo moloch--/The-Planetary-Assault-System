@@ -108,6 +108,33 @@ class Job(BaseObject):
         ''' Returns all common passwords in the job '''
         return filter(lambda password_hash: password_hash.is_common == True, self.solved_hashes)
 
+    def stats_solved(self):
+        ''' Returns a stats on how many hases with the job were solved/unsolved '''
+        return [{'Solved': len(self.solved_hashes)}, {'Unsolved': len(self.unsolved_hashes)}]
+
+    def stats_common(self):
+        ''' Returns stats on how many solved hash's plain text was a common password '''
+        return [{'Common': len(self.common_passwords)}, {'Uncommon': len(self.hashes) - len(self.common_passwords)}]
+
+    def stats_complexity(self):
+        ''' Returns stats on solved hash's plain text complexity '''
+        complexity = []
+        if 0 < len(self.lower_case_passwords):
+            complexity.append({'Lower Case': len(self.lower_case_passwords)})
+        if 0 < len(self.upper_case_passwords):
+            complexity.append({'Upper Case': len(self.upper_case_passwords)})
+        if 0 < len(self.numeric_passwords):
+            complexity.append({'Numeric': len(self.numeric_passwords)})
+        if 0 < len(self.mixed_case_passwords):
+            complexity.append({'Mixed Case': len(self.mixed_case_passwords)})
+        if 0 < len(self.lower_alpha_numeric_passwords):
+            complexity.append({'Lower Case Alpha-numeric': len(self.lower_alpha_numeric_passwords)})
+        if 0 < len(self.upper_alpha_numeric_passwords):
+            complexity.append({'Upper Case Alpha-numeric': len(self.upper_alpha_numeric_passwords)})
+        if 0 < len(self.mixed_alpha_numeric_passwords):
+            complexity.append({'Mixed Case Alpha-numeric': len(self.mixed_alpha_numeric_passwords)})
+        return complexity
+
     def save_results(self, results):
         ''' Save the results of the cracking session to the database '''
         for password in self.hashes:

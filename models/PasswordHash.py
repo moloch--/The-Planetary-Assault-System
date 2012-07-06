@@ -57,43 +57,51 @@ class PasswordHash(BaseObject):
     def lower_case(self):
         if not self.solved:
             raise ValueError
-        return self.__regex__("[a-z]+")
+        return self.__regex__("^[a-z]*$")
 
     @property
     def upper_case(self):
         if not self.solved:
             raise ValueError
-        return self.__regex__("[A-Z]+")
+        return self.__regex__("^[A-Z]*$")
 
     @property
     def numeric(self):
         if not self.solved:
             raise ValueError
-        return self.__regex__("[0-9]+")
+        return self.__regex__("^[0-9]*$")
 
     @property
     def mixed_case(self):
         if not self.solved:
             raise ValueError
-        return self.__regex__("[a-zA-Z]+")
+        contains_cases = self.__regex__("^(?=.*[a-z])(?=.*[A-Z]).+$")
+        only_alpha = self.__regex__("^[a-zA-Z]*$")
+        return (contains_cases and only_alpha)
 
     @property
     def lower_alpha_numeric(self):
         if not self.solved:
             raise ValueError
-        return self.__regex__("[a-z0-9]+")
+        contains_alph_numeric = self.__regex__("^(?=.*[a-z])(?=.*[0-9]).+$")
+        only_alpha_numeric = self.__regex__("^[a-z0-9]*$")
+        return (contains_alph_numeric and only_alpha_numeric)
 
     @property
     def upper_alpha_numeric(self):
         if not self.solved:
             raise ValueError
-        return self.__regex__("[A-Z0-9]+")
+        contains_alph_numeric = self.__regex__("^(?=.*[A-Z])(?=.*[0-9]).+$")
+        only_alpha_numeric = self.__regex__("^[A-Z0-9]*$")
+        return (contains_alph_numeric and only_alpha_numeric)
 
     @property
     def mixed_alpha_numeric(self):
         if not self.solved:
             raise ValueError
-        return self.__regex__("[a-zA-Z0-9]+")
+        contains_mixed_alpha_numeric = self.__regex__("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$")
+        only_mixed_alpha_numeric = self.__regex__("^[a-zA-Z0-9]*$")
+        return (contains_mixed_alpha_numeric and only_mixed_alpha_numeric)
 
     @property
     def is_common(self):
@@ -102,6 +110,7 @@ class PasswordHash(BaseObject):
         return self.plain_text.lower() in self.common_passwords
 
     def __regex__(self, expression):
+        ''' Runs a regex returns a bool '''
         regex = re.compile(expression)
         return bool(regex.match(self.plain_text))
 

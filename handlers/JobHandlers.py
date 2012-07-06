@@ -203,7 +203,8 @@ class AjaxJobDataHandler(UserBaseHandler):
             self.write(json.dumps(['error', 0]))
             self.finish()
             return
-        stats = [{'Solved': len(job.solved_hashes)}, {'Unsolved': len(job.unsolved_hashes)}]
+        stats = job.stats_complexity()
+        logging.info("[STATS]: %s" % str(stats))
         self.write(json.dumps(stats))
         self.finish()
 

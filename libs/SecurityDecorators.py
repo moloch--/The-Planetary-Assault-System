@@ -33,7 +33,7 @@ def authenticated(method):
         session = session_manager.get_session(self.get_secure_cookie('auth'), self.request.remote_ip)
         if session != None:
             return method(self, *args, **kwargs)
-        self.redirect(self.application.settings['login_url'])
+        self.render("public/404.html")
     return wrapper
 
 def restrict_ip_address(method):
