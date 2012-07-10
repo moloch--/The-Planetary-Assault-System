@@ -1,27 +1,3 @@
-<!-- Hidden Download Form -->
-<div id="downloadModal" class="modal hide fade" style="display: none; ">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">×</button>
-        <h3>Download Options</h3>
-    </div>
-    <div class="modal-body">
-        <h4>Include in Download</h4>
-        <form id="download-options" method="post" action="/download">
-        	{% raw xsrf_form_html() %}
-        	<input type="hidden" name="job_id" value="{{ job.id }}" />
-        	<input type="hidden" id="download-format" name="format" value="" />
-			<input type="checkbox" name="index" value="true" /> Index #
-			<br />
-			<input type="checkbox" name="digest" value="true" /> Hash
-			<br />
-			<input type="checkbox" name="plaintext" value="true" /> Plain text
-		</form>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" data-dismiss="modal">Close</a>
-        <button type="button" class="btn btn-primary" onclick="document.forms['download-options'].submit();">Download File</button>
-    </div>
-</div>
 <!-- Start Visable -->
 <div>
 	<h1>{{ job.name }}</h1>
@@ -42,6 +18,8 @@
 	    </ul>
 	</div>
 	<div class="well animated fadeIn">
-		<div id="pie" style="margin-left:auto; min-width:auto; width:auto; height:auto;"></div>
+		<!-- Pie Chart gets rendered to this div -->
+		<div id="pie" style="margin-left:auto; min-width:auto; width:auto; height:auto;">
+		</div>
 	</div>
 </div>

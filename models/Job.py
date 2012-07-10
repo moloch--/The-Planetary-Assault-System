@@ -19,6 +19,8 @@ Created on Mar 12, 2012
     limitations under the License.
 '''
 
+
+import json
 import logging
 
 from sqlalchemy import Column, ForeignKey, and_
@@ -35,6 +37,9 @@ class Job(BaseObject):
     priority = Column(Integer, default = 1,  nullable = False)
     completed = Column(Boolean, default = False, nullable = False)
     hashes = relationship("PasswordHash", backref = backref("Job", lazy = "joined"), cascade = "all, delete-orphan")
+    cached_complexity_analysis = Column(Unicode(256))
+    cached_solved_analysis = Column(Unicode(256))
+    cached_common_analysis = Column(Unicode(256))
     started = Column(DateTime)
     finished = Column(DateTime)
 
@@ -110,30 +115,48 @@ class Job(BaseObject):
 
     def stats_solved(self):
         ''' Returns a stats on how many hases with the job were solved/unsolved '''
-        return [{'Solved': len(self.solved_hashes)}, {'Unsolved': len(self.unsolved_hashes)}]
+        if self.cached_solved_analysis == None:
+            self.cached_solved_analysis = json.dumps([
+                {'Solved': len(self.solved_hashes)}, 
+                {'Unsolved': len(self.unsolved_hashes)}
+            ])
+            self.dbsession.add(self)
+            self.dbsession.flush()
+        return self.cached_solved_analysis
 
     def stats_common(self):
         ''' Returns stats on how many solved hash's plain text was a common password '''
-        return [{'Common': len(self.common_passwords)}, {'Uncommon': len(self.hashes) - len(self.common_passwords)}]
+        if self.cached_common_analysis == None:
+            self.cached_common_analysis = json.dumps([
+                {'Common': len(self.common_passwords)}, 
+                {'Uncommon': len(self.hashes) - len(self.common_passwords)}
+            ])
+            self.dbsession.add(self)
+            self.dbsession.flush()
+        return self.cached_common_analysis
 
     def stats_complexity(self):
         ''' Returns stats on solved hash's plain text complexity '''
-        complexity = []
-        if 0 < len(self.lower_case_passwords):
-            complexity.append({'Lower Case': len(self.lower_case_passwords)})
-        if 0 < len(self.upper_case_passwords):
-            complexity.append({'Upper Case': len(self.upper_case_passwords)})
-        if 0 < len(self.numeric_passwords):
-            complexity.append({'Numeric': len(self.numeric_passwords)})
-        if 0 < len(self.mixed_case_passwords):
-            complexity.append({'Mixed Case': len(self.mixed_case_passwords)})
-        if 0 < len(self.lower_alpha_numeric_passwords):
-            complexity.append({'Lower Case Alpha-numeric': len(self.lower_alpha_numeric_passwords)})
-        if 0 < len(self.upper_alpha_numeric_passwords):
-            complexity.append({'Upper Case Alpha-numeric': len(self.upper_alpha_numeric_passwords)})
-        if 0 < len(self.mixed_alpha_numeric_passwords):
-            complexity.append({'Mixed Case Alpha-numeric': len(self.mixed_alpha_numeric_passwords)})
-        return complexity
+        if self.cached_complexity_analysis == None:
+            complexity = []
+            if 0 < len(self.lower_case_passwords):
+                complexity.append({'Lower Case': len(self.lower_case_passwords)})
+            if 0 < len(self.upper_case_passwords):
+                complexity.append({'Upper Case': len(self.upper_case_passwords)})
+            if 0 < len(self.numeric_passwords):
+                complexity.append({'Numeric': len(self.numeric_passwords)})
+            if 0 < len(self.mixed_case_passwords):
+                complexity.append({'Mixed Case': len(self.mixed_case_passwords)})
+            if 0 < len(self.lower_alpha_numeric_passwords):
+                complexity.append({'Lower Case Alpha-numeric': len(self.lower_alpha_numeric_passwords)})
+            if 0 < len(self.upper_alpha_numeric_passwords):
+                complexity.append({'Upper Case Alpha-numeric': len(self.upper_alpha_numeric_passwords)})
+            if 0 < len(self.mixed_alpha_numeric_passwords):
+                complexity.append({'Mixed Case Alpha-numeric': len(self.mixed_alpha_numeric_passwords)})
+            self.cached_complexity_analysis = json.dumps(complexity)
+            self.dbsession.add(self)
+            self.dbsession.flush()
+        return self.cached_complexity_analysis
 
     def save_results(self, results):
         ''' Save the results of the cracking session to the database '''

@@ -19,6 +19,7 @@ Created on Mar 12, 2012
     limitations under the License.
 '''
 
+
 import re
 
 from datetime import datetime
@@ -28,19 +29,24 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.declarative import declarative_base
 
 class SimpleDatabaseObject(object):
-    ''' All database objects inherit from this object '''
+    ''' 
+    All database objects inherit from this object, it automatically
+    converts the class name to a table name, creates a primary key,
+    and a 'created' datetime column, your models should inherit from
+    'BaseObject' not 'SimpleDatabaseObject'
+    '''
         
     @declared_attr
     def __tablename__(self):
-        ''' Converts name from camel case to snake case '''
+        ''' Converts class name from camel case to snake case '''
         name = self.__name__
         return (
             name[0].lower() +
             re.sub(r'([A-Z])',
             lambda letter: "_" + letter.group(0).lower(), name[1:])
         )
-    id = Column(Integer, primary_key = True)
+    id = Column(Integer, primary_key = True, unique = True, nullable = False)
     created = Column(DateTime, default = datetime.now)
 
-# Create an instance called "BaseObject"
+# Create an instance called "BaseObject", inherit from this
 BaseObject = declarative_base(cls = SimpleDatabaseObject)

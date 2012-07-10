@@ -42,7 +42,7 @@ class User(BaseObject):
     jobs = relationship("Job", backref = backref("User", lazy = "joined"), cascade = "all, delete-orphan")
     permissions = relationship("Permission", backref = backref("User", lazy = "joined"), cascade = "all, delete-orphan")
     salt = Column(Unicode(32), unique = True, nullable = False, default = gen_salt)
-    _password = Column('password', Unicode(128))
+    _password = Column('password', Unicode(64))
     password = synonym('_password', descriptor = property(
             lambda self: self._password,
             lambda self, password: setattr(self, '_password', self.__class__._hash_password(password, self.salt))
@@ -51,7 +51,7 @@ class User(BaseObject):
         
     @classmethod
     def by_id(cls, user_id):
-        """ Return the user object whose user id is ``user_id`` """
+        """ Return the user object whose user id is user_id """
         return dbsession.query(cls).filter_by(id = user_id).first()
 
     @classmethod
@@ -62,7 +62,7 @@ class User(BaseObject):
     @classmethod
     def get_all(cls):
         """ Return all non-admin user objects """
-        return dbsession.query(cls).filter(cls.user_name != 'admin').all() 
+        return dbsession.query(cls).filter(cls.user_name != u'admin').all() 
 
     @classmethod
     def by_user_name(cls, user_name):
@@ -71,19 +71,25 @@ class User(BaseObject):
     
     @classmethod
     def _hash_password(cls, password, salt):
-        ''' Hashes the password using 25,000 rounds of salted SHA-256, come at me bro '''
+        ''' 
+        Hashes the password using 25,000 rounds of salted SHA-256, come at me bro.
+        This function will always return a unicode string, but can take an arg of
+        any type not just ascii strings, the salt will always be unicode
+        '''
         sha = sha256()
         sha.update(password + salt)
         for count in range(0, 25000):
-            sha.update(sha.hexdigest())
-        return sha.hexdigest()
+            sha.update(sha.hexdigest() + str(count))
+        return unicode(sha.hexdigest())
     
     @property
     def queued_jobs(self):
+        ''' Jobs owned by the user that have not been completed '''
         return filter(lambda job: (job.completed == False), self.jobs)
     
     @property
     def completed_jobs(self):
+        ''' Jobs owned by the user that have been completed '''
         return filter(lambda job: (job.completed == True), self.jobs)
 
     @property
@@ -95,15 +101,13 @@ class User(BaseObject):
     def permissions_names(self):
         """ Return a list with all permissions names granted to the user """
         return [permission.permission_name for permission in self.permissions]
-    
+
     def has_permission(self, permission):
         """ Return True if 'permission' is in permissions_names """
         return True if permission in self.permissions_names else False
 
     def validate_password(self, attempt):
         """ Check the password against existing credentials """
-        if isinstance(attempt, unicode):
-            attempt = attempt.encode('utf-8', 'ignore')
         return self.password == self._hash_password(attempt, self.salt)
     
     def __repr__(self):

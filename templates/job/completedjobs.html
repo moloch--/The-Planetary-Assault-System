@@ -8,6 +8,32 @@
 {% block title %}Completed Job{% end %}
 
 {% block content %}
+	<!-- Hidden Download Form -->
+	<div id="downloadModal" class="modal hide fade" style="display: none; ">
+	    <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">×</button>
+	        <h3>Download Options</h3>
+	    </div>
+	    <div class="modal-body">
+	        <h4>Include in Download</h4>
+	        <form id="download-options" method="post" action="/download">
+	        	{% raw xsrf_form_html() %}
+	        	<input type="hidden" id="download-job" name="job_id" value="" />
+	        	<input type="hidden" id="download-format" name="format" value="" />
+				<input type="checkbox" name="index" value="" /> Index #
+				<br />
+				<input type="checkbox" name="digest" value="" /> Hash
+				<br />
+				<input type="checkbox" name="plaintext" value="" /> Plain text
+				<br />
+				<input type="checkbox" name="solved" value="" /> Only Cracked Passwords
+			</form>
+	    </div>
+	    <div class="modal-footer">
+	        <a href="#" class="btn" data-dismiss="modal">Close</a>
+	        <button type="button" class="btn btn-primary" onclick="document.forms['download-options'].submit();">Download File</button>
+	    </div>
+	</div>
 	{% if 0 != len(user.completed_jobs) %}
 		<!-- Graph Code -->
 		<script>
@@ -37,7 +63,7 @@
 						backgroundColor: 'transparent'
 					},
 					title: {
-						text: 'Password Analysis'
+						text: 'Complexity Analysis'
 					},
 					subtitle: {
 						text: 'Cracked Passwords'
@@ -73,6 +99,7 @@
 				$.get('/ajax/jobdetails?job_id=' + job_id, function(data) {
 			  		document.getElementById('job_view').innerHTML = data;
 				});
+				document.getElementById('download-job').value = job_id;
 			}
 			function getStats(job_id){
 				$('#job_view').load('/ajax/jobstatistics?job_id='+job_id, function() {
@@ -83,10 +110,10 @@
 					  	for (var index = 0; index < dataSet.length; ++index) {
 					  		$.each(dataSet[index], function(key, val) {
 							    pieChart.series[0].addPoint([key, val]);
+							    pieChart.redraw();
 							});
 					  	}
 					});
-					pieChart.redraw();
 				});
 			}
 			function setDownloadFormat(format) {

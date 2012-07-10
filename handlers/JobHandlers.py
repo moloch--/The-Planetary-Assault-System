@@ -70,7 +70,7 @@ class CreateJobHandler(UserBaseHandler):
         user = self.get_current_user()
         job = Job(
             user_id = user.id,
-            name = unicode(job_name),
+            name = job_name.encode('utf-8', 'ignore'),
         )
         self.dbsession.add(job)
         self.dbsession.flush()
@@ -78,8 +78,8 @@ class CreateJobHandler(UserBaseHandler):
             if 0 < len(passwd) <= 64:
                 password_hash = PasswordHash(
                     job_id = job.id,
-                    algorithm = unicode(algorithm),
-                    digest = unicode(passwd),
+                    algorithm = algorithm.encode('utf-8', 'ignore'),
+                    digest = passwd.encode('utf-8', 'ignore'),
                 )
                 self.dbsession.add(password_hash)
         self.dbsession.flush()
@@ -116,7 +116,7 @@ class DeleteJobHandler(UserBaseHandler):
     def get(self, *args, **kwargs):
         ''' Renders the delete job modal '''
         try:
-            job_id = self.get_argument("job_id")
+            job_id = int(self.get_argument("job_id"))
         except:
             self.render("user/deletejob_error.html")
             return
@@ -129,7 +129,7 @@ class DeleteJobHandler(UserBaseHandler):
     def post(self, *args, **kwargs):
         ''' Deletes a job from the database '''
         try:
-            job_id = self.get_argument("job_id")
+            job_id = int(self.get_argument("job_id"))
         except:
             self.render("job/deletejob_error.html")
             return
@@ -155,7 +155,7 @@ class AjaxJobDetailsHandler(UserBaseHandler):
     def get(self, *args, **kwargs):
         ''' This method is called via ajax, renders job details '''
         try:
-            job_id = self.get_argument("job_id")
+            job_id = int(self.get_argument("job_id"))
         except:
             logging.warn("Bad argument passed to jobs ajax handler.")
             self.render("blank.html")
@@ -174,7 +174,7 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
     def get(self, *args, **kwargs):
         ''' This method is called via ajax, renders job statistics'''
         try:
-            job_id = self.get_argument("job_id")
+            job_id = int(self.get_argument("job_id"))
         except:
             logging.warn("Bad argument passed to jobs ajax handler.")
             self.render("blank.html")
@@ -193,7 +193,7 @@ class AjaxJobDataHandler(UserBaseHandler):
     def get(self, *args, **kwargs):
         ''' Called via AJAX, returns a JSON message containting stats data '''
         try:
-            job_id = self.get_argument("job_id")
+            job_id = int(self.get_argument("job_id"))
             job = Job.by_id(job_id)
             user = self.get_current_user()
             if job == None or user == None or job.user_id != user.id:

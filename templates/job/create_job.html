@@ -8,6 +8,9 @@
     function setAlgo(new_algo) {
         document.getElementById('algorithm').value = new_algo;
     }
+    function setFormat(fmt) {
+        document.getElementById('format').value = fmt;
+    }
   </script>
   <div class="well">
     <form action="/createjob" method="post">  
@@ -27,6 +30,16 @@
               {% for algo in handler.application.settings['rainbow_tables'].keys() %}
                 <button class="btn btn-primary" type="button" onclick="setAlgo('{{ algo }}')">{{ algo }}</button>
               {% end %}
+          </div>
+        </p>
+        <p>
+          <br />
+          <label for="format">Hash Format</label>
+          <input type="hidden" id="format" name="format" value="" />
+          <div class="btn-group" data-toggle="buttons-radio">
+                <button class="btn btn-primary" type="button" onclick="setFormat('line')">Line Seperated</button>
+                <button class="btn btn-primary" type="button" onclick="setFormat('pwd')">PWDump</button>
+                <button class="btn btn-primary" type="button" onclick="setFormat('lst')">Cain &amp; Able</button>
           </div>
         </p>
         <p>
