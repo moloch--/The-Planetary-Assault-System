@@ -41,10 +41,6 @@ from handlers.AdminHandlers import *
 from handlers.PublicHandlers import *
 
 
-### Logging configuration
-logging.basicConfig(format = '\r[%(levelname)s] %(asctime)s - %(message)s', level = logging.DEBUG)
-logging.info("The Planetary Assault System Booting Up ...")
-
 ### Check required files
 cfg_path = os.path.abspath("PlanetaryAssaultSystem.cfg")
 charset_path = os.path.abspath("charset.txt")

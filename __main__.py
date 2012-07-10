@@ -16,6 +16,12 @@
     limitations under the License.
 """
 
+
+import logging
+# Set logging configuration, this must be called prior to ANY calls to logging.XXXX
+logging.basicConfig(format = '\r[%(levelname)s] %(asctime)s - %(message)s', level = logging.DEBUG)
+logging.info("The Planetary Assault System Booting Up ...")
+
 from os import system
 from sys import argv
 from time import sleep
