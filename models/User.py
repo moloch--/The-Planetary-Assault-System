@@ -66,7 +66,7 @@ class User(BaseObject):
 
     @classmethod
     def by_user_name(cls, user_name):
-        """ Return the user object whose user name is ``user_name`` """
+        """ Return the user object whose user name is 'user_name' """
         return dbsession.query(cls).filter_by(user_name = unicode(user_name)).first()
     
     @classmethod

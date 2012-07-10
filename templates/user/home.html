@@ -5,28 +5,30 @@
 {% block content %}
 	<h1>Welcome {{ user.user_name }}</h1>
 	<br />
-	<div class="well" style="background-image: url(/static/images/planetary.png); background-size:contain; background-size:100%;">
-		<h2>Planetary Assault System Status</h2>
-		<br />
-		<p>
-			{% if current_job != None %}
-				<strong>Weapon Systems: <code> ONLINE </code> 
+	<div class="well" style="background-image: url(/static/images/planetary2.jpg); background-size:contain; background-size:100%;">
+		<div class="well">
+			<h2>Planetary Assault System Status</h2>
+			<br />
+			<p>
+				{% if current_job != None %}
+					<h4>Weapon Systems: <code> ONLINE </code> </h4>
+					<br />
+					<br />
+					<h4>Current Target: <code> {{ current_job }} </code> </h4>
+				{% else %}
+					<h4>Weapon Systems: <code> IDLE </code> </h4>
+				{% end %}
+			</p>
+		</div>
+		<div class="well">
+			<h2>Your Cracking Jobs</h2>
+			<br />
+			<p>
+				<h4>Queued Jobs: {{ len(user.queued_jobs) }} </h4>
 				<br />
 				<br />
-				<strong>Current Target:</strong> <code> {{ current_job }} </code>
-			{% else %}
-				<strong>Weapon Systems:</strong> <code> IDLE </code>
-			{% end %}
-		</p>
-	</div>
-	<div class="well">
-		<h2>Your Cracking Jobs</h2>
-		<br />
-		<p>
-			Queued Jobs: {{ len(user.queued_jobs) }} 
-			<br />
-			<br />
-			Completed Jobs: {{ len(user.completed_jobs) }}
-		</p>
+				<h4>Completed Jobs: {{ len(user.completed_jobs) }}</h4>
+			</p>
+		</div>
 	</div>
 {% end %}

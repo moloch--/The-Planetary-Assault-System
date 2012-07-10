@@ -55,24 +55,28 @@ class PasswordHash(BaseObject):
 
     @property
     def lower_case(self):
+        ''' Checks to see if the password is only lower case chars '''
         if not self.solved:
             raise ValueError
         return self.__regex__("^[a-z]*$")
 
     @property
     def upper_case(self):
+        ''' Checks to see if the password is only upper case chars '''
         if not self.solved:
             raise ValueError
         return self.__regex__("^[A-Z]*$")
 
     @property
     def numeric(self):
+        ''' Checks to see if the password is only numeric chars '''
         if not self.solved:
             raise ValueError
         return self.__regex__("^[0-9]*$")
 
     @property
     def mixed_case(self):
+        ''' Checks to see if the password is only lower/upper chars '''
         if not self.solved:
             raise ValueError
         contains_cases = self.__regex__("^(?=.*[a-z])(?=.*[A-Z]).+$")
@@ -81,6 +85,7 @@ class PasswordHash(BaseObject):
 
     @property
     def lower_alpha_numeric(self):
+        ''' Checks to see if the password is only lower case/numeric chars '''
         if not self.solved:
             raise ValueError
         contains_alph_numeric = self.__regex__("^(?=.*[a-z])(?=.*[0-9]).+$")
@@ -89,6 +94,7 @@ class PasswordHash(BaseObject):
 
     @property
     def upper_alpha_numeric(self):
+        ''' Checks to see if the password is only upper case/numeric chars '''
         if not self.solved:
             raise ValueError
         contains_alph_numeric = self.__regex__("^(?=.*[A-Z])(?=.*[0-9]).+$")
@@ -97,6 +103,7 @@ class PasswordHash(BaseObject):
 
     @property
     def mixed_alpha_numeric(self):
+        ''' Checks to see if the password is only lower/upper case and numeric chars '''
         if not self.solved:
             raise ValueError
         contains_mixed_alpha_numeric = self.__regex__("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$")
@@ -105,6 +112,7 @@ class PasswordHash(BaseObject):
 
     @property
     def is_common(self):
+        ''' Checks to see if the password is in the common password list '''
         if not self.solved:
             raise ValueError
         return self.plain_text.lower() in self.common_passwords
@@ -115,4 +123,5 @@ class PasswordHash(BaseObject):
         return bool(regex.match(self.plain_text))
 
     def __len__(self):
+        ''' Returns the length of the digest '''
         return len(self.digest)

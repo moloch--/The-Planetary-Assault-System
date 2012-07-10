@@ -8,9 +8,9 @@
 
 {% block content %}
 <h2>Queued Jobs</h2>
-	<div class="well">
+	<div class="well" style="background-image: url(/static/images/planetary.png); background-size:contain; background-size:100%;">
 		{% if queue_size != 0 %}
-			<div class="accordion" id="accordion1">
+			<div class="well accordion" id="accordion1">
 		        {% for user in all_users %}
 		        	{% for job in user.queued_jobs %}
 			            <div class="accordion-group">

@@ -51,6 +51,7 @@ if platform.system() == 'Linux':
     # === Macros ===
     INFO = bold+C+"[*] "+W
     WARN = bold+R+"[!] "+W
+    PROMPT = bold+P+"[?] "+W
 
 else:
     

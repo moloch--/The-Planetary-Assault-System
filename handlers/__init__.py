@@ -42,13 +42,9 @@ from handlers.PublicHandlers import *
 
 
 ### Check required files
-cfg_path = os.path.abspath("PlanetaryAssaultSystem.cfg")
 charset_path = os.path.abspath("charset.txt")
-if not (os.path.exists(cfg_path) and os.path.isfile(cfg_path)):
-    logging.error("No configuration file found at %s, cannot continue." % cfg_path)
-    os._exit(1)
 if not (os.path.exists(charset_path) and os.path.isfile(charset_path)):
-    logging.error("No charset file found at %s, cannot continue." % charset_path)
+    logging.critical("No charset.txt file found at %s, cannot continue." % charset_path)
     os._exit(1)
 config = ConfigManager.Instance()
 
@@ -87,7 +83,7 @@ application = Application([
     ],
                           
     # Randomly generated 64-byte secret key
-    cookie_secret = '1234' if config.debug else b64encode(urandom(64)),
+    cookie_secret = b64encode(urandom(64)),
     
     # Ip addresses that access the admin interface
     admin_ips = config.admin_ips,
@@ -100,9 +96,6 @@ application = Application([
 
     # Rainbow table directories
     rainbow_tables = config.rainbow_tables,
-    
-    # Requests that do not pass @authenticated  will be redirected here
-    login_url = '/login',
     
     # UI Modules
     ui_modules = {"Menu": Menu},

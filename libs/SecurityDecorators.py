@@ -33,6 +33,8 @@ def authenticated(method):
         session = session_manager.get_session(self.get_secure_cookie('auth'), self.request.remote_ip)
         if session != None:
             return method(self, *args, **kwargs)
+        # Just render a 404 page, instead of redirecting - this prevents people from enumerating
+        # legitimate URLs based on if the page is a 404 or 302
         self.render("public/404.html")
     return wrapper
 
