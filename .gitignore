@@ -16,6 +16,9 @@ develop-eggs
 # RainbowCrack files
 rcracki.*
 
+# Log files
+*.log
+
 # Installer logs
 pip-log.txt
 

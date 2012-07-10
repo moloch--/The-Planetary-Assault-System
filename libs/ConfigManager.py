@@ -21,6 +21,8 @@ Created on June 30, 2012
 
 
 import os
+import sys
+import getpass
 import logging
 import ConfigParser
 
@@ -39,6 +41,7 @@ class ConfigManager(object):
         self.__system__()
         self.__network__()
         self.__security__()
+        self.__database__()
 
     def __tables__(self):
         ''' Load rainbow table configurations '''
@@ -69,3 +72,18 @@ class ConfigManager(object):
         if not '127.0.0.1' in ips:
             ips.append('127.0.0.1')
         self.admin_ips = tuple(ips)
+
+    def __database__(self):
+        ''' Loads database connection information '''
+        self.db_server = self.config.get("Database", 'server')
+        self.db_name = self.config.get("Database", 'name')
+        user = self.config.get("Database", 'user')
+        if user == 'RUNTIME':
+            user = raw_input("[?] Database user: ")
+        self.db_user = user
+        password = self.config.get("Database", 'password')
+        if password == 'RUNTIME':
+            sys.stdout.write("[?] Database ")
+            sys.stdout.flush()
+            password = getpass.getpass()
+        self.db_password = password

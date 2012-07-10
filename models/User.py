@@ -19,7 +19,6 @@ Created on Mar 12, 2012
     limitations under the License.
 '''
 
-import logging
 
 from os import urandom
 from base64 import b64encode

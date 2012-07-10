@@ -204,7 +204,6 @@ class AjaxJobDataHandler(UserBaseHandler):
             self.finish()
             return
         stats = job.stats_complexity()
-        logging.info("[STATS]: %s" % str(stats))
         self.write(json.dumps(stats))
         self.finish()
 
