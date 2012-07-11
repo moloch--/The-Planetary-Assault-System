@@ -25,10 +25,11 @@ pip install --upgrade pip &&
 pip install --upgrade virtualenv
 
 echo "[*] Installing packages ..."
-apt-get install mysql-server python-mysqldb python-mysqldb-dbg python-pycurl python-recaptcha python-jsonpickle python-simplejson
+apt-get install mysql-server python-mysqldb python-mysqldb-dbg python-pycurl python-recaptcha
 
-echo "[*] Installing tornado/sqlalchemy ..."
+echo "[*] Installing Python libs ..."
 /usr/local/bin/pip install tornado
 /usr/local/bin/pip install sqlalchemy
+/usr/local/bin/pip install rpyc
 
 echo "[*] Setup Completed."

@@ -33,7 +33,7 @@ from models.BaseObject import BaseObject
 class Job(BaseObject):
 
     user_id = Column(Integer, ForeignKey('user.id'), nullable = False)
-    name = Column(Unicode(64), nullable = False)
+    name = Column(Unicode(64), unique = True, nullable = False)
     priority = Column(Integer, default = 1,  nullable = False)
     completed = Column(Boolean, default = False, nullable = False)
     hashes = relationship("PasswordHash", backref = backref("Job", lazy = "joined"), cascade = "all, delete-orphan")
@@ -45,12 +45,12 @@ class Job(BaseObject):
 
     @classmethod
     def by_id(cls, job_id):
-        """ Return the user object whose user id is 'job_id' """
+        """ Return the job object whose user id is 'job_id' """
         return dbsession.query(cls).filter_by(id = job_id).first()
     
     @classmethod
     def by_job_name(cls, job_name):
-        """ Return the user object whose user name is 'job_name' """
+        """ Return the job object whose user name is 'job_name' """
         return dbsession.query(cls).filter_by(name = unicode(job_name)).first()
 
     @classmethod
@@ -61,7 +61,7 @@ class Job(BaseObject):
     @classmethod
     def pop(cls):
         ''' Pop a job off the "queue" or return None if not jobs remain '''
-        return dbsession.query(cls).filter_by(completed = False).order_by(cls.priority).order_by(cls.created).first()
+        return dbsession.query(cls).filter_by(completed = False).order_by(cls.created).first()
 
     @property
     def solved_hashes(self):
@@ -165,8 +165,10 @@ class Job(BaseObject):
                 password.plain_text = unicode(results[password.digest])
                 if results[password.digest] != "<Not Found>":
                     password.solved = True
+                dbsession.add(password)
             except KeyError:
                 logging.error("A database hash is missing from the result set (%s)" % (password.digest))
+        dbsession.flush()
 
     def to_list(self):
         ''' Returns all hash digests as a Python list '''

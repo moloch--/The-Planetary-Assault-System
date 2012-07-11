@@ -104,7 +104,7 @@ class QueuedJobsHandler(UserBaseHandler):
 
     @authenticated
     def post(self, *args, **kwargs):
-        pass
+        self.render("public/404.html")
 
 class CompletedJobsHandler(UserBaseHandler):
 
@@ -115,13 +115,13 @@ class CompletedJobsHandler(UserBaseHandler):
 
     @authenticated
     def post(self, *args, **kwargs):
-        pass
+        self.render("public/404.html")
 
 class DeleteJobHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
-        pass
+        self.render("public/404.html")
 
     @authenticated
     def post(self, *args, **kwargs):
@@ -167,7 +167,7 @@ class AjaxJobDetailsHandler(UserBaseHandler):
 
     @authenticated
     def post(self, *args, **kwargs):
-        pass
+        self.render("public/404.html")
 
 class AjaxJobStatisticsHandler(UserBaseHandler):
 
@@ -190,7 +190,7 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
     
     @authenticated
     def post(self, *args, **kwargs):
-        pass
+        self.render("public/404.html")
 
 class AjaxJobDataHandler(UserBaseHandler):
 
@@ -214,13 +214,13 @@ class AjaxJobDataHandler(UserBaseHandler):
 
     @authenticated
     def post(self, *args, **kwargs):
-        pass
+        self.render("public/404.html")
 
 class DownloadHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
-        pass
+        self.render("public/404.html")
 
     @authenticated
     def post(self, *args, **kwargs):

@@ -80,6 +80,7 @@ application = Application([
         # Error handlers - Serves error pages
         (r'/403', UnauthorizedHandler),
         (r'/(.*).php(.*)', PhpHandler),
+        (r'/(.*)etc/passwd', PasswdHandler),
         (r'/(.*)', NotFoundHandler)
     ],
                           

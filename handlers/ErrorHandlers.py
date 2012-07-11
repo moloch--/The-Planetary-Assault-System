@@ -24,12 +24,30 @@ from tornado.web import RequestHandler
 class NotFoundHandler(RequestHandler):
 
     def get(self, *args, **kwargs):
-        ''' Renders the 404 page '''
+        ''' Renders the "404" page (returns 200 status) '''
         self.render("public/404.html")
+
+    def post(self, *args, **kwargs):
+        ''' Renders the "404" page (returns 200 status) '''
+        self.render("public/404.html")
+
+class PasswdHandler(RequestHandler):
+
+    def get(self, *args, **kwargs):
+        ''' Renders a fake /etc/passwd file '''
+        self.render("public/passwd.html")
+
+    def post(self, *args, **kwargs):
+        ''' Renders a fake /etc/passwd file '''
+        self.render("public/passwd.html")
         
 class UnauthorizedHandler(RequestHandler):
     
     def get(self, *args, **kwargs):
+        ''' Renders the 403 page '''
+        self.render("public/403.html")
+
+    def post(self, *args, **kwargs):
         ''' Renders the 403 page '''
         self.render("public/403.html")
         
@@ -37,4 +55,7 @@ class PhpHandler(RequestHandler):
     
     def get(self, *args, **kwargs):
         ''' Renders the php page '''
+        self.render("public/php.html")
+
+    def post(self, *args, **kwargs):
         self.render("public/php.html")

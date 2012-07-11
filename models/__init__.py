@@ -31,7 +31,6 @@ metadata = BaseObject.metadata
 
 config = ConfigManager.Instance()
 db_connection = 'mysql://%s:%s@%s/%s' % (config.db_user, config.db_password, config.db_server, config.db_name)
-#db_connection = 'mysql://planAltSys:planAltSys@localhost/PlanAltSys'
 engine = create_engine(db_connection)
 Session = sessionmaker(bind = engine, autocommit = True)
 
@@ -43,6 +42,7 @@ from models.Job import Job
 from models.PasswordHash import PasswordHash
 from models.Permission import Permission
 from models.User import User
+from models.WeaponSystem import WeaponSystem
 
 # Calling this will create the tables at the database
 __create__ = lambda: (setattr(engine, 'echo', True), metadata.create_all(engine))

@@ -44,18 +44,22 @@ class UserBaseHandler(RequestHandler):
     def put(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
         logging.warn("%s attempted to use PUT method" % self.request.remote_ip)
+        self.render("public/404.html")
     
     @authenticated
     def delete(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
         logging.warn("%s attempted to use DELETE method" % self.request.remote_ip)
+        self.render("public/404.html")
 
     @authenticated
     def head(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
         logging.warn("%s attempted to use HEAD method" % self.request.remote_ip)
+        self.render("public/404.html")
 
     @authenticated
     def options(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
         logging.warn("%s attempted to use OPTIONS method" % self.request.remote_ip)
+        self.render("public/404.html")
