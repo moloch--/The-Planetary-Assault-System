@@ -34,6 +34,24 @@
 	        <button type="button" class="btn btn-primary" onclick="document.forms['download-options'].submit();">Download File</button>
 	    </div>
 	</div>
+	<!-- Hidden Delete Form -->
+	<div id="deleteModal" class="modal hide fade" style="display: none; ">
+	    <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal">×</button>
+	        <h3>Delete Job</h3>
+	    </div>
+	    <div class="modal-body">
+	        <h4>Are you sure you want to delete this job?</h4>
+	    </div>
+	    <form id="deletejob" action="/deletejob" method="post">
+	    	{% raw xsrf_form_html() %}
+	    	<input type="hidden" id="delete_job_id" name="job_id" value=""/>
+	    </form>
+	    <div class="modal-footer">
+	        <a href="#" class="btn" data-dismiss="modal">Close</a>
+	        <button type="button" class="btn btn-danger" onclick="document.forms['deletejob'].submit();">Delete Job</button>
+	    </div>
+	</div>
 	{% if 0 != len(user.completed_jobs) %}
 		<!-- Graph Code -->
 		<script>
@@ -70,7 +88,7 @@
 					},
 					tooltip: {
 						formatter: function() {
-							return '<strong>'+ this.point.name +'</strong>: '+ this.percentage +' %';
+							return '<strong>'+ this.point.name +'</strong>: '+ (this.percentage).toString().slice(0,5) +' %';
 						}
 					},
 					plotOptions: {
@@ -83,7 +101,7 @@
 								color: '#FFFFFF',
 								connectorColor: '#FFFFFF',
 								formatter: function() {
-									return '<strong>'+this.point.name+'</strong> '+ this.percentage +' %';
+									return '<strong>'+this.point.name+'</strong> '+ (this.percentage).toString().slice(0,5) +' %';
 								}
 							}
 						}
@@ -101,23 +119,28 @@
 				});
 				document.getElementById('download-job').value = job_id;
 			}
-			function getStats(job_id){
+			function getStats(job_id) {
 				$('#job_view').load('/ajax/jobstatistics?job_id='+job_id, function() {
 					createGraph();
 					/* Load stats data */
 					$.get('/ajax/jobdata?job_id=' + job_id, function(data) {
 					  	var dataSet = $.parseJSON(data);
 					  	for (var index = 0; index < dataSet.length; ++index) {
+					  		console.log(dataSet);
 					  		$.each(dataSet[index], function(key, val) {
+					  			console.log([key, val]);
 							    pieChart.series[0].addPoint([key, val]);
-							    pieChart.redraw();
 							});
 					  	}
+					  	pieChart.redraw();
 					});
 				});
 			}
 			function setDownloadFormat(format) {
 				document.getElementById('download-format').value = format;
+			}
+			function setDeleteJob(job_id) {
+				document.getElementById('delete_job_id').value = job_id;
 			}
 		</script>
         <!-- Static Parts -->

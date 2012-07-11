@@ -35,6 +35,27 @@ class UserBaseHandler(RequestHandler):
         self.session = self.session_manager.get_session(self.get_secure_cookie('auth'), self.request.remote_ip)
     
     def get_current_user(self):
+        ''' Returns the current user, or None '''
         if self.session != None:
             return User.by_user_name(self.session.data['user_name'])
         return None
+
+    @authenticated
+    def put(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use PUT method" % self.request.remote_ip)
+    
+    @authenticated
+    def delete(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use DELETE method" % self.request.remote_ip)
+
+    @authenticated
+    def head(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use HEAD method" % self.request.remote_ip)
+
+    @authenticated
+    def options(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use OPTIONS method" % self.request.remote_ip)

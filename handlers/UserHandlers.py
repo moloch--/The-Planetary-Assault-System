@@ -39,6 +39,10 @@ class HomeHandler(UserBaseHandler):
         dispatch = Dispatch.Instance()
         self.render('user/home.html', user = user, current_job = dispatch.current_job_name)
 
+    @authenticated
+    def post(self, *args, **kwargs):
+        pass
+
 class SettingsHandler(UserBaseHandler):
     ''' Does NOT extend BaseUserHandler '''
     
@@ -98,4 +102,3 @@ class LogoutHandler(RequestHandler):
         session_manager.remove_session(self.get_secure_cookie('auth'))
         self.clear_all_cookies()
         self.redirect("/")
-    

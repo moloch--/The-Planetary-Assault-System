@@ -31,7 +31,6 @@ from libs.Session import SessionManager
 from libs.SecurityDecorators import authenticated
 from BaseHandlers import UserBaseHandler
 
-
 class CreateJobHandler(UserBaseHandler):
 
     @authenticated
@@ -70,7 +69,7 @@ class CreateJobHandler(UserBaseHandler):
         user = self.get_current_user()
         job = Job(
             user_id = user.id,
-            name = job_name.encode('utf-8', 'ignore'),
+            name = unicode(job_name),
         )
         self.dbsession.add(job)
         self.dbsession.flush()
@@ -78,8 +77,8 @@ class CreateJobHandler(UserBaseHandler):
             if 0 < len(passwd) <= 64:
                 password_hash = PasswordHash(
                     job_id = job.id,
-                    algorithm = algorithm.encode('utf-8', 'ignore'),
-                    digest = passwd.encode('utf-8', 'ignore'),
+                    algorithm = unicode(algorithm),
+                    digest = unicode(passwd),
                 )
                 self.dbsession.add(password_hash)
         self.dbsession.flush()
@@ -103,6 +102,10 @@ class QueuedJobsHandler(UserBaseHandler):
         ''' Renders the cracking queue '''
         self.render("job/queuedjobs.html", all_users = User.get_all(), queue_size = Job.qsize())
 
+    @authenticated
+    def post(self, *args, **kwargs):
+        pass
+
 class CompletedJobsHandler(UserBaseHandler):
 
     @authenticated
@@ -110,20 +113,15 @@ class CompletedJobsHandler(UserBaseHandler):
         ''' Renders the completed jobs page '''
         self.render("job/completedjobs.html", user = self.get_current_user())
 
+    @authenticated
+    def post(self, *args, **kwargs):
+        pass
+
 class DeleteJobHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
-        ''' Renders the delete job modal '''
-        try:
-            job_id = int(self.get_argument("job_id"))
-        except:
-            self.render("user/deletejob_error.html")
-            return
-        job = Job.by_id(job_id)
-        user = self.get_current_user()
-        if job.user_id == user.id:
-            self.render("job/deletejob.html")
+        pass
 
     @authenticated
     def post(self, *args, **kwargs):
@@ -131,23 +129,22 @@ class DeleteJobHandler(UserBaseHandler):
         try:
             job_id = int(self.get_argument("job_id"))
         except:
-            self.render("job/deletejob_error.html")
+            self.render("job/ajax_error.html", message = "Job does not exist")
             return
         job = Job.by_id(job_id)
         user = self.get_current_user()
         if job != None and user != None and job.user_id == user.id:
             dispather = Dispatch.Instance()
             if job.name == dispather.current_job_name:
-                self.render("job/deletejob_error.html")
+                self.render("job/ajax_error.html", message = "Cannot delete job while it is in progress")
             else:
                 job_name = str(job.name)
-                self.dbsession.remove(job)
-                seld.dbsession.flush()
+                self.dbsession.delete(job)
+                self.dbsession.flush()
                 self.render("job/deletejob_success.html", job_name = job_name)
         else:
             logging.warn("%s attempted to delete a non-existant job, or a job he/she does not own." % user.user_name)
-            self.render("job/deletejob_error.html")
-
+            self.render("job/ajax_error.html", message = "Job does not exist")
 
 class AjaxJobDetailsHandler(UserBaseHandler):
 
@@ -168,11 +165,15 @@ class AjaxJobDetailsHandler(UserBaseHandler):
         else:
             self.render("job/ajax_jobdetails.html", job = job)
 
+    @authenticated
+    def post(self, *args, **kwargs):
+        pass
+
 class AjaxJobStatisticsHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
-        ''' This method is called via ajax, renders job statistics'''
+        ''' This method is called via ajax, renders job statistics '''
         try:
             job_id = int(self.get_argument("job_id"))
         except:
@@ -186,6 +187,10 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
             self.render("job/ajax_error.html", message = "Job does not exist")
         else:
             self.render("job/ajax_jobstatistics.html", job = job)
+    
+    @authenticated
+    def post(self, *args, **kwargs):
+        pass
 
 class AjaxJobDataHandler(UserBaseHandler):
 
@@ -204,10 +209,18 @@ class AjaxJobDataHandler(UserBaseHandler):
             self.finish()
             return
         stats = job.stats_complexity()
-        self.write(json.dumps(stats))
+        self.write(stats)
         self.finish()
 
+    @authenticated
+    def post(self, *args, **kwargs):
+        pass
+
 class DownloadHandler(UserBaseHandler):
+
+    @authenticated
+    def get(self, *args, **kwargs):
+        pass
 
     @authenticated
     def post(self, *args, **kwargs):

@@ -62,6 +62,7 @@ application = Application([
         # Job Handlers - Serves job related pages
         (r'/createjob', CreateJobHandler, {'dbsession': dbsession}),
         (r'/queuedjobs', QueuedJobsHandler, {'dbsession': dbsession}),
+        (r'/deletejob', DeleteJobHandler, {'dbsession': dbsession}),
         (r'/completedjobs', CompletedJobsHandler, {'dbsession': dbsession}),
         (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {'dbsession': dbsession}),
         (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {'dbsession': dbsession}),

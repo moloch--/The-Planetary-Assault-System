@@ -120,8 +120,8 @@ class Job(BaseObject):
                 {'Solved': len(self.solved_hashes)}, 
                 {'Unsolved': len(self.unsolved_hashes)}
             ])
-            self.dbsession.add(self)
-            self.dbsession.flush()
+            dbsession.add(self)
+            dbsession.flush()
         return self.cached_solved_analysis
 
     def stats_common(self):
@@ -131,8 +131,8 @@ class Job(BaseObject):
                 {'Common': len(self.common_passwords)}, 
                 {'Uncommon': len(self.hashes) - len(self.common_passwords)}
             ])
-            self.dbsession.add(self)
-            self.dbsession.flush()
+            dbsession.add(self)
+            dbsession.flush()
         return self.cached_common_analysis
 
     def stats_complexity(self):
@@ -154,8 +154,8 @@ class Job(BaseObject):
             if 0 < len(self.mixed_alpha_numeric_passwords):
                 complexity.append({'Mixed Case Alpha-numeric': len(self.mixed_alpha_numeric_passwords)})
             self.cached_complexity_analysis = json.dumps(complexity)
-            self.dbsession.add(self)
-            self.dbsession.flush()
+            dbsession.add(self)
+            dbsession.flush()
         return self.cached_complexity_analysis
 
     def save_results(self, results):
