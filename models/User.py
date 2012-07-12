@@ -58,7 +58,12 @@ class User(BaseObject):
     def get_unapproved(cls):
         """ Return all unapproved user objects """
         return dbsession.query(cls).filter_by(approved = False).all()
-    
+
+    @classmethod
+    def get_approved(cls):
+        """ Return all approved user objects """
+        return dbsession.query(cls).filter_by(approved = True).all()
+
     @classmethod
     def get_all(cls):
         """ Return all non-admin user objects """

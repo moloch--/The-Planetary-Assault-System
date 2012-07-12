@@ -8,6 +8,7 @@ Requirements
 * MySQL v5.5.x
 * Tornado Web v2.x
 * SQL Alchemy v0.7.x
+* RPyC v3.x
 * Debian/Ubuntu recommened, but should run on any Linux or BSD system
 
 Setup

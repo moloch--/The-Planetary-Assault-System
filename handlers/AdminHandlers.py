@@ -22,20 +22,20 @@ Created on Mar 13, 2012
 import logging
 
 from models import User
-from tornado.web import RequestHandler
+from handlers.BaseHandlers import AdminBaseHandler
 from libs.SecurityDecorators import *
 
-class ManageUsersHandler(RequestHandler):
-    
-    def initialize(self, dbsession):
-        self.dbsession = dbsession
+class ManageUsersHandler(AdminBaseHandler):
 
     @authenticated
     @authorized('admin')
     @restrict_ip_address
     def get(self, *args, **kwargs):
         ''' Renders the manage users page '''
-        self.render("admin/manage_users.html", unapproved_users = User.get_unapproved())
+        self.render("admin/manage_users.html", 
+            unapproved_users = User.get_unapproved(),
+            approved_users = User.get_approved(),
+        )
     
     @authenticated
     @authorized('admin')
@@ -52,7 +52,21 @@ class ManageUsersHandler(RequestHandler):
         self.dbsession.flush()
         self.render("admin/approved_user.html", user = user)
 
-class ManageJobsHandler(RequestHandler):
+class ManageJobsHandler(AdminBaseHandler):
+
+    @authenticated
+    @authorized('admin')
+    @restrict_ip_address
+    def get(self, *args, **kwargs):
+        pass
+
+    @authenticated
+    @authorized('admin')
+    @restrict_ip_address
+    def post(sefl, *args, **kwargs):
+        pass
+
+class ManageWeaponSystemsHandler(AdminBaseHandler):
 
     @authenticated
     @authorized('admin')

@@ -19,6 +19,7 @@ Created on Mar 13, 2012
     limitations under the License.
 '''
 
+
 import os
 import logging
 
@@ -49,7 +50,7 @@ class LoginHandler(RequestHandler):
         ''' Checks login creds '''
         try:
             user_name = self.get_argument('username')
-            user = User.by_user_name(user_name.encode('utf-8', 'ignore'))
+            user = User.by_user_name(user_name)
         except:
             self.render('public/login.html', message = "Type in an account name")
             return

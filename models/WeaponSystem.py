@@ -26,6 +26,7 @@ from models import dbsession
 from models.BaseObject import BaseObject
 
 class WeaponSystem(BaseObject):
+    ''' Holds configuration information for remote agents '''
 
     name = Column(Unicode(64), unique = True, nullable = False)
     ip_address = Column(Unicode(64), unique = True, nullable = False)

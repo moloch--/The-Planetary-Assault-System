@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 '''
 Created on June 23, 2012
 
@@ -20,8 +20,11 @@ Created on June 23, 2012
 '''
 
 
+import os
+import sys
 import rpyc
 import logging
+import ConfigParser
 import RainbowCrack
 
 ### Logging configuration
@@ -37,7 +40,7 @@ if not (os.path.exists(cfg_path) and os.path.isfile(cfg_path)):
     os._exit(1)
 logging.info('Loading config from: %s' % cfg_path)
 config = ConfigParser.SafeConfigParser()
-config.readfp(open(self.cfg_path, 'r'))
+config.readfp(open(cfg_path, 'r'))
 
 ### RPC Services
 class WeaponSystem(rpyc.Service):
