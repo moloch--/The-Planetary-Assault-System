@@ -26,6 +26,7 @@ import rpyc
 import logging
 import platform
 import ConfigParser
+import multiprocessing
 
 ### Detect CPU architecture
 if platform.architecture()[0] == '64bit':
@@ -52,21 +53,29 @@ config.readfp(open(cfg_path, 'r'))
 class WeaponSystem(rpyc.Service):
 
     def on_connect(self):
-        ''' Called when successfully connected '''
-        logging.info("Successfully attached to the Planetary Assault System")
+        ''' Called when successfully connected, does all the initialization '''
+        logging.info("Uplink to orbital control active; weapon system initializing ...")
         self.is_busy = False
+        self.__cpu__()
         self.rainbow_tables = {}
         self.__tables__()
+        logging.info("Weapon system online, good hunting.")
 
     def on_disconnect(self):
         ''' Called if the connection is lost '''
-        logging.error("Lost communication with the Planetary Assault System")
+        logging.error("Lost communication with the Planetary Assault System.")
         self.is_busy = False
         self.rainbow_tables = {}
 
-    def exposed_crack_list(self, hashes):
+    def exposed_crack_list(self, hashes, hash_type, threads = 0):
         ''' Cracks a list of hashes '''
-        pass
+        if threads <= 0:
+            threads = self.cpu_cores
+        try:
+            tables = self.rainbow_tables[hash_type]
+            RainbowCrack.hash_list(len(hashes), hashes, tables, maxThreads = threads)
+        except KeyError:
+            logging.error("Invalid hash type (%s), cannot crack." % hash_type)
 
     def exposed_get_capabilities(self):
         ''' Returns what algorithms can be cracked '''
@@ -79,6 +88,27 @@ class WeaponSystem(rpyc.Service):
     def exposed_is_busy(self):
         ''' Returns True/False if the current system is busy '''
         return self.is_busy
+
+    def exposed_cpu_count(self):
+        ''' Returns the number of detected cpu cores '''
+        return self.cpu_cores
+
+    def __cpu__(self):
+        ''' Detects the number of CPU cores on a system (including virtual cores) '''
+        if multiprocessing is not None:
+            try:
+                self.cpu_cores = multiprocessing.cpu_count()
+                logging.info("Detected %d CPU core(s)." % self.cpu_cores)
+            except NotImplementedError:
+                logging.error("Could not detect number of processors; assuming 1.")
+                self.cpu_cores = 1
+        else:
+            try:
+                self.cpu_cores = os.sysconf("SC_NPROCESSORS_CONF")
+                logging.info("Detected %d CPU core(s)." % self.cpu_cores)
+            except ValueError:
+                logging.error("Could not detect number of processors; assuming 1.")
+                self.cpu_cores = 1
 
     def __tables__(self):
         ''' Load rainbow table configurations '''
@@ -95,4 +125,5 @@ class WeaponSystem(rpyc.Service):
 if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer
     agent = ThreadedServer(WeaponSystem, port = config.getint("Network", 'lport'))
+    logging.info("Weapon system ready, waiting for orbital control uplink ...")
     agent.start()

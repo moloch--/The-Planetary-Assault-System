@@ -45,7 +45,6 @@ class HomeHandler(UserBaseHandler):
         pass
 
 class SettingsHandler(UserBaseHandler):
-    ''' Does NOT extend BaseUserHandler '''
     
     @authenticated
     def get(self, *args, **kwargs):

@@ -129,7 +129,7 @@ def start_server():
         io_loop = io_loop
     )
     try:
-        logging.info("Weapon systems online, good hunting.")
+        logging.info("Orbital control is now online, good hunting.")
         io_loop.start()
         session_clean_up.start()
     except KeyboardInterrupt:
