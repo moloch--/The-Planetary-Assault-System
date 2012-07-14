@@ -52,6 +52,10 @@ class WeaponSystem(BaseObject):
         return dbsession.query(cls).filter_by(ip_address = weapon_ip_address).first()
 
     @classmethod
+    def get_capabilities(cls):
+        return ['MD5',  'LM', 'NTLM']
+
+    @classmethod
     def all_lm_capable(cls):
         """ Return all the WeaponSystem objects that are lm capable """
         return dbsession.query(cls).filter_by(lm_capable = True).all()

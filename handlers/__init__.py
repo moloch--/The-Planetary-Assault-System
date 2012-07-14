@@ -95,9 +95,6 @@ application = Application([
     
     # Requests that do not pass @authorized will be redirected here
     forbidden_url = '/403',
-
-    # Rainbow table directories
-    rainbow_tables = config.rainbow_tables,
     
     # UI Modules
     ui_modules = {"Menu": Menu},

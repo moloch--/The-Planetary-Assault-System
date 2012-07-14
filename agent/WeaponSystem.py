@@ -24,8 +24,14 @@ import os
 import sys
 import rpyc
 import logging
+import platform
 import ConfigParser
-import RainbowCrack
+
+### Detect CPU architecture
+if platform.architecture()[0] == '64bit':
+    import x86_64.RainbowCrack as RainbowCrack
+else:
+    import x86.RainbowCrack as RainbowCrack
 
 ### Logging configuration
 logging.basicConfig(format = '\r[%(levelname)s] %(asctime)s - %(message)s', level = logging.DEBUG)
@@ -58,7 +64,7 @@ class WeaponSystem(rpyc.Service):
         self.is_busy = False
         self.rainbow_tables = {}
 
-    def exposed_crack_list(self):
+    def exposed_crack_list(self, hashes):
         ''' Cracks a list of hashes '''
         pass
 
