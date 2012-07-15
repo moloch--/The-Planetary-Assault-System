@@ -97,7 +97,7 @@ class WeaponSystem(rpyc.Service):
 
     def __cpu__(self):
         ''' Detects the number of CPU cores on a system (including virtual cores) '''
-        if cpu_count != None
+        if cpu_count != None:
             try:
                 self.cpu_cores = multiprocessing.cpu_count()
                 logging.info("Detected %d CPU core(s)" % self.cpu_cores)
