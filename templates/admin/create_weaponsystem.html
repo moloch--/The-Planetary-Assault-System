@@ -1,0 +1,45 @@
+{% extends "../main.html" %}
+
+{% block title %}Orbital Control Uplink{% end %}
+
+{% block content %}
+  <h2>Orbital Control Uplink</h2>
+  <br />
+    <div class="well">
+      <form action="/addweaponsystem" method="post" autocomplete="off">  
+        {% raw xsrf_form_html() %}
+        <fieldset>
+          <legend>{{ message }}</legend>
+          <p>
+            <br />
+            <label for="name">Weapon System Name</label>
+            <input placeholder="Weapon System Name" type="text" name="name" id="name" />
+          </p>
+          <p>
+            <label for="ipaddress">IP Address</label>
+            <input placeholder="IP Address" type="text" name="ipaddress" id="ipaddress" />
+          </p>
+          <p>
+            <label for="sshuser">SSH User Name</label>
+            <input placeholder="SSH User Name" type="text" name="sshuser" id="sshuser" />
+          </p>
+          <p>
+            <label for="sshkey">SSH Key Authentication</label>
+            <textarea placeholder="SSH Private Key" style="width:auto" name="sshkey" rows="10" cols="70">
+            </textarea>
+          </p>
+          <p>
+            <label for="sshport">SSH Listen Port (Default 22)</label>
+            <input placeholder="SSH Listen Port" type="text" name="sshport" id="sshport" value="22" />
+          </p>
+          <p>
+            <label for="lport">Service Listen Port (Default 31337)</label>
+            <input placeholder="Service Listen Port" type="text" name="srvport" id="srvport" value="31337"/>
+          </p>
+        <br />
+        <p class="submit">
+          <button class="btn btn-primary btn-large" data-loading-text="loading..." type="submit">&nbsp;Add Weapon System&nbsp;</button>
+        </p>
+      </form>
+    </div>
+{% end %}

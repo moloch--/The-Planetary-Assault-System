@@ -1,6 +1,5 @@
 <ul class="nav">
-
-
+    <!-- Home -->
 	{% if uri == "/user" %}
     	<li class="active">
     {% else %}
@@ -8,7 +7,7 @@
     {% end %}
     	<a href="/user">Admin Home</a>
     </li>
-
+    <!-- Manage Users -->
 	{% if uri == "/manageusers" %}
     	<li class="active">
     {% else %}
@@ -16,7 +15,16 @@
     {% end %}
     	<a href="/manageusers">Manage Users</a>
     </li>
-
+    <!-- Orbital Control -->
+    <li class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Orbital Control&nbsp;<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            <li class="nav-header">Weapon Systems</li>
+            <li><a href="/addweaponsystem">Add a Weapon System</a></li>
+            <li><a href="/editweaponsystem">Edit Weapon Systems</a></li>
+        </ul>
+    </li>
+    <!-- Logout -->
     <li>
     	<a href="/logout">Logout</a>
     </li>

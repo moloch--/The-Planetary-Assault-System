@@ -55,6 +55,11 @@ class User(BaseObject):
         return dbsession.query(cls).filter_by(id = user_id).first()
 
     @classmethod
+    def by_id(cls, user_uuid):
+        """ Return the user object whose user uuid is user_uuid """
+        return dbsession.query(cls).filter_by(uuid = unicode(user_uuid)).first()
+
+    @classmethod
     def get_unapproved(cls):
         """ Return all unapproved user objects """
         return dbsession.query(cls).filter_by(approved = False).all()

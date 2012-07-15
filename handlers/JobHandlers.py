@@ -41,14 +41,35 @@ class CreateJobHandler(UserBaseHandler):
     @authenticated
     def post(self, *args, **kwargs):
         ''' Creates a job based on the parameters '''
-        # Get job name
+        if self.validate_form():
+            user = self.get_current_user()
+            job = Job(
+                user_id = user.id,
+                name = unicode(self.job_name),
+            )
+            self.dbsession.add(job)
+            self.dbsession.flush()
+            for passwd in self.hashes:
+                if 0 < len(passwd) <= 64:
+                    password_hash = PasswordHash(
+                        job_id = job.id,
+                        algorithm = unicode(algorithm),
+                        digest = unicode(passwd),
+                    )
+                    self.dbsession.add(password_hash)
+            self.dbsession.flush()
+            self.start_job(job)
+            self.render("job/created_job.html", job = job)
+
+    def validate_form(self):
+        ''' Shitty form validation '''
         try:
-            job_name = self.filter_string(self.get_argument('jobname'))
+            self.job_name = self.filter_string(self.get_argument('jobname'))
             if len(job_name) < 3 or 15 < len(job_name):
                 raise ValueError
         except:
             self.render("job/create_job.html", message = "Invalid Job Name")
-            return
+            return False
         # Get algorithm
         try:
             algorithm = self.get_argument('algorithm')
@@ -56,34 +77,17 @@ class CreateJobHandler(UserBaseHandler):
                 raise ValueError
         except:
             self.render("job/create_job.html", message = "Invalid algorithm")
-            return
+            return False
         # Get hashes
         try:
             hashes = self.get_argument('hashes').replace('\r', '').split('\n')
-            hashes = list(set(hashes)) # Remove any duplicates
+            self.hashes = list(set(hashes)) # Remove any duplicates
             if len(hashes) == 0:
                 raise ValueError
         except:
             self.render("job/create_job.html", message = "No Hashes")
-            return
-        user = self.get_current_user()
-        job = Job(
-            user_id = user.id,
-            name = unicode(job_name),
-        )
-        self.dbsession.add(job)
-        self.dbsession.flush()
-        for passwd in hashes:
-            if 0 < len(passwd) <= 64:
-                password_hash = PasswordHash(
-                    job_id = job.id,
-                    algorithm = unicode(algorithm),
-                    digest = unicode(passwd),
-                )
-                self.dbsession.add(password_hash)
-        self.dbsession.flush()
-        self.start_job(job)
-        self.render("job/created_job.html", job = job)
+            return False
+        return True
 
     def filter_string(self, string):
         ''' Removes erronious chars from a string '''
@@ -127,11 +131,11 @@ class DeleteJobHandler(UserBaseHandler):
     def post(self, *args, **kwargs):
         ''' Deletes a job from the database '''
         try:
-            job_id = int(self.get_argument("job_id"))
+            job_id = self.get_argument("job_id")
         except:
             self.render("job/ajax_error.html", message = "Job does not exist")
             return
-        job = Job.by_id(job_id)
+        job = Job.by_uuid(job_id)
         user = self.get_current_user()
         if job != None and user != None and job.user_id == user.id:
             dispather = Dispatch.Instance()
@@ -152,13 +156,13 @@ class AjaxJobDetailsHandler(UserBaseHandler):
     def get(self, *args, **kwargs):
         ''' This method is called via ajax, renders job details '''
         try:
-            job_id = int(self.get_argument("job_id"))
+            job_id = self.get_argument("job_id")
         except:
             logging.warn("Bad argument passed to jobs ajax handler.")
             self.render("blank.html")
             return
         user = self.get_current_user()
-        job = Job.by_id(job_id)
+        job = Job.by_uuid(job_id)
         if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
             self.render("job/ajax_error.html", message = "Job does not exist")
@@ -175,13 +179,13 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
     def get(self, *args, **kwargs):
         ''' This method is called via ajax, renders job statistics '''
         try:
-            job_id = int(self.get_argument("job_id"))
+            job_id = self.get_argument("job_id")
         except:
             logging.warn("Bad argument passed to jobs ajax handler.")
             self.render("blank.html")
             return
         user = self.get_current_user()
-        job = Job.by_id(job_id)
+        job = Job.by_uuid(job_id)
         if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
             self.render("job/ajax_error.html", message = "Job does not exist")
@@ -198,8 +202,8 @@ class AjaxJobDataHandler(UserBaseHandler):
     def get(self, *args, **kwargs):
         ''' Called via AJAX, returns a JSON message containting stats data '''
         try:
-            job_id = int(self.get_argument("job_id"))
-            job = Job.by_id(job_id)
+            job_id = self.get_argument("job_id")
+            job = Job.by_uuid(job_id)
             user = self.get_current_user()
             if job == None or user == None or job.user_id != user.id:
                 raise ValueError

@@ -70,6 +70,8 @@ application = Application([
 
         # Admin Handlers - Admin only pages
         (r'/manageusers', ManageUsersHandler, {'dbsession':dbsession}),
+        (r'/addweaponsystem', AddWeaponSystemsHandler, {'dbsession':dbsession}),
+        (r'/editweaponsystem', EditWeaponSystemsHandler, {'dbsession':dbsession}),
         
         # Public handlers - Serves all public pages
         (r'/', WelcomeHandler),
@@ -129,7 +131,7 @@ def start_server():
         io_loop = io_loop
     )
     try:
-        logging.info("Orbital control is now online, good hunting.")
+        logging.info("Orbital control is now online.")
         io_loop.start()
         session_clean_up.start()
     except KeyboardInterrupt:

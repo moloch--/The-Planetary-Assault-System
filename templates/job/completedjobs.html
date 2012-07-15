@@ -153,8 +153,8 @@
 						    	Completed Jobs
 						  	</li>
 						    {% for job in user.completed_jobs %}
-								<li id="job{{ job.id }}">
-								    <a href="#job{{ job.id }}" onclick="getDetails({{ job.id }})">{{ job.name }}</a>
+								<li id="job{{ job.uuid }}">
+								    <a href="#job{{ job.uuid }}" onclick="getDetails({{ job.uuid }})">{{ job.name }}</a>
 								</li>
 						    {% end %}
 						</ul>

@@ -34,6 +34,30 @@ class AdminBaseHandler(RequestHandler):
         self.session_manager = SessionManager.Instance()
         self.session = self.session_manager.get_session(self.get_secure_cookie('auth'), self.request.remote_ip)
 
+    @authenticated
+    def put(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use PUT method" % self.request.remote_ip)
+        self.render("public/404.html")
+    
+    @authenticated
+    def delete(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use DELETE method" % self.request.remote_ip)
+        self.render("public/404.html")
+
+    @authenticated
+    def head(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use HEAD method" % self.request.remote_ip)
+        self.render("public/404.html")
+
+    @authenticated
+    def options(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use OPTIONS method" % self.request.remote_ip)
+        self.render("public/404.html")
+
 class UserBaseHandler(RequestHandler):
     ''' User handlers extend this class '''
     
@@ -52,22 +76,22 @@ class UserBaseHandler(RequestHandler):
     def put(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
         logging.warn("%s attempted to use PUT method" % self.request.remote_ip)
-        raise HTTPError(405)
+        self.render("public/404.html")
     
     @authenticated
     def delete(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
         logging.warn("%s attempted to use DELETE method" % self.request.remote_ip)
-        raise HTTPError(405)
+        self.render("public/404.html")
 
     @authenticated
     def head(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
         logging.warn("%s attempted to use HEAD method" % self.request.remote_ip)
-        raise HTTPError(405)
+        self.render("public/404.html")
 
     @authenticated
     def options(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
         logging.warn("%s attempted to use OPTIONS method" % self.request.remote_ip)
-        raise HTTPError(405)
+        self.render("public/404.html")

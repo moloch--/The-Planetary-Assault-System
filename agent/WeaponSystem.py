@@ -20,13 +20,14 @@ Created on June 23, 2012
 '''
 
 
-import os
-import sys
 import rpyc
 import logging
 import platform
 import ConfigParser
-import multiprocessing
+
+from sys import argv
+from os import path, sysconf, _exit
+from multiprocessing import cpu_count
 
 ### Detect CPU architecture
 if platform.architecture()[0] == '64bit':
@@ -38,13 +39,13 @@ else:
 logging.basicConfig(format = '\r[%(levelname)s] %(asctime)s - %(message)s', level = logging.DEBUG)
 
 ### Load configuration file
-if len(sys.argv) == 2:
-    cfg_path = sys.argv[1]
+if len(argv) == 2:
+    cfg_path = argv[1]
 else:
-    cfg_path = os.path.abspath("WeaponSystem.cfg")
-if not (os.path.exists(cfg_path) and os.path.isfile(cfg_path)):
+    cfg_path = path.abspath("WeaponSystem.cfg")
+if not (path.exists(cfg_path) and path.isfile(cfg_path)):
     logging.critical("No configuration file found at %s, cannot continue." % cfg_path)
-    os._exit(1)
+    _exit(1)
 logging.info('Loading config from: %s' % cfg_path)
 config = ConfigParser.SafeConfigParser()
 config.readfp(open(cfg_path, 'r'))
@@ -55,35 +56,36 @@ class WeaponSystem(rpyc.Service):
     def on_connect(self):
         ''' Called when successfully connected, does all the initialization '''
         logging.info("Uplink to orbital control active; weapon system initializing ...")
-        self.is_busy = False
         self.__cpu__()
-        self.rainbow_tables = {}
-        self.__tables__()
+        self.rainbow_tables = {'LM': None, 'NTLM': None, 'MD5': None}
+        self.algorithms = self.rainbow_tables.keys()
+        self.__tables__
+        self.is_busy = False
         logging.info("Weapon system online, good hunting.")
 
     def on_disconnect(self):
         ''' Called if the connection is lost '''
-        logging.error("Lost communication with the Planetary Assault System.")
-        self.is_busy = False
-        self.rainbow_tables = {}
+        pass
 
     def exposed_crack_list(self, hashes, hash_type, threads = 0):
         ''' Cracks a list of hashes '''
         if threads <= 0:
-            threads = self.cpu_cores
-        try:
-            tables = self.rainbow_tables[hash_type]
-            RainbowCrack.hash_list(len(hashes), hashes, tables, maxThreads = threads)
-        except KeyError:
-            logging.error("Invalid hash type (%s), cannot crack." % hash_type)
+            threads = 1
+        tables = self.rainbow_tables[hash_type]
+        results = RainbowCrack.hash_list(len(hashes), hashes, tables, maxThreads = threads)
+        return results
 
     def exposed_get_capabilities(self):
         ''' Returns what algorithms can be cracked '''
-        return self.rainbow_tables
+        capabilities = []
+        for algo in self.algorithms:
+            if self.rainbow_tables[algo] != None:
+                capabilities.append(algo)
+        return capabilities
 
     def exposed_ping(self):
         ''' Returns a pong message '''
-        return "pong"
+        return "PONG"
 
     def exposed_is_busy(self):
         ''' Returns True/False if the current system is busy '''
@@ -95,35 +97,35 @@ class WeaponSystem(rpyc.Service):
 
     def __cpu__(self):
         ''' Detects the number of CPU cores on a system (including virtual cores) '''
-        if multiprocessing is not None:
+        if cpu_count != None
             try:
                 self.cpu_cores = multiprocessing.cpu_count()
-                logging.info("Detected %d CPU core(s)." % self.cpu_cores)
+                logging.info("Detected %d CPU core(s)" % self.cpu_cores)
             except NotImplementedError:
-                logging.error("Could not detect number of processors; assuming 1.")
+                logging.error("Could not detect number of processors; assuming 1")
                 self.cpu_cores = 1
         else:
             try:
-                self.cpu_cores = os.sysconf("SC_NPROCESSORS_CONF")
-                logging.info("Detected %d CPU core(s)." % self.cpu_cores)
+                self.cpu_cores = sysconf("SC_NPROCESSORS_CONF")
+                logging.info("Detected %d CPU core(s)" % self.cpu_cores)
             except ValueError:
-                logging.error("Could not detect number of processors; assuming 1.")
+                logging.error("Could not detect number of processors; assuming 1")
                 self.cpu_cores = 1
 
     def __tables__(self):
         ''' Load rainbow table configurations '''
-        self.rainbow_tables['LM'] = config.get("RainbowTables", 'lm')
-        if not os.path.exists(self.rainbow_tables['LM']):
-            logging.warn("LM rainbow table directory not found (%s)" % self.rainbow_tables['LM'])
-        self.rainbow_tables['NTLM'] = config.get("RainbowTables", 'ntlm')
-        if not os.path.exists(self.rainbow_tables['NTLM']):
-            logging.warn("NTLM rainbow table directory not found (%s)" % self.rainbow_tables['NTLM'])
-        self.rainbow_tables['MD5'] = config.get("RainbowTables", 'md5')
-        if not os.path.exists(self.rainbow_tables['MD5']):
-            logging.warn("MD5 rainbow table directory not found (%s)" % self.rainbow_tables['MD5'])
+        for algo in self.algorithms:
+            try:
+                table_path = self.config.get("RainbowTables", algo)
+                if table_path.lower() != 'none':
+                    self.rainbow_tables[algo] = table_path
+                    if not path.exists(self.rainbow_tables[algo]):
+                        logging.warn("%s rainbow table directory not found (%s)" % (algo, self.rainbow_tables[algo]))
+            except:
+                continue
 
 if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer
-    agent = ThreadedServer(WeaponSystem, port = config.getint("Network", 'lport'))
+    agent = ThreadedServer(WeaponSystem, hostname = "localhost", port = config.getint("Network", 'lport'))
     logging.info("Weapon system ready, waiting for orbital control uplink ...")
     agent.start()

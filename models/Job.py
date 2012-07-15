@@ -47,6 +47,11 @@ class Job(BaseObject):
     def by_id(cls, job_id):
         """ Return the job object whose user id is 'job_id' """
         return dbsession.query(cls).filter_by(id = job_id).first()
+
+    @classmethod
+    def by_uuid(cls, job_uuid):
+        """ Return the job object whose user uuid is 'job_uuid' """
+        return dbsession.query(cls).filter_by(uuid = unicode(job_uuid)).first()
     
     @classmethod
     def by_job_name(cls, job_name):
