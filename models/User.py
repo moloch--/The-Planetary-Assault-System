@@ -31,57 +31,63 @@ from models.Job import Job
 from models.Permission import Permission
 from models.BaseObject import BaseObject
 
+
 def gen_salt():
     return unicode(b64encode(urandom(24)))
+
 
 class User(BaseObject):
     """ User definition """
 
-    user_name = Column(Unicode(64), unique = True, nullable = False)
-    approved = Column(Boolean, default = False)
-    jobs = relationship("Job", backref = backref("User", lazy = "joined"), cascade = "all, delete-orphan")
-    permissions = relationship("Permission", backref = backref("User", lazy = "joined"), cascade = "all, delete-orphan")
-    salt = Column(Unicode(32), unique = True, nullable = False, default = gen_salt)
+    user_name = Column(Unicode(64), unique=True, nullable=False)
+    approved = Column(Boolean, default=False)
+    jobs = relationship("Job", backref=backref(
+        "User", lazy="joined"), cascade="all, delete-orphan")
+    permissions = relationship("Permission", backref=backref(
+        "User", lazy="joined"), cascade="all, delete-orphan")
+    salt = Column(
+        Unicode(32), unique=True, nullable=False, default=gen_salt)
     _password = Column('password', Unicode(64))
-    password = synonym('_password', descriptor = property(
-            lambda self: self._password,
-            lambda self, password: setattr(self, '_password', self.__class__._hash_password(password, self.salt))
-        )
-    )
-        
+    password = synonym('_password', descriptor=property(
+                       lambda self: self._password,
+                       lambda self, password: setattr(self, '_password',
+                                                      self.__class__._hash_password(password, self.salt))
+                       )
+                       )
+
     @classmethod
     def by_id(cls, user_id):
         """ Return the user object whose user id is user_id """
-        return dbsession.query(cls).filter_by(id = user_id).first()
+        return dbsession.query(cls).filter_by(id=user_id).first()
 
     @classmethod
     def by_id(cls, user_uuid):
         """ Return the user object whose user uuid is user_uuid """
-        return dbsession.query(cls).filter_by(uuid = unicode(user_uuid)).first()
+        return dbsession.query(cls).filter_by(uuid=unicode(user_uuid)).first()
 
     @classmethod
     def get_unapproved(cls):
         """ Return all unapproved user objects """
-        return dbsession.query(cls).filter_by(approved = False).all()
+        return dbsession.query(cls).filter_by(approved=False).all()
 
     @classmethod
     def get_approved(cls):
         """ Return all approved user objects """
-        return dbsession.query(cls).filter_by(approved = True).all()
+        return dbsession.query(cls).filter_by(approved=True).all()
 
     @classmethod
     def get_all(cls):
         """ Return all non-admin user objects """
-        return dbsession.query(cls).filter(cls.user_name != u'admin').all() 
+        return dbsession.query(cls).filter(cls.user_name != u'admin').all()
 
     @classmethod
     def by_user_name(cls, user_name):
         """ Return the user object whose user name is 'user_name' """
-        return dbsession.query(cls).filter_by(user_name = unicode(user_name)).first()
-    
+        return dbsession.query(cls).filter_by(user_name=unicode(user_name)).first()
+
     @classmethod
     def _hash_password(cls, password, salt):
-        ''' 
+        '''
         Hashes the password using 25,000 rounds of salted SHA-256, come at me bro.
         This function will always return a unicode string, but can take an arg of
         any type not just ascii strings, the salt will always be unicode
@@ -91,12 +97,12 @@ class User(BaseObject):
         for count in range(0, 25000):
             sha.update(sha.hexdigest() + str(count))
         return unicode(sha.hexdigest())
-    
+
     @property
     def queued_jobs(self):
         ''' Jobs owned by the user that have not been completed '''
         return filter(lambda job: (job.completed == False), self.jobs)
-    
+
     @property
     def completed_jobs(self):
         ''' Jobs owned by the user that have been completed '''
@@ -105,7 +111,7 @@ class User(BaseObject):
     @property
     def permissions(self):
         """ Return a list with all permissions granted to the user """
-        return dbsession.query(Permission).filter_by(user_id = self.id)
+        return dbsession.query(Permission).filter_by(user_id=self.id)
 
     @property
     def permissions_names(self):
@@ -119,6 +125,6 @@ class User(BaseObject):
     def validate_password(self, attempt):
         """ Check the password against existing credentials """
         return self.password == self._hash_password(attempt, self.salt)
-    
+
     def __repr__(self):
         return ('<User - user_name: %s>' % (self.user_name,)).encode('utf-8', 'ignore')

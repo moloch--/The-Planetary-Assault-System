@@ -19,67 +19,67 @@
 import platform
 
 if platform.system() == 'Linux':
-    
+
     # === Text Colors ===
-    W   = "\033[0m"  # default/white
-    BLA = "\033[30m" # black
-    R   = "\033[31m" # red
-    G   = "\033[32m" # green
-    O   = "\033[33m" # orange
-    BLU = "\033[34m" # blue
-    P   = "\033[35m" # purple
-    C   = "\033[36m" # cyan
-    GR  = "\033[37m" # gray
-    
+    W = "\033[0m"  # default/white
+    BLA = "\033[30m"  # black
+    R = "\033[31m"  # red
+    G = "\033[32m"  # green
+    O = "\033[33m"  # orange
+    BLU = "\033[34m"  # blue
+    P = "\033[35m"  # purple
+    C = "\033[36m"  # cyan
+    GR = "\033[37m"  # gray
+
     # === Styles ===
-    bold      = "\033[1m"
+    bold = "\033[1m"
     underline = "\033[4m"
-    blink     = "\033[5m"
-    reverse   = "\033[7m"
+    blink = "\033[5m"
+    reverse = "\033[7m"
     concealed = "\033[8m"
-    
+
     # === Background Colors ===
-    bkgd_black   = "\033[40m" 
-    bkgd_red     = "\033[41m"
-    bkgd_green   = "\033[42m"
-    bkgd_yellow  = "\033[43m"
-    bkgd_blue    = "\033[44m"
+    bkgd_black = "\033[40m"
+    bkgd_red = "\033[41m"
+    bkgd_green = "\033[42m"
+    bkgd_yellow = "\033[43m"
+    bkgd_blue = "\033[44m"
     bkgd_magenta = "\033[45m"
-    bkgd_cyan    = "\033[46m"
-    bkgd_white   = "\033[47m" 
-    
+    bkgd_cyan = "\033[46m"
+    bkgd_white = "\033[47m"
+
     # === Macros ===
-    INFO = bold+C+"[*] "+W
-    WARN = bold+R+"[!] "+W
-    PROMPT = bold+P+"[?] "+W
+    INFO = bold + C + "[*] " + W
+    WARN = bold + R + "[!] " + W
+    PROMPT = bold + P + "[?] " + W
 
 else:
-    
+
     ''' Sets all colors to blank strings '''
     # === Text Colors ===
-    W   = "" 
-    BLA = "" 
-    R   = "" 
-    G   = "" 
-    O   = "" 
-    BLU = "" 
-    P   = "" 
-    C   = "" 
-    GR  = "" 
-    
+    W = ""
+    BLA = ""
+    R = ""
+    G = ""
+    O = ""
+    BLU = ""
+    P = ""
+    C = ""
+    GR = ""
+
     # === Styles ===
-    bold      = "" 
-    underline = "" 
-    blink     = "" 
-    reverse   = "" 
-    concealed = "" 
-    
+    bold = ""
+    underline = ""
+    blink = ""
+    reverse = ""
+    concealed = ""
+
     # === Background Colors ===
-    bkgd_black   = "" 
-    bkgd_red     = "" 
-    bkgd_green   = "" 
-    bkgd_yellow  = "" 
-    bkgd_blue    = "" 
-    bkgd_magenta = "" 
-    bkgd_cyan    = "" 
-    bkgd_white   = "" 
+    bkgd_black = ""
+    bkgd_red = ""
+    bkgd_green = ""
+    bkgd_yellow = ""
+    bkgd_blue = ""
+    bkgd_magenta = ""
+    bkgd_cyan = ""
+    bkgd_white = ""

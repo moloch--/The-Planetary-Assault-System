@@ -30,8 +30,11 @@ from libs import ConsoleColors
 from libs.Singleton import Singleton
 
 
-# .basicConfig must be called prior to ANY call to logging.XXXX so make sure this module gets imported prior to any logging!
-logging.basicConfig(format = '\r[%(levelname)s] %(asctime)s - %(message)s', level = logging.DEBUG)
+# .basicConfig must be called prior to ANY call to logging.XXXX so make sure
+# this module gets imported prior to any logging!
+logging.basicConfig(format='\r[%(levelname)s] %(asctime)s - %(message)s',
+                    level=logging.DEBUG)
+
 
 @Singleton
 class ConfigManager(object):
@@ -40,7 +43,8 @@ class ConfigManager(object):
     def __init__(self):
         self.cfg_path = os.path.abspath("PlanetaryAssaultSystem.cfg")
         if not (os.path.exists(self.cfg_path) and os.path.isfile(self.cfg_path)):
-            logging.critical("No configuration file found at %s, cannot continue." % cfg_path)
+            logging.critical("No configuration file found at %s, cannot continue." %
+                             cfg_path)
             os._exit(1)
         logging.info('Loading config from %s' % self.cfg_path)
         self.config = ConfigParser.SafeConfigParser()
@@ -71,11 +75,11 @@ class ConfigManager(object):
         self.db_name = self.config.get("Database", 'name')
         user = self.config.get("Database", 'user')
         if user == 'RUNTIME':
-            user = raw_input(ConsoleColors.PROMPT+"Database User: ")
+            user = raw_input(ConsoleColors.PROMPT + "Database User: ")
         self.db_user = user
         password = self.config.get("Database", 'password')
         if password == 'RUNTIME':
-            sys.stdout.write(ConsoleColors.PROMPT+"Database ")
+            sys.stdout.write(ConsoleColors.PROMPT + "Database ")
             sys.stdout.flush()
             password = getpass.getpass()
         self.db_password = password

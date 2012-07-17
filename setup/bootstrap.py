@@ -41,13 +41,14 @@ else:
     if password1 == password2 and 12 <= len(password1):
         password = password1
     else:
-        print WARN+'Error: Passwords did not match, or were less than 12 chars'
+        print WARN + \
+            'Error: Passwords did not match, or were less than 12 chars'
         os._exit(1)
 
 # User Account
 user = User(
-    user_name = unicode('admin'),
-    approved = True
+    user_name=unicode('admin'),
+    approved=True
 )
 dbsession.add(user)
 dbsession.flush()
@@ -57,15 +58,15 @@ dbsession.add(user)
 dbsession.flush()
 
 permission = Permission(
-    permission_name = unicode('admin'),
-    user_id = user.id
+    permission_name=unicode('admin'),
+    user_id=user.id
 )
 dbsession.add(permission)
 dbsession.flush()
 if config.debug:
-    environ = bold+R+"Developement boot strap"+W
+    environ = bold + R + "Developement boot strap" + W
     details = ", default admin password is '%s'." % password
 else:
-    environ = bold+"Production boot strap"+W
+    environ = bold + "Production boot strap" + W
     details = '.'
-print INFO+'%s complete successfully%s' % (environ,  details)
+print INFO + '%s complete successfully%s' % (environ, details)

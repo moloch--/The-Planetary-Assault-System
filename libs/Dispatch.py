@@ -33,6 +33,7 @@ from datetime import datetime
 from libs.Singleton import Singleton
 from libs.ConfigManager import ConfigManager
 
+
 @Singleton
 class Dispatch(object):
 
@@ -56,7 +57,7 @@ class Dispatch(object):
         thread.start_new_thread(self.__crack__, (job, weapon_system))
 
     def __crack__(self, job, weapon_system):
-        ''' 
+        '''
         Does the actual password cracking, before calling this function you should
         ensure the weapon system is online and not busy
         '''
@@ -74,10 +75,13 @@ class Dispatch(object):
                 ssh_keyfile = NamedTemporaryFile()
                 ssh_keyfile.write(weapon_system.ssh_key)
                 ssh_keyfile.seek(0)
-                ssh_context = SshContext(weapon_system.ip_address, user = weapon_system.ssh_user, keyfile = ssh_keyfile.name)
-                rpc_connection = rpyc.ssh_connect(ssh_context, self.service_port)
+                ssh_context = SshContext(weapon_system.ip_address,
+                                         user=weapon_system.ssh_user, keyfile=ssh_keyfile.name)
+                rpc_connection = rpyc.ssh_connect(
+                    ssh_context, self.service_port)
                 hashes = job.to_list()
-                results = rpc_connection.root.exposed_crack_list(job.id, job.to_list(), algo, weapon_system.cpu_count)
+                results = rpc_connection.root.exposed_crack_list(
+                    job.id, job.to_list(), algo, weapon_system.cpu_count)
             except:
                 logging.exception("Connection to remote weapon system failed, check parameters")
             finally:
@@ -92,11 +96,13 @@ class Dispatch(object):
     def __next__(self):
         ''' Determines what to do next depending on queue state '''
         if 0 < Job.qsize():
-            logging.info("Popping a job off the queue, %d job(s) remain." % Job.qsize())
+            logging.info("Popping a job off the queue, %d job(s) remain." %
+                         Job.qsize())
             next_job = Job.pop()
             self.__dispatch__(next_job)
         else:
-            logging.info("No jobs remain in queue, cracking thread is stopping.")
+            logging.info(
+                "No jobs remain in queue, cracking thread is stopping.")
             self.mutex.acquire()
             self.current_job_name = None
             self.is_busy = False

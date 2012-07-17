@@ -37,7 +37,8 @@ else:
     import x86.RainbowCrack as RainbowCrack
 
 ### Logging configuration
-logging.basicConfig(format = '\r[%(levelname)s] %(asctime)s - %(message)s', level = logging.DEBUG)
+logging.basicConfig(format='\r[%(levelname)s] %(asctime)s - %(message)s',
+                    level=logging.DEBUG)
 
 ### Load configuration file
 if len(argv) == 2:
@@ -45,13 +46,16 @@ if len(argv) == 2:
 else:
     cfg_path = path.abspath("WeaponSystem.cfg")
 if not (path.exists(cfg_path) and path.isfile(cfg_path)):
-    logging.critical("No configuration file found at %s, cannot continue." % cfg_path)
+    logging.critical(
+        "No configuration file found at %s, cannot continue." % cfg_path)
     _exit(1)
 logging.info('Loading config from: %s' % cfg_path)
 config = ConfigParser.SafeConfigParser()
 config.readfp(open(cfg_path, 'r'))
 
 ### RPC Services
+
+
 class WeaponSystem(rpyc.Service):
 
     def on_connect(self):
@@ -69,8 +73,8 @@ class WeaponSystem(rpyc.Service):
         ''' Called if the connection is lost '''
         pass
 
-    def exposed_crack_list(self, job_id, hashes, hash_type, threads = 0):
-        ''' 
+    def exposed_crack_list(self, job_id, hashes, hash_type, threads=0):
+        '''
         Cracks a list of hashes, note the control server sets the number of threads
         by default this should equal the number of detected CPU cores
         '''
@@ -81,8 +85,10 @@ class WeaponSystem(rpyc.Service):
         self.current_job_id = job_id
         self.mutex.release()
         tables = self.rainbow_tables[hash_type]
-        logging.info("Recieved new assignment, now targeting %s hashes" % len(hashes))
-        results = RainbowCrack.hash_list(len(hashes), hashes, tables, maxThreads = threads)
+        logging.info(
+            "Recieved new assignment, now targeting %s hashes" % len(hashes))
+        results = RainbowCrack.hash_list(
+            len(hashes), hashes, tables, maxThreads=threads)
         self.mutex.acquire()
         self.is_busy = False
         self.mutex.release()
@@ -125,14 +131,16 @@ class WeaponSystem(rpyc.Service):
                 self.cpu_cores = cpu_count()
                 logging.info("Detected %d CPU core(s)" % self.cpu_cores)
             except NotImplementedError:
-                logging.error("Could not detect number of processors; assuming 1")
+                logging.error(
+                    "Could not detect number of processors; assuming 1")
                 self.cpu_cores = 1
         else:
             try:
                 self.cpu_cores = sysconf("SC_NPROCESSORS_CONF")
                 logging.info("Detected %d CPU core(s)" % self.cpu_cores)
             except ValueError:
-                logging.error("Could not detect number of processors; assuming 1")
+                logging.error(
+                    "Could not detect number of processors; assuming 1")
                 self.cpu_cores = 1
 
     def __tables__(self):
@@ -143,12 +151,15 @@ class WeaponSystem(rpyc.Service):
                 if table_path.lower() != 'none':
                     self.rainbow_tables[algo] = table_path
                     if not path.exists(self.rainbow_tables[algo]):
-                        logging.warn("%s rainbow table directory not found (%s)" % (algo, self.rainbow_tables[algo]))
+                        logging.warn("%s rainbow table directory not found (%s)" %
+                                     (algo, self.rainbow_tables[algo]))
             except:
-                logging.exception("Failed to read %s configuration from file" % algo)
+                logging.exception(
+                    "Failed to read %s configuration from file" % algo)
 
 if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer
-    agent = ThreadedServer(WeaponSystem, hostname = "localhost", port = config.getint("Network", 'lport'))
+    agent = ThreadedServer(WeaponSystem, hostname="localhost",
+                           port=config.getint("Network", 'lport'))
     logging.info("Weapon system ready, waiting for orbital control uplink ...")
     agent.start()

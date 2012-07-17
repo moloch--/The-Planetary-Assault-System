@@ -30,18 +30,23 @@ from models import __create__, boot_strap
 
 current_time = lambda: str(datetime.now()).split(' ')[1].split('.')[0]
 
+
 def serve():
     """ Starts the application """
     start_server()
 
+
 def create():
     """ Creates the database """
-    print (ConsoleColors.INFO+'%s : Creating the database ... ' % current_time())
+    print (ConsoleColors.INFO + '%s : Creating the database ... ' %
+           current_time())
     __create__()
     if len(argv) == 3 and argv[2] == 'bootstrap':
-        print (ConsoleColors.INFO+'%s : Bootstrapping the database ... ' % current_time())
+        print (ConsoleColors.INFO +
+               '%s : Bootstrapping the database ... ' % current_time())
         boot_strap()
-    
+
+
 def help():
     print('Usage:')
     print('\tpython . serve - Starts the web server')
@@ -52,10 +57,10 @@ def help():
 if len(argv) == 1:
     help()
 options = {
-    'serve': serve, 
+    'serve': serve,
     'create': create,
 }
 if argv[1] in options:
     options[argv[1]]()
 else:
-    print(ConsoleColors.WARN+'Error: PEBKAC')
+    print(ConsoleColors.WARN + 'Error: PEBKAC')

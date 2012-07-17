@@ -28,25 +28,26 @@ from sqlalchemy.types import Unicode, Integer, Boolean
 from models import dbsession
 from models.BaseObject import BaseObject
 
+
 class PasswordHash(BaseObject):
 
-    job_id = Column(Integer, ForeignKey('job.id'), nullable = False)
-    algorithm = Column(Unicode(16), nullable = False)
+    job_id = Column(Integer, ForeignKey('job.id'), nullable=False)
+    algorithm = Column(Unicode(16), nullable=False)
     user_name = Column(Unicode(64))
-    digest = Column(Unicode(128), nullable = False)
-    solved = Column(Boolean, default = False, nullable = False)
+    digest = Column(Unicode(128), nullable=False)
+    solved = Column(Boolean, default=False, nullable=False)
     plain_text = Column(Unicode(64))
     common_passwords = ['123456', '12345', '123456789', 'password', 'iloveyou', 'princess',
-        'rockyou', '1234567', '12345678', 'abc123', 'nicole', 'daniel', 'babygirl', 'monkey',
-        'jessica', 'lovely', 'michael', 'ashley', '654321', 'qwerty', 'letmein', 'admin', 'fuck',
-        'fuckyou', 'dragon', 'pussy','baseball', 'football', '696969', 'mustang', '111111', '2000',
-        'shadow', 'master', 'jennifer', 'jordan', 'superman', 'love', 'sex', 'secret', 'god',
-    ]
+                        'rockyou', '1234567', '12345678', 'abc123', 'nicole', 'daniel', 'babygirl', 'monkey',
+                        'jessica', 'lovely', 'michael', 'ashley', '654321', 'qwerty', 'letmein', 'admin', 'fuck',
+                        'fuckyou', 'dragon', 'pussy', 'baseball', 'football', '696969', 'mustang', '111111', '2000',
+                        'shadow', 'master', 'jennifer', 'jordan', 'superman', 'love', 'sex', 'secret', 'god',
+                        ]
 
     @classmethod
     def by_id(cls, hash_id):
         """ Return the PasswordHash object whose user id is 'hash_id' """
-        return dbsession.query(cls).filter_by(id = hash_id).first()
+        return dbsession.query(cls).filter_by(id=hash_id).first()
 
     @classmethod
     def by_digest(cls, digest_value, job_id_value):
@@ -92,7 +93,8 @@ class PasswordHash(BaseObject):
     @property
     def mixed_alpha_numeric(self):
         ''' Checks to see if the password is only lower/upper case and numeric chars '''
-        contains_mixed_alpha_numeric = self.__regex__("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$")
+        contains_mixed_alpha_numeric = self.__regex__(
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$")
         only_mixed_alpha_numeric = self.__regex__("^[a-zA-Z0-9]*$")
         return (contains_mixed_alpha_numeric and only_mixed_alpha_numeric)
 

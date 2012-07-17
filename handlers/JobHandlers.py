@@ -31,12 +31,13 @@ from libs.Session import SessionManager
 from libs.SecurityDecorators import authenticated
 from BaseHandlers import UserBaseHandler
 
+
 class CreateJobHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
         ''' Renders the create jbo page '''
-        self.render("job/create_job.html", message = "Create a new job")
+        self.render("job/create_job.html", message="Create a new job")
 
     @authenticated
     def post(self, *args, **kwargs):
@@ -44,22 +45,22 @@ class CreateJobHandler(UserBaseHandler):
         if self.validate_form():
             user = self.get_current_user()
             job = Job(
-                user_id = user.id,
-                name = unicode(self.job_name),
+                user_id=user.id,
+                name=unicode(self.job_name),
             )
             self.dbsession.add(job)
             self.dbsession.flush()
             for passwd in self.hashes:
                 if 0 < len(passwd) <= 64:
                     password_hash = PasswordHash(
-                        job_id = job.id,
-                        algorithm = unicode(algorithm),
-                        digest = unicode(passwd),
+                        job_id=job.id,
+                        algorithm=unicode(algorithm),
+                        digest=unicode(passwd),
                     )
                     self.dbsession.add(password_hash)
             self.dbsession.flush()
             self.start_job(job)
-            self.render("job/created_job.html", job = job)
+            self.render("job/created_job.html", job=job)
 
     def validate_form(self):
         ''' Shitty form validation '''
@@ -68,7 +69,7 @@ class CreateJobHandler(UserBaseHandler):
             if len(job_name) < 3 or 15 < len(job_name):
                 raise ValueError
         except:
-            self.render("job/create_job.html", message = "Invalid Job Name")
+            self.render("job/create_job.html", message="Invalid Job Name")
             return False
         # Get algorithm
         try:
@@ -76,16 +77,16 @@ class CreateJobHandler(UserBaseHandler):
             if not algorithm in self.application.settings['rainbow_tables'].keys():
                 raise ValueError
         except:
-            self.render("job/create_job.html", message = "Invalid algorithm")
+            self.render("job/create_job.html", message="Invalid algorithm")
             return False
         # Get hashes
         try:
             hashes = self.get_argument('hashes').replace('\r', '').split('\n')
-            self.hashes = list(set(hashes)) # Remove any duplicates
+            self.hashes = list(set(hashes))  # Remove any duplicates
             if len(hashes) == 0:
                 raise ValueError
         except:
-            self.render("job/create_job.html", message = "No Hashes")
+            self.render("job/create_job.html", message="No Hashes")
             return False
         return True
 
@@ -99,27 +100,31 @@ class CreateJobHandler(UserBaseHandler):
         dispather = Dispatch.Instance()
         dispather.start(job.id)
 
+
 class QueuedJobsHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
         ''' Renders the cracking queue '''
-        self.render("job/queuedjobs.html", all_users = User.get_all(), queue_size = Job.qsize())
+        self.render("job/queuedjobs.html", all_users=User.
+                    get_all(), queue_size=Job.qsize())
 
     @authenticated
     def post(self, *args, **kwargs):
         self.render("public/404.html")
+
 
 class CompletedJobsHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
         ''' Renders the completed jobs page '''
-        self.render("job/completedjobs.html", user = self.get_current_user())
+        self.render("job/completedjobs.html", user=self.get_current_user())
 
     @authenticated
     def post(self, *args, **kwargs):
         self.render("public/404.html")
+
 
 class DeleteJobHandler(UserBaseHandler):
 
@@ -133,22 +138,24 @@ class DeleteJobHandler(UserBaseHandler):
         try:
             job_id = self.get_argument("job_id")
         except:
-            self.render("job/ajax_error.html", message = "Job does not exist")
+            self.render("job/ajax_error.html", message="Job does not exist")
             return
         job = Job.by_uuid(job_id)
         user = self.get_current_user()
         if job != None and user != None and job.user_id == user.id:
             dispather = Dispatch.Instance()
             if job.name == dispather.current_job_name:
-                self.render("job/ajax_error.html", message = "Cannot delete job while it is in progress")
+                self.render("job/ajax_error.html",
+                            message="Cannot delete job while it is in progress")
             else:
                 job_name = str(job.name)
                 self.dbsession.delete(job)
                 self.dbsession.flush()
-                self.render("job/deletejob_success.html", job_name = job_name)
+                self.render("job/deletejob_success.html", job_name=job_name)
         else:
             logging.warn("%s attempted to delete a non-existant job, or a job he/she does not own." % user.user_name)
-            self.render("job/ajax_error.html", message = "Job does not exist")
+            self.render("job/ajax_error.html", message="Job does not exist")
+
 
 class AjaxJobDetailsHandler(UserBaseHandler):
 
@@ -165,13 +172,14 @@ class AjaxJobDetailsHandler(UserBaseHandler):
         job = Job.by_uuid(job_id)
         if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
-            self.render("job/ajax_error.html", message = "Job does not exist")
+            self.render("job/ajax_error.html", message="Job does not exist")
         else:
-            self.render("job/ajax_jobdetails.html", job = job)
+            self.render("job/ajax_jobdetails.html", job=job)
 
     @authenticated
     def post(self, *args, **kwargs):
         self.render("public/404.html")
+
 
 class AjaxJobStatisticsHandler(UserBaseHandler):
 
@@ -188,13 +196,14 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
         job = Job.by_uuid(job_id)
         if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
-            self.render("job/ajax_error.html", message = "Job does not exist")
+            self.render("job/ajax_error.html", message="Job does not exist")
         else:
-            self.render("job/ajax_jobstatistics.html", job = job)
-    
+            self.render("job/ajax_jobstatistics.html", job=job)
+
     @authenticated
     def post(self, *args, **kwargs):
         self.render("public/404.html")
+
 
 class AjaxJobDataHandler(UserBaseHandler):
 
@@ -219,6 +228,7 @@ class AjaxJobDataHandler(UserBaseHandler):
     @authenticated
     def post(self, *args, **kwargs):
         self.render("public/404.html")
+
 
 class DownloadHandler(UserBaseHandler):
 

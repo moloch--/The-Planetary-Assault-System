@@ -29,18 +29,20 @@ from sqlalchemy.types import DateTime, Integer, Unicode
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.declarative import declarative_base
 
+
 def gen_uuid():
     ''' Generates a random unicode uuid '''
     return unicode(uuid4())
 
+
 class SimpleDatabaseObject(object):
-    ''' 
+    '''
     All database objects inherit from this object, it automatically
     converts the class name to a table name, creates a primary key,
     and a 'created' datetime column, your models should inherit from
     'BaseObject' not 'SimpleDatabaseObject'
     '''
-        
+
     @declared_attr
     def __tablename__(self):
         ''' Converts class name from camel case to snake case '''
@@ -48,11 +50,12 @@ class SimpleDatabaseObject(object):
         return (
             name[0].lower() +
             re.sub(r'([A-Z])',
-            lambda letter: "_" + letter.group(0).lower(), name[1:])
+                   lambda letter: "_" + letter.group(0).lower(), name[1:])
         )
-    id = Column(Integer, primary_key = True, unique = True, nullable = False)
-    uuid = Column(Unicode(36), unique = True, nullable = False, default = gen_uuid)
-    created = Column(DateTime, default = datetime.now)
+    id = Column(Integer, primary_key=True, unique=True, nullable=False)
+    uuid = Column(
+        Unicode(36), unique=True, nullable=False, default=gen_uuid)
+    created = Column(DateTime, default=datetime.now)
 
 # Create an instance called "BaseObject", inherit from this
-BaseObject = declarative_base(cls = SimpleDatabaseObject)
+BaseObject = declarative_base(cls=SimpleDatabaseObject)

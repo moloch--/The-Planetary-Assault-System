@@ -30,12 +30,13 @@ from libs.ConfigManager import ConfigManager
 metadata = BaseObject.metadata
 
 config = ConfigManager.Instance()
-db_connection = 'mysql://%s:%s@%s/%s' % (config.db_user, config.db_password, config.db_server, config.db_name)
+db_connection = 'mysql://%s:%s@%s/%s' % (
+    config.db_user, config.db_password, config.db_server, config.db_name)
 engine = create_engine(db_connection)
-Session = sessionmaker(bind = engine, autocommit = True)
+Session = sessionmaker(bind=engine, autocommit=True)
 
 # Import the dbsession instance to execute queries
-dbsession = Session(autoflush = True)
+dbsession = Session(autoflush=True)
 
 # Import models (or the tables won't get created)
 from models.Job import Job
@@ -45,12 +46,11 @@ from models.User import User
 from models.WeaponSystem import WeaponSystem
 
 # Calling this will create the tables at the database
-__create__ = lambda: (setattr(engine, 'echo', True), metadata.create_all(engine))
+__create__ = lambda: (
+    setattr(engine, 'echo', True), metadata.create_all(engine))
 
 # Bootstrap the database with some shit
-def boot_strap() :
+
+
+def boot_strap():
     import setup.bootstrap
-    
-    
-    
-    

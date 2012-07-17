@@ -28,6 +28,7 @@ from handlers.BaseHandlers import AdminBaseHandler
 from libs.SecurityDecorators import *
 from string import ascii_letters, digits
 
+
 class ManageUsersHandler(AdminBaseHandler):
 
     @authenticated
@@ -35,11 +36,11 @@ class ManageUsersHandler(AdminBaseHandler):
     @restrict_ip_address
     def get(self, *args, **kwargs):
         ''' Renders the manage users page '''
-        self.render("admin/manage_users.html", 
-            unapproved_users = User.get_unapproved(),
-            approved_users = User.get_approved(),
-        )
-    
+        self.render("admin/manage_users.html",
+                    unapproved_users=User.get_unapproved(),
+                    approved_users=User.get_approved(),
+                    )
+
     @authenticated
     @authorized('admin')
     @restrict_ip_address
@@ -48,12 +49,13 @@ class ManageUsersHandler(AdminBaseHandler):
         try:
             user_name = self.get_argument("username")
         except:
-            self.render("admin/error.html", error = "User does not exist")
+            self.render("admin/error.html", error="User does not exist")
         user = User.by_user_name(user_name)
         user.approved = True
         self.dbsession.add(user)
         self.dbsession.flush()
-        self.render("admin/approved_user.html", user = user)
+        self.render("admin/approved_user.html", user=user)
+
 
 class ManageJobsHandler(AdminBaseHandler):
 
@@ -69,6 +71,7 @@ class ManageJobsHandler(AdminBaseHandler):
     def post(self, *args, **kwargs):
         pass
 
+
 class AddWeaponSystemsHandler(AdminBaseHandler):
 
     @authenticated
@@ -76,7 +79,8 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
     @restrict_ip_address
     def get(self, *args, **kwargs):
         ''' Renders the create weapon system page '''
-        self.render("admin/create_weaponsystem.html", message = "Uplink Parameters")
+        self.render(
+            "admin/create_weaponsystem.html", message="Uplink Parameters")
 
     @authenticated
     @authorized('admin')
@@ -85,12 +89,12 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
         '''  Creates a new weapon system, and yes the form validation is shit '''
         if self.validate_form():
             weapon_system = WeaponSystem(
-                name = unicode(self.name),
-                ssh_user = unicode(self.ssh_user),
-                ssh_key = unicode(self.ssh_key),
-                ip_address = unicode(self.ip_address),
-                ssh_port = self.ssh_port,
-                service_port = self.listen_port,
+                name=unicode(self.name),
+                ssh_user=unicode(self.ssh_user),
+                ssh_key=unicode(self.ssh_key),
+                ip_address=unicode(self.ip_address),
+                ssh_port=self.ssh_port,
+                service_port=self.listen_port,
             )
             dbsession.add(weapon_system)
             dbsession.flush()
@@ -105,15 +109,18 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
             if WeaponSystem.by_name(self.name) != None:
                 raise ValueError("Name already exits")
         except:
-            self.render("admin/create_weaponsystem.html", message = "Invalid Name")
+            self.render(
+                "admin/create_weaponsystem.html", message="Invalid Name")
             return False
         # IP Address
         try:
-            self.ip_address = self.filter_string(self.get_argument("ipaddress"), extra_chars = ".")
+            self.ip_address = self.filter_string(
+                self.get_argument("ipaddress"), extra_chars=".")
             if WeaponSystem.by_ip_address(self.ip_address) != None:
                 raise ValueError("IP Address already in use")
         except:
-            self.render("admin/create_weaponsystem.html", message = "Missing IP Address")
+            self.render("admin/create_weaponsystem.html",
+                        message="Missing IP Address")
             return False
         # Service Port
         try:
@@ -121,7 +128,8 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
             if not 1 < self.listen_port < 65535:
                 raise ValueError("Invalid port range, or not a number")
         except:
-            self.render("admin/create_weaponsystem.html", message = "Invalid Listen Port")
+            self.render("admin/create_weaponsystem.html",
+                        message="Invalid Listen Port")
             return False
         # SSH User
         try:
@@ -129,13 +137,16 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
             if self.ssh_user.lower() == 'root':
                 raise ValueError("SSH User cannot be 'root'")
         except:
-            self.render("admin/create_weaponsystem.html", message = "Missing SSH User")
+            self.render("admin/create_weaponsystem.html",
+                        message="Missing SSH User")
             return False
         # SSH Key
         try:
-            self.ssh_key = self.filter_string(self.get_argument("sshkey"), extra_chars = "+/=- \n")
+            self.ssh_key = self.filter_string(
+                self.get_argument("sshkey"), extra_chars="+/=- \n")
         except:
-            self.render("admin/create_weaponsystem.html", message = "Missing SSH Private Key")
+            self.render("admin/create_weaponsystem.html",
+                        message="Missing SSH Private Key")
             return False
         # SSH Port
         try:
@@ -143,14 +154,16 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
             if not 1 < self.ssh_port < 65535:
                 raise ValueError("Invalid port range, or not a number")
         except:
-            self.render("admin/create_weaponsystem.html", message = "Missing SSH Port")
+            self.render("admin/create_weaponsystem.html",
+                        message="Missing SSH Port")
             return False
         return True
 
-    def filter_string(self, string, extra_chars = ""):
+    def filter_string(self, string, extra_chars=""):
         ''' Removes erronious chars from a string '''
         char_white_list = ascii_letters + digits + extra_chars
         return filter(lambda char: char in char_white_list, string)
+
 
 class EditWeaponSystemsHandler(AdminBaseHandler):
 
@@ -159,7 +172,8 @@ class EditWeaponSystemsHandler(AdminBaseHandler):
     @restrict_ip_address
     def get(self, *args, **kwargs):
         ''' Renders the create weapon system page '''
-        self.render("admin/edit_weaponsystem.html", weapon_systems = WeaponSystem.get_all())
+        self.render("admin/edit_weaponsystem.html",
+                    weapon_systems=WeaponSystem.get_all())
 
     @authenticated
     @authorized('admin')

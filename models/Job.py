@@ -30,14 +30,17 @@ from models import dbsession
 from models.PasswordHash import PasswordHash
 from models.BaseObject import BaseObject
 
+
 class Job(BaseObject):
 
-    user_id = Column(Integer, ForeignKey('user.id'), nullable = False)
-    name = Column(Unicode(64), unique = True, nullable = False)
-    status = Column(Unicode(64), default = u"NOT_STARTED", nullable = False) # NOT_STARTED / IN_PROGRESS / COMPLETED
-    priority = Column(Integer, default = 1,  nullable = False)
-    completed = Column(Boolean, default = False, nullable = False)
-    hashes = relationship("PasswordHash", backref = backref("Job", lazy = "joined"), cascade = "all, delete-orphan")
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    name = Column(Unicode(64), unique=True, nullable=False)
+    status = Column(Unicode(64), default=u"NOT_STARTED",
+                    nullable=False)  # NOT_STARTED / IN_PROGRESS / COMPLETED
+    priority = Column(Integer, default=1, nullable=False)
+    completed = Column(Boolean, default=False, nullable=False)
+    hashes = relationship("PasswordHash", backref=backref(
+        "Job", lazy="joined"), cascade="all, delete-orphan")
     cached_complexity_analysis = Column(Unicode(256))
     cached_solved_analysis = Column(Unicode(256))
     cached_common_analysis = Column(Unicode(256))
@@ -48,27 +51,27 @@ class Job(BaseObject):
     @classmethod
     def by_id(cls, job_id):
         """ Return the job object whose user id is 'job_id' """
-        return dbsession.query(cls).filter_by(id = job_id).first()
+        return dbsession.query(cls).filter_by(id=job_id).first()
 
     @classmethod
     def by_uuid(cls, job_uuid):
         """ Return the job object whose user uuid is 'job_uuid' """
-        return dbsession.query(cls).filter_by(uuid = unicode(job_uuid)).first()
-    
+        return dbsession.query(cls).filter_by(uuid=unicode(job_uuid)).first()
+
     @classmethod
     def by_job_name(cls, job_name):
         """ Return the job object whose user name is 'job_name' """
-        return dbsession.query(cls).filter_by(name = unicode(job_name)).first()
+        return dbsession.query(cls).filter_by(name=unicode(job_name)).first()
 
     @classmethod
     def qsize(cls):
         ''' Returns the number of incompelte jobs left in the data base '''
-        return dbsession.query(cls).filter_by(status = u"NOT_STARTED").count()
+        return dbsession.query(cls).filter_by(status=u"NOT_STARTED").count()
 
     @classmethod
     def pop(cls):
         ''' Pop a job off the "queue" or return None if not jobs remain '''
-        return dbsession.query(cls).filter_by(status = u"NOT_STARTED").order_by(cls.created).first()
+        return dbsession.query(cls).filter_by(status=u"NOT_STARTED").order_by(cls.created).first()
 
     @property
     def solved_hashes(self):
@@ -138,7 +141,7 @@ class Job(BaseObject):
         ''' Returns a stats on how many hases with the job were solved/unsolved '''
         if self.cached_solved_analysis == None:
             self.cached_solved_analysis = json.dumps([
-                {'Solved': len(self.solved_hashes)}, 
+                {'Solved': len(self.solved_hashes)},
                 {'Unsolved': len(self.unsolved_hashes)},
             ])
             dbsession.add(self)
@@ -149,7 +152,7 @@ class Job(BaseObject):
         ''' Returns stats on how many solved hash's plain text was a common password '''
         if self.cached_common_analysis == None:
             self.cached_common_analysis = json.dumps([
-                {'Common': len(self.common_passwords)}, 
+                {'Common': len(self.common_passwords)},
                 {'Uncommon': len(self.hashes) - len(self.common_passwords)},
             ])
             dbsession.add(self)
@@ -161,19 +164,25 @@ class Job(BaseObject):
         if self.cached_complexity_analysis == None:
             complexity = []
             if 0 < len(self.lower_case_passwords):
-                complexity.append({'Lower Case': len(self.lower_case_passwords)})
+                complexity.append(
+                    {'Lower Case': len(self.lower_case_passwords)})
             if 0 < len(self.upper_case_passwords):
-                complexity.append({'Upper Case': len(self.upper_case_passwords)})
+                complexity.append(
+                    {'Upper Case': len(self.upper_case_passwords)})
             if 0 < len(self.numeric_passwords):
                 complexity.append({'Numeric': len(self.numeric_passwords)})
             if 0 < len(self.mixed_case_passwords):
-                complexity.append({'Mixed Case': len(self.mixed_case_passwords)})
+                complexity.append(
+                    {'Mixed Case': len(self.mixed_case_passwords)})
             if 0 < len(self.lower_alpha_numeric_passwords):
-                complexity.append({'Lower Case Alpha-numeric': len(self.lower_alpha_numeric_passwords)})
+                complexity.append({'Lower Case Alpha-numeric':
+                                   len(self.lower_alpha_numeric_passwords)})
             if 0 < len(self.upper_alpha_numeric_passwords):
-                complexity.append({'Upper Case Alpha-numeric': len(self.upper_alpha_numeric_passwords)})
+                complexity.append({'Upper Case Alpha-numeric':
+                                   len(self.upper_alpha_numeric_passwords)})
             if 0 < len(self.mixed_alpha_numeric_passwords):
-                complexity.append({'Mixed Case Alpha-numeric': len(self.mixed_alpha_numeric_passwords)})
+                complexity.append({'Mixed Case Alpha-numeric':
+                                   len(self.mixed_alpha_numeric_passwords)})
             self.cached_complexity_analysis = json.dumps(complexity)
             dbsession.add(self)
             dbsession.flush()
@@ -188,7 +197,8 @@ class Job(BaseObject):
                     password.solved = True
                 dbsession.add(password)
             except KeyError:
-                logging.error("A database hash is missing from the result set (%s)" % (password.digest))
+                logging.error("A database hash is missing from the result set (%s)" %
+                              (password.digest))
         dbsession.flush()
 
     def to_list(self):

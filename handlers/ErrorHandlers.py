@@ -21,6 +21,7 @@ Created on Mar 13, 2012
 
 from tornado.web import RequestHandler
 
+
 class NotFoundHandler(RequestHandler):
 
     def get(self, *args, **kwargs):
@@ -38,18 +39,22 @@ class NotFoundHandler(RequestHandler):
 
     def delete(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
-        logging.warn("%s attempted to use DELETE method" % self.request.remote_ip)
+        logging.warn(
+            "%s attempted to use DELETE method" % self.request.remote_ip)
         self.render("public/404.html")
 
     def head(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
-        logging.warn("%s attempted to use HEAD method" % self.request.remote_ip)
+        logging.warn(
+            "%s attempted to use HEAD method" % self.request.remote_ip)
         self.render("public/404.html")
 
     def options(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
-        logging.warn("%s attempted to use OPTIONS method" % self.request.remote_ip)
+        logging.warn(
+            "%s attempted to use OPTIONS method" % self.request.remote_ip)
         self.render("public/404.html")
+
 
 class PasswdHandler(RequestHandler):
 
@@ -60,9 +65,10 @@ class PasswdHandler(RequestHandler):
     def post(self, *args, **kwargs):
         ''' Renders a fake /etc/passwd file '''
         self.render("public/passwd.html")
-        
+
+
 class UnauthorizedHandler(RequestHandler):
-    
+
     def get(self, *args, **kwargs):
         ''' Renders the 403 page '''
         self.render("public/403.html")
@@ -70,9 +76,10 @@ class UnauthorizedHandler(RequestHandler):
     def post(self, *args, **kwargs):
         ''' Renders the 403 page '''
         self.render("public/403.html")
-        
+
+
 class PhpHandler(RequestHandler):
-    
+
     def get(self, *args, **kwargs):
         ''' Renders the php page '''
         self.render("public/php.html")
@@ -81,12 +88,13 @@ class PhpHandler(RequestHandler):
         ''' Same as GET '''
         self.render("public/php.html")
 
+
 class RobotsHandler(RequestHandler):
 
     def get(self, *args, **kwargs):
         ''' Renders a fake robots.txt file to screw with people (for fun) '''
         self.set_header('Content-Type', 'text/plain')
-        self.write("# Disallow for extra security\n") # lol
+        self.write("# Disallow for extra security\n")  # lol
         self.write("Disallow: /admin\n")
         self.write("Disallow: /admin/modify_privs\n")
         self.write("Disallow: /admin/modify_jobs\n")

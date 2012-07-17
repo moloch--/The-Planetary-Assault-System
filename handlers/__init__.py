@@ -31,7 +31,7 @@ from modules.Menu import Menu
 from libs.ConfigManager import ConfigManager
 from libs.Session import SessionManager
 from tornado import netutil, options, process
-from tornado.web import Application, StaticFileHandler 
+from tornado.web import Application, StaticFileHandler
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
 from handlers.JobHandlers import *
@@ -44,92 +44,110 @@ from handlers.PublicHandlers import *
 ### Check required files
 charset_path = os.path.abspath("charset.txt")
 if not (os.path.exists(charset_path) and os.path.isfile(charset_path)):
-    logging.critical("No charset.txt file found at %s, cannot continue." % charset_path)
+    logging.critical(
+        "No charset.txt file found at %s, cannot continue." % charset_path)
     os._exit(1)
 config = ConfigManager.Instance()
 
 ### Application setup
 application = Application([
 
-        # Static Handlers - Serves static CSS, JavaScript and image files
-        (r'/static/(.*)', StaticFileHandler, {'path': 'static'}),
-        
-        # User Handlers - Serves user related pages
-        (r'/user', HomeHandler, {'dbsession': dbsession}),
-        (r'/settings', SettingsHandler, {'dbsession': dbsession}),
-        (r'/logout', LogoutHandler),
+                          # Static Handlers - Serves static CSS, JavaScript and
+                          # image files
+                          (r'/static/(.*)',
+                              StaticFileHandler, {'path': 'static'}),
 
-        # Job Handlers - Serves job related pages
-        (r'/createjob', CreateJobHandler, {'dbsession': dbsession}),
-        (r'/queuedjobs', QueuedJobsHandler, {'dbsession': dbsession}),
-        (r'/deletejob', DeleteJobHandler, {'dbsession': dbsession}),
-        (r'/completedjobs', CompletedJobsHandler, {'dbsession': dbsession}),
-        (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {'dbsession': dbsession}),
-        (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {'dbsession': dbsession}),
-        (r'/ajax/jobdata(.*)', AjaxJobDataHandler, {'dbsession': dbsession}),
+                          # User Handlers - Serves user related pages
+                          (r'/user', HomeHandler, {'dbsession': dbsession}),
+                          (r'/settings',
+                              SettingsHandler, {'dbsession': dbsession}),
+                          (r'/logout', LogoutHandler),
 
-        # Admin Handlers - Admin only pages
-        (r'/manageusers', ManageUsersHandler, {'dbsession':dbsession}),
-        (r'/addweaponsystem', AddWeaponSystemsHandler, {'dbsession':dbsession}),
-        (r'/editweaponsystem', EditWeaponSystemsHandler, {'dbsession':dbsession}),
-        
-        # Public handlers - Serves all public pages
-        (r'/', WelcomeHandler),
-        (r'/login', LoginHandler, {'dbsession': dbsession}),
-        (r'/register', RegistrationHandler, {'dbsession': dbsession}),
-        (r'/about', AboutHandler),
-        
-        # Error handlers - Serves error pages
-        (r'/403', UnauthorizedHandler),
-        (r'/robots.txt', RobotsHandler),
-        (r'/(.*).php(.*)', PhpHandler),
-        (r'/(.*)etc/passwd', PasswdHandler),
-        (r'/(.*)', NotFoundHandler)
-    ],
-                          
-    # Randomly generated 64-byte secret key
-    cookie_secret = b64encode(urandom(64)),
-    
-    # Ip addresses that access the admin interface
-    admin_ips = config.admin_ips,
-    
-    # Template directory
-    template_path = 'templates',
-    
-    # Requests that do not pass @authorized will be redirected here
-    forbidden_url = '/403',
-    
-    # UI Modules
-    ui_modules = {"Menu": Menu},
-    
-    # Enable XSRF forms
-    xsrf_cookies = True,
-    
-    # Recaptcha Key
-    recaptcha_private_key = "6LcJJ88SAAAAAPPAN72hppldxema3LI7fkw0jaIa",
+                          # Job Handlers - Serves job related pages
+                          (r'/createjob',
+                              CreateJobHandler, {'dbsession': dbsession}),
+                          (r'/queuedjobs',
+                              QueuedJobsHandler, {'dbsession': dbsession}),
+                          (r'/deletejob',
+                              DeleteJobHandler, {'dbsession': dbsession}),
+                          (r'/completedjobs',
+                              CompletedJobsHandler, {'dbsession': dbsession}),
+                          (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {
+                           'dbsession': dbsession}),
+                          (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {
+                           'dbsession': dbsession}),
+                          (r'/ajax/jobdata(.*)',
+                              AjaxJobDataHandler, {'dbsession': dbsession}),
 
-    # Milli-Seconds between session clean up
-    clean_up_timeout = int(60 * 1000),
+                          # Admin Handlers - Admin only pages
+                          (r'/manageusers',
+                              ManageUsersHandler, {'dbsession':dbsession}),
+                          (r'/addweaponsystem', AddWeaponSystemsHandler, {
+                           'dbsession':dbsession}),
+                          (r'/editweaponsystem', EditWeaponSystemsHandler, {
+                           'dbsession':dbsession}),
 
-    # Debug mode
-    debug = config.debug,
-    
-    # Application version
-    version = '0.1'
-)
+                          # Public handlers - Serves all public pages
+                          (r'/', WelcomeHandler),
+                          (r'/login', LoginHandler, {'dbsession': dbsession}),
+                          (r'/register',
+                              RegistrationHandler, {'dbsession': dbsession}),
+                          (r'/about', AboutHandler),
+
+                          # Error handlers - Serves error pages
+                          (r'/403', UnauthorizedHandler),
+                          (r'/robots.txt', RobotsHandler),
+                          (r'/(.*).php(.*)', PhpHandler),
+                          (r'/(.*)etc/passwd', PasswdHandler),
+                          (r'/(.*)', NotFoundHandler)
+                          ],
+
+                          # Randomly generated 64-byte secret key
+                          cookie_secret=b64encode(urandom(64)),
+
+                          # Ip addresses that access the admin interface
+                          admin_ips=config.admin_ips,
+
+                          # Template directory
+                          template_path='templates',
+
+                          # Requests that do not pass @authorized will be
+                          # redirected here
+                          forbidden_url='/403',
+
+                          # UI Modules
+                          ui_modules={"Menu": Menu},
+
+                          # Enable XSRF forms
+                          xsrf_cookies=True,
+
+                          # Recaptcha Key
+                          recaptcha_private_key="6LcJJ88SAAAAAPPAN72hppldxema3LI7fkw0jaIa",
+
+                          # Milli-Seconds between session clean up
+                          clean_up_timeout=int(60 * 1000),
+
+                          # Debug mode
+                          debug=config.debug,
+
+                          # Application version
+                          version='0.1'
+                          )
 
 ### Main entry point
+
+
 def start_server():
     ''' Main entry point for the application '''
     sockets = netutil.bind_sockets(config.listen_port)
     server = HTTPServer(application)
     server.add_sockets(sockets)
     io_loop = IOLoop.instance()
-    session_manager = SessionManager.Instance()    
+    session_manager = SessionManager.Instance()
     session_clean_up = PeriodicCallback(
         session_manager.clean_up,
         application.settings['clean_up_timeout'],
-        io_loop = io_loop
+        io_loop=io_loop
     )
     try:
         logging.info("Orbital control is now online.")

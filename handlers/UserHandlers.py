@@ -31,27 +31,30 @@ from tornado.web import RequestHandler
 from BaseHandlers import UserBaseHandler
 from recaptcha.client import captcha
 
+
 class HomeHandler(UserBaseHandler):
-    
+
     @authenticated
     def get(self, *args, **kwargs):
         ''' Display the default user page '''
         user = User.by_user_name(self.session.data['user_name'])
         dispatch = Dispatch.Instance()
-        self.render('user/home.html', user = user, current_job = dispatch.current_job_name)
+        self.render('user/home.html', user=user,
+                    current_job=dispatch.current_job_name)
 
     @authenticated
     def post(self, *args, **kwargs):
         pass
 
+
 class SettingsHandler(UserBaseHandler):
-    
+
     @authenticated
     def get(self, *args, **kwargs):
         ''' Display the user settings '''
         user = User.by_user_name(self.session.data['user_name'])
-        self.render('user/settings.html', user = user, message = None)
-    
+        self.render('user/settings.html', user=user, message=None)
+
     @authenticated
     def post(self, *args, **kwargs):
         ''' Calls function based on parameter '''
@@ -67,7 +70,8 @@ class SettingsHandler(UserBaseHandler):
             new_password = self.get_argument("new_password")
             new_password_two = self.get_argument("new_password2")
         except:
-            self.render("user/error.html", operation = "Changing Password", errors = "Please fill out all forms")
+            self.render("user/error.html", operation="Changing Password",
+                        errors="Please fill out all forms")
         try:
             response = captcha.submit(
                 self.get_argument('recaptcha_challenge_field'),
@@ -76,7 +80,8 @@ class SettingsHandler(UserBaseHandler):
                 self.request.remote_ip
             )
         except:
-            self.render("user/error.html", operation = "Changing Password", errors = "Please fill out recaptcha")
+            self.render("user/error.html", operation="Changing Password",
+                        errors="Please fill out recaptcha")
         if user.validate_password(old_password):
             if new_password == new_password_two:
                 if 12 <= len(new_password):
@@ -84,15 +89,21 @@ class SettingsHandler(UserBaseHandler):
                         user.password = new_password
                         self.dbsession.add(user)
                         self.dbsession.flush()
-                        self.render("user/settings.html", message = "Succesfully Changed Password!")
+                        self.render("user/settings.html",
+                                    message="Succesfully Changed Password!")
                     else:
-                        self.render("user/error.html", operation = "Changing Password", errors = "Invalid recaptcha")
+                        self.render("user/error.html", operation="Changing Password",
+                                    errors="Invalid recaptcha")
                 else:
-                    self.render("user/error.html", operation = "Change Password", errors = "Password must be at least 12 chars")
+                    self.render("user/error.html", operation="Change Password",
+                                errors="Password must be at least 12 chars")
             else:
-                self.render("user/error.html", operation = "Changing Password", errors = "New password's didn't match")
+                self.render("user/error.html", operation="Changing Password",
+                            errors="New password's didn't match")
         else:
-            self.render("user/error.html", operation = "Changing Password", errors = "Invalid old password")
+            self.render("user/error.html", operation="Changing Password",
+                        errors="Invalid old password")
+
 
 class LogoutHandler(RequestHandler):
 

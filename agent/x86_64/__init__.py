@@ -20,4 +20,3 @@ Created on June 23, 2012
 '''
 
 import RainbowCrack
-
