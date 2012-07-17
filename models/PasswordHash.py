@@ -22,8 +22,7 @@ Created on Mar 12, 2012
 import re
 import logging
 
-from sqlalchemy import and_
-from sqlalchemy import Column, ForeignKey
+from sqlalchemy import Column, ForeignKey, and_
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean
 from models import dbsession
@@ -40,7 +39,8 @@ class PasswordHash(BaseObject):
     common_passwords = ['123456', '12345', '123456789', 'password', 'iloveyou', 'princess',
         'rockyou', '1234567', '12345678', 'abc123', 'nicole', 'daniel', 'babygirl', 'monkey',
         'jessica', 'lovely', 'michael', 'ashley', '654321', 'qwerty', 'letmein', 'admin', 'fuck',
-        'fuckyou', 'love', 'sex', 'secret', 'god',
+        'fuckyou', 'dragon', 'pussy','baseball', 'football', '696969', 'mustang', '111111', '2000',
+        'shadow', 'master', 'jennifer', 'jordan', 'superman', 'love', 'sex', 'secret', 'god',
     ]
 
     @classmethod
@@ -56,29 +56,21 @@ class PasswordHash(BaseObject):
     @property
     def lower_case(self):
         ''' Checks to see if the password is only lower case chars '''
-        if not self.solved:
-            raise ValueError
         return self.__regex__("^[a-z]*$")
 
     @property
     def upper_case(self):
         ''' Checks to see if the password is only upper case chars '''
-        if not self.solved:
-            raise ValueError
         return self.__regex__("^[A-Z]*$")
 
     @property
     def numeric(self):
         ''' Checks to see if the password is only numeric chars '''
-        if not self.solved:
-            raise ValueError
         return self.__regex__("^[0-9]*$")
 
     @property
     def mixed_case(self):
         ''' Checks to see if the password is only lower/upper chars '''
-        if not self.solved:
-            raise ValueError
         contains_cases = self.__regex__("^(?=.*[a-z])(?=.*[A-Z]).+$")
         only_alpha = self.__regex__("^[a-zA-Z]*$")
         return (contains_cases and only_alpha)
@@ -86,8 +78,6 @@ class PasswordHash(BaseObject):
     @property
     def lower_alpha_numeric(self):
         ''' Checks to see if the password is only lower case/numeric chars '''
-        if not self.solved:
-            raise ValueError
         contains_alph_numeric = self.__regex__("^(?=.*[a-z])(?=.*[0-9]).+$")
         only_alpha_numeric = self.__regex__("^[a-z0-9]*$")
         return (contains_alph_numeric and only_alpha_numeric)
@@ -95,8 +85,6 @@ class PasswordHash(BaseObject):
     @property
     def upper_alpha_numeric(self):
         ''' Checks to see if the password is only upper case/numeric chars '''
-        if not self.solved:
-            raise ValueError
         contains_alph_numeric = self.__regex__("^(?=.*[A-Z])(?=.*[0-9]).+$")
         only_alpha_numeric = self.__regex__("^[A-Z0-9]*$")
         return (contains_alph_numeric and only_alpha_numeric)
@@ -104,21 +92,19 @@ class PasswordHash(BaseObject):
     @property
     def mixed_alpha_numeric(self):
         ''' Checks to see if the password is only lower/upper case and numeric chars '''
-        if not self.solved:
-            raise ValueError
         contains_mixed_alpha_numeric = self.__regex__("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$")
         only_mixed_alpha_numeric = self.__regex__("^[a-zA-Z0-9]*$")
         return (contains_mixed_alpha_numeric and only_mixed_alpha_numeric)
 
     @property
     def is_common(self):
-        ''' Checks to see if the password is in the common password list '''
-        if not self.solved:
-            raise ValueError
+        ''' Checks to see if the password is in the common password list (ignores case) '''
         return self.plain_text.lower() in self.common_passwords
 
     def __regex__(self, expression):
         ''' Runs a regex returns a bool '''
+        if not self.solved:
+            raise ValueError("Cannot analyze unsolved hashes")
         regex = re.compile(expression)
         return bool(regex.match(self.plain_text))
 

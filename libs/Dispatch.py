@@ -19,6 +19,7 @@ Created on June 30, 2012
     limitations under the License.
 '''
 
+
 import os
 import thread
 import logging
@@ -38,7 +39,6 @@ class Dispatch(object):
     def __init__(self):
         self.__config__()
         self.is_busy = False
-        self.current_job_name = None
         self.mutex = Lock()
 
     def __config__(self):
@@ -60,17 +60,29 @@ class Dispatch(object):
         ''' Spawns a seperate cracking thread '''
         thread.start_new_thread(self.__crack__, (job,))
 
-    def __crack__(self, job):
-        ''' Does the actual password cracking '''
+    def __crack__(self, job, weapon_system):
+        ''' 
+        Does the actual password cracking, before calling this function you should
+        ensure the weapon system is online and not busy
+        '''
         user = User.by_id(job.user_id)
         if user == None or job == None or len(job) == 0:
             logging.error("Invalid job passed to dispatcher.")
         else:
             algo = job.hashes[0].algorithm
-            tables_path = self.config.rainbow_tables[algo]
-            logging.info("Cracking %d %s hashes for %s." % (len(job.hashes), algo, user.user_name))
             job.started = datetime.now()
-            results = RainbowCrack.crack(len(job), job.to_list(), tables_path, maxThreads = self.config.max_threads)
+            try:
+                ssh_keyfile = NamedTemporaryFile()
+                ssh_keyfile.write(weapon_system.ssh_key)
+                ssh_keyfile.seek(0)
+                ssh_context = SshContext(weapon_system.ip_address, user = weapon_system.ssh_user, keyfile = ssh_keyfile.name)
+                rpc_connection = rpyc.ssh_connect(ssh_context, self.service_port)
+                hashes = job.to_list()
+                results = rpc_connection.root.exposed_crack_list(job.id, job.to_list(), algo, weapon_system.cpu_count)
+            except:
+                logging.exception("Connection to remote weapon system failed, check parameters")
+            finally:
+                ssh_keyfile.close()
             job.save_results(results)
             job.completed = True
             job.finished = datetime.now()

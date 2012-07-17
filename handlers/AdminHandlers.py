@@ -66,7 +66,7 @@ class ManageJobsHandler(AdminBaseHandler):
     @authenticated
     @authorized('admin')
     @restrict_ip_address
-    def post(sefl, *args, **kwargs):
+    def post(self, *args, **kwargs):
         pass
 
 class AddWeaponSystemsHandler(AdminBaseHandler):
@@ -94,7 +94,6 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
             )
             dbsession.add(weapon_system)
             dbsession.flush()
-            #thread.start_new_thread(weapon_system.initialize, (weapon_system,))
             weapon_system.initialize()
             self.render("admin/created_weaponsystem.html")
 

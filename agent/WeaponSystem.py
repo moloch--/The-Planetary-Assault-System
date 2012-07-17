@@ -26,6 +26,7 @@ import platform
 import ConfigParser
 
 from sys import argv
+from threading import Lock
 from os import path, sysconf, _exit
 from multiprocessing import cpu_count
 
@@ -59,20 +60,32 @@ class WeaponSystem(rpyc.Service):
         self.__cpu__()
         self.rainbow_tables = {'LM': None, 'NTLM': None, 'MD5': None}
         self.algorithms = self.rainbow_tables.keys()
-        self.__tables__
+        self.__tables__()
         self.is_busy = False
+        self.mutex = Lock()
         logging.info("Weapon system online, good hunting.")
 
     def on_disconnect(self):
         ''' Called if the connection is lost '''
         pass
 
-    def exposed_crack_list(self, hashes, hash_type, threads = 0):
-        ''' Cracks a list of hashes '''
+    def exposed_crack_list(self, job_id, hashes, hash_type, threads = 0):
+        ''' 
+        Cracks a list of hashes, note the control server sets the number of threads
+        by default this should equal the number of detected CPU cores
+        '''
         if threads <= 0:
             threads = 1
+        self.mutex.acquire()
+        self.is_busy = True
+        self.current_job_id = job_id
+        self.mutex.release()
         tables = self.rainbow_tables[hash_type]
+        logging.info("Recieved new assignment, now targeting %s hashes" % len(hashes))
         results = RainbowCrack.hash_list(len(hashes), hashes, tables, maxThreads = threads)
+        self.mutex.acquire()
+        self.is_busy = False
+        self.mutex.release()
         return results
 
     def exposed_get_capabilities(self):
@@ -88,8 +101,18 @@ class WeaponSystem(rpyc.Service):
         return "PONG"
 
     def exposed_is_busy(self):
-        ''' Returns True/False if the current system is busy '''
-        return self.is_busy
+        ''' Returns True/False if the current system is busy (thread safe) '''
+        self.mutex.acquire()
+        busy = self.is_busy
+        self.mutex.release()
+        return busy
+
+    def exposed_current_job(self):
+        ''' Returns the current job id (thread safe) '''
+        self.mutex.acquire()
+        job = self.current_job_id
+        self.mutex.release()
+        return job
 
     def exposed_cpu_count(self):
         ''' Returns the number of detected cpu cores '''
@@ -99,7 +122,7 @@ class WeaponSystem(rpyc.Service):
         ''' Detects the number of CPU cores on a system (including virtual cores) '''
         if cpu_count != None:
             try:
-                self.cpu_cores = multiprocessing.cpu_count()
+                self.cpu_cores = cpu_count()
                 logging.info("Detected %d CPU core(s)" % self.cpu_cores)
             except NotImplementedError:
                 logging.error("Could not detect number of processors; assuming 1")
@@ -116,13 +139,13 @@ class WeaponSystem(rpyc.Service):
         ''' Load rainbow table configurations '''
         for algo in self.algorithms:
             try:
-                table_path = self.config.get("RainbowTables", algo)
+                table_path = config.get("RainbowTables", algo)
                 if table_path.lower() != 'none':
                     self.rainbow_tables[algo] = table_path
                     if not path.exists(self.rainbow_tables[algo]):
                         logging.warn("%s rainbow table directory not found (%s)" % (algo, self.rainbow_tables[algo]))
             except:
-                continue
+                logging.exception("Failed to read %s configuration from file" % algo)
 
 if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer

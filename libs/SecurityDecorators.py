@@ -51,7 +51,7 @@ def restrict_ip_address(method):
     return wrapper
 
 def authorized(permission):
-    """ Checks user's permissions, implies @authorized """
+    """ Checks user's permissions for a given value """
     
     def func(method):
         @functools.wraps(method)

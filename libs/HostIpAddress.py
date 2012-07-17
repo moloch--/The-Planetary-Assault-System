@@ -22,11 +22,10 @@ import logging
 
 class HostIpAddress():
 
-	def __init__(self):
-		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		sock.connect(("google.com", 80))
-		self.ip_address = sock.getsockname()[0]
-		sock.close()
-
-	def get_ip_address(self):
-		return self.ip_address
+    @classmethod
+	def get_ip_address(cls, uri = "http://google.com/", port = 80):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect((uri, port))
+        ip_address = sock.getsockname()[0]
+        sock.close()
+		return ip_address

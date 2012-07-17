@@ -41,7 +41,6 @@ class WeaponSystem(BaseObject):
     ip_address = Column(Unicode(64), unique = True, nullable = False)
     ssh_port = Column(Integer, default = 22, nullable = False)
     service_port = Column(Integer, default = 31337, nullable = False)
-    busy = Column(Boolean, default = False, nullable = False)
     lm_capable = Column(Boolean, default = False, nullable = False)
     ntlm_capable = Column(Boolean, default = False, nullable = False)
     md5_capable = Column(Boolean, default = False, nullable = False)
@@ -59,8 +58,13 @@ class WeaponSystem(BaseObject):
 
     @classmethod
     def get_all(cls):
-        """ Get all WeaponSystem objects """
-        return dbsession.query(cls).all()
+        """ Get all WeaponSystem objects that have been initialized """
+        return dbsession.query(cls).filter_by(initialized = True).all()
+
+    @classmethod
+    def get_uninitialized(cls):
+        """ Get all WeaponSystem objects that have not been initialized """
+        return dbsession.query(cls).filter_by(initialized = False).all()
 
     @classmethod
     def by_name(cls, weapon_name):
@@ -87,29 +91,32 @@ class WeaponSystem(BaseObject):
         """ Return all the WeaponSystem objects that are md5 capable """
         return dbsession.query(cls).filter_by(md5_capable = True).all()
 
-    @property
-    def online(self):
-        ''' Checks if a system is online '''
-        success = False
-        try:
-            ssh_keyfile = NamedTemporaryFile()
-            ssh_keyfile.write(self.ssh_key)
-            ssh_keyfile.seek(0)
-            ssh_context = SshContext(self.ip_address, user = self.ssh_user, keyfile = ssh_keyfile.name)
-            rpc_connection = rpyc.ssh_connect(ssh_context, self.service_port)
-            success = rpc_connection.root.exposed_ping() == "PONG"
-        except:
-            logging.exception("Connection to remote weapon system failed, check parameters")
-        finally:
-            ssh_keyfile.close()
-        return success
+    @classmethod
+    def all_idle(cls):
+        ''' Returns a list of systems that are initialized, online and not busy '''
+        online_systems = filter(lambda weapon_system: weapon_system.is_online() == True, cls.get_all())
+        return filter(lambda weapon_system: weapon_system.is_busy() == False, online_systems)
 
-    @property
-    def is_busy(self):
-        return self.busy
+    @classmethod
+    def ready_md5_capable(cls):
+        """ Return all the WeaponSystem objects that are online, not busy and md5 capable """
+        online_systems = filter(lambda weapon_system: weapon_system.is_online() == True,  cls.all_md5_capable())
+        return filter(lambda weapon_system: weapon_system.is_busy() == False, online_systems)
+
+    @classmethod
+    def ready_lm_capable(cls):
+        """ Return all the WeaponSystem objects that are online, not busy and lm capable """
+        online_systems = filter(lambda weapon_system: weapon_system.is_online() == True,  cls.all_lm_capable())
+        return filter(lambda weapon_system: weapon_system.is_busy() == False, online_systems)
+
+    @classmethod
+    def ready_ntlm_capable(cls):
+        """ Return all the WeaponSystem objects that are online, not busy and ntlm capable """
+        online_systems = filter(lambda weapon_system: weapon_system.is_online() == True,  cls.all_ntlm_capable())
+        return filter(lambda weapon_system: weapon_system.is_busy() == False, online_systems)
 
     def initialize(self, *args):
-        ''' One time initialization '''
+        ''' One time initialization, gathers system information '''
         logging.info("Preforming weapon system initialization, please wait ... ")
         ssh_keyfile = NamedTemporaryFile()
         ssh_keyfile.write(self.ssh_key)
@@ -127,6 +134,37 @@ class WeaponSystem(BaseObject):
             dbsession.add(self)
             dbsession.flush()
         except ValueError:
-            logging.info("Failed to initialize weapon system, check parameters")
+            logging.warn("Failed to initialize weapon system, check parameters")
         finally:
             ssh_keyfile.close()
+
+    def is_online(self):
+        ''' Checks if a system is online '''
+        success = False
+        try:
+            ssh_keyfile = NamedTemporaryFile()
+            ssh_keyfile.write(self.ssh_key)
+            ssh_keyfile.seek(0)
+            ssh_context = SshContext(self.ip_address, user = self.ssh_user, keyfile = ssh_keyfile.name)
+            rpc_connection = rpyc.ssh_connect(ssh_context, self.service_port)
+            success = rpc_connection.root.exposed_ping() == "PONG"
+        except:
+            logging.exception("Connection to remote weapon system failed, check parameters")
+        finally:
+            ssh_keyfile.close()
+        return success
+
+    def is_busy(self):
+        ''' Checks to see if a remote system is busy returns bool or None '''
+        try:
+            ssh_keyfile = NamedTemporaryFile()
+            ssh_keyfile.write(self.ssh_key)
+            ssh_keyfile.seek(0)
+            ssh_context = SshContext(self.ip_address, user = self.ssh_user, keyfile = ssh_keyfile.name)
+            rpc_connection = rpyc.ssh_connect(ssh_context, self.service_port)
+            busy = rpc_connection.root.exposed_is_busy()
+        except:
+            logging.exception("Connection to remote weapon system failed, check parameters")
+        finally:
+            ssh_keyfile.close()
+        return busy

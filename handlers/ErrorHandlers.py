@@ -31,6 +31,26 @@ class NotFoundHandler(RequestHandler):
         ''' Renders the "404" page (returns 200 status) '''
         self.render("public/404.html")
 
+    def put(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use PUT method" % self.request.remote_ip)
+        self.render("public/404.html")
+
+    def delete(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use DELETE method" % self.request.remote_ip)
+        self.render("public/404.html")
+
+    def head(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use HEAD method" % self.request.remote_ip)
+        self.render("public/404.html")
+
+    def options(self, *args, **kwargs):
+        ''' Log odd behavior, this should never get legitimately called '''
+        logging.warn("%s attempted to use OPTIONS method" % self.request.remote_ip)
+        self.render("public/404.html")
+
 class PasswdHandler(RequestHandler):
 
     def get(self, *args, **kwargs):
@@ -58,4 +78,28 @@ class PhpHandler(RequestHandler):
         self.render("public/php.html")
 
     def post(self, *args, **kwargs):
+        ''' Same as GET '''
         self.render("public/php.html")
+
+class RobotsHandler(RequestHandler):
+
+    def get(self, *args, **kwargs):
+        ''' Renders a fake robots.txt file to screw with people (for fun) '''
+        self.set_header('Content-Type', 'text/plain')
+        self.write("# Disallow for extra security\n") # lol
+        self.write("Disallow: /admin\n")
+        self.write("Disallow: /admin/modify_privs\n")
+        self.write("Disallow: /admin/modify_jobs\n")
+        self.write("Disallow: /admin/display_private_keys\n")
+        self.write("Disallow: /admin/shells\n")
+        self.write("Disallow: /admin/ssh_keys\n")
+        self.write("Disallow: /admin/edit_users\n")
+        self.write("Disallow: /admin/sql_admin\n")
+        self.write("Disallow: /admin/passwords\n")
+        self.write("Disallow: /admin/ajax_api\n")
+        self.write("Disallow: /admin/rpc_api\n")
+        self.write("Disallow: /admin/xmlrpc\n")
+        self.write("Disallow: /admin/exec_cmd\n")
+        self.write("\n# Prevent bots from querying the db\n")
+        self.write("Disallow: /ajax/sql\n")
+        self.finish()

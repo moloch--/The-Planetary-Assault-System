@@ -40,6 +40,7 @@ class Job(BaseObject):
     cached_complexity_analysis = Column(Unicode(256))
     cached_solved_analysis = Column(Unicode(256))
     cached_common_analysis = Column(Unicode(256))
+    cached_length_analysis = Column(Unicode(256))
     started = Column(DateTime)
     finished = Column(DateTime)
 
@@ -118,12 +119,26 @@ class Job(BaseObject):
         ''' Returns all common passwords in the job '''
         return filter(lambda password_hash: password_hash.is_common == True, self.solved_hashes)
 
+    def stats_length(self):
+        ''' Returns stats on password length '''
+        if self.cached_length_analysis == None:
+            results = {}
+            for password in self.solved_hashes:
+                if len(password.plain_text) in self.results.keys():
+                    results[len(password.plain_text)] += 1
+                else:
+                    results[len(password.plain_text)] = 1
+            self.cached_length_analysis = json.dumps(results)
+            dbsession.add(self)
+            dbsession.flush()
+        return self.cached_length_analysis
+
     def stats_solved(self):
         ''' Returns a stats on how many hases with the job were solved/unsolved '''
         if self.cached_solved_analysis == None:
             self.cached_solved_analysis = json.dumps([
                 {'Solved': len(self.solved_hashes)}, 
-                {'Unsolved': len(self.unsolved_hashes)}
+                {'Unsolved': len(self.unsolved_hashes)},
             ])
             dbsession.add(self)
             dbsession.flush()
@@ -134,7 +149,7 @@ class Job(BaseObject):
         if self.cached_common_analysis == None:
             self.cached_common_analysis = json.dumps([
                 {'Common': len(self.common_passwords)}, 
-                {'Uncommon': len(self.hashes) - len(self.common_passwords)}
+                {'Uncommon': len(self.hashes) - len(self.common_passwords)},
             ])
             dbsession.add(self)
             dbsession.flush()
@@ -189,3 +204,7 @@ class Job(BaseObject):
     def __str__(self):
         ''' Returns name when str() is called '''
         return self.name
+
+    def __repr__(self):
+        ''' Repr impl '''
+        return "<(%d) %s: hashes(%d), completed(%s)>" % (self.id, self.name, len(self), str(self.completed))
