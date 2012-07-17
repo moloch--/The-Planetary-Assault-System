@@ -45,20 +45,15 @@ class Dispatch(object):
         self.config = ConfigManager.Instance()
 
     def start(self, job_id):
-        ''' Mostly thread safe, starts a job or adds it to the queue '''
-        self.mutex.acquire()
-        if not self.is_busy:
-            self.is_busy = True
-            job = Job.by_id(job_id)
-            self.current_job_name = str(job)
-            self.mutex.release()
-            self.__dispatch__(job)
-        else:
-            self.mutex.release()
+        ''' Starts a job or leaves it in the queue '''
+        job = Job.by_id(job_id)
+        weapon_systems = WeaponSystem.ready_systems(job.hashes[0].algorithm)
+        if weapon_systems != None and 0 < len(weapon_systems):
+            self.__dispatch__(job, weapon_system)
 
-    def __dispatch__(self, job):
+    def __dispatch__(self, job, weapon_system):
         ''' Spawns a seperate cracking thread '''
-        thread.start_new_thread(self.__crack__, (job,))
+        thread.start_new_thread(self.__crack__, (job, weapon_system))
 
     def __crack__(self, job, weapon_system):
         ''' 
@@ -66,8 +61,12 @@ class Dispatch(object):
         ensure the weapon system is online and not busy
         '''
         user = User.by_id(job.user_id)
-        if user == None or job == None or len(job) == 0:
+        if user == None or job == None:
             logging.error("Invalid job passed to dispatcher.")
+        elif len(job) <= 0:
+            job.status = u"COMPLETED"
+            dbsession.add(job)
+            dbsession.flush()
         else:
             algo = job.hashes[0].algorithm
             job.started = datetime.now()

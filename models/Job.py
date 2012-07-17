@@ -34,6 +34,7 @@ class Job(BaseObject):
 
     user_id = Column(Integer, ForeignKey('user.id'), nullable = False)
     name = Column(Unicode(64), unique = True, nullable = False)
+    status = Column(Unicode(64), default = u"NOT_STARTED", nullable = False) # NOT_STARTED / IN_PROGRESS / COMPLETED
     priority = Column(Integer, default = 1,  nullable = False)
     completed = Column(Boolean, default = False, nullable = False)
     hashes = relationship("PasswordHash", backref = backref("Job", lazy = "joined"), cascade = "all, delete-orphan")
@@ -62,12 +63,12 @@ class Job(BaseObject):
     @classmethod
     def qsize(cls):
         ''' Returns the number of incompelte jobs left in the data base '''
-        return dbsession.query(cls).filter_by(completed = False).count()
+        return dbsession.query(cls).filter_by(status = u"NOT_STARTED").count()
 
     @classmethod
     def pop(cls):
         ''' Pop a job off the "queue" or return None if not jobs remain '''
-        return dbsession.query(cls).filter_by(completed = False).order_by(cls.created).first()
+        return dbsession.query(cls).filter_by(status = u"NOT_STARTED").order_by(cls.created).first()
 
     @property
     def solved_hashes(self):

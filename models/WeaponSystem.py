@@ -115,6 +115,15 @@ class WeaponSystem(BaseObject):
         online_systems = filter(lambda weapon_system: weapon_system.is_online() == True,  cls.all_ntlm_capable())
         return filter(lambda weapon_system: weapon_system.is_busy() == False, online_systems)
 
+    @classmethod
+    def ready_systems(cls, algo):
+        ready_funcs = {
+            "LM": cls.ready_lm_capable,
+            "NTLM": cls.ready_ntlm_capable,
+            "MD5": cls.ready_md5_capable,
+        }
+        return ready_funcs[algo]()
+
     def initialize(self, *args):
         ''' One time initialization, gathers system information '''
         logging.info("Preforming weapon system initialization, please wait ... ")
