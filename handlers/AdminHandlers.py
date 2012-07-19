@@ -165,6 +165,24 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
         return filter(lambda char: char in char_white_list, string)
 
 
+class InitializeHandler(AdminBaseHandler):
+
+    @authenticated
+    @authorized('admin')
+    @restrict_ip_address
+    def get(self, *args, **kwargs):
+        try:
+            weapon_system = WeaponSystem.by_uuid(self.get_argument('uuid'))
+            success = weapon_system.initialize()
+        except:
+            self.render("admin/initialize_failure.html")
+            return
+        if success:
+            self.render("admin/initialize_success.html")
+        else:
+            self.render("admin/initialize_failure.html")
+
+
 class EditWeaponSystemsHandler(AdminBaseHandler):
 
     @authenticated
@@ -173,10 +191,11 @@ class EditWeaponSystemsHandler(AdminBaseHandler):
     def get(self, *args, **kwargs):
         ''' Renders the create weapon system page '''
         self.render("admin/edit_weaponsystem.html",
+                    uninit_systems=WeaponSystem.get_uninitialized(),
                     weapon_systems=WeaponSystem.get_all())
 
     @authenticated
     @authorized('admin')
     @restrict_ip_address
-    def post(sefl, *args, **kwargs):
+    def post(self, *args, **kwargs):
         pass

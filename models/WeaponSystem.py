@@ -131,6 +131,7 @@ class WeaponSystem(BaseObject):
 
     def initialize(self, *args):
         ''' One time initialization, gathers system information '''
+        success = False
         logging.info(
             "Preforming weapon system initialization, please wait ... ")
         ssh_keyfile = NamedTemporaryFile()
@@ -150,11 +151,16 @@ class WeaponSystem(BaseObject):
             self.initialized = True
             dbsession.add(self)
             dbsession.flush()
+            success = True
         except ValueError:
-            logging.warn(
+            logging.exception(
+                "Failed to initialize weapon system, check parameters")
+        except EOFError:
+            logging.exception(
                 "Failed to initialize weapon system, check parameters")
         finally:
             ssh_keyfile.close()
+            return success
 
     def is_online(self):
         ''' Checks if a system is online '''

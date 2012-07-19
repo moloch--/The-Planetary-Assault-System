@@ -58,9 +58,7 @@
 	<h2>Weapon Systems</h2>
 	<br />
 	<div class="well">
-		{% if len(weapon_systems) == 0 %}
-			<strong>No Weapon Systems</strong>
-		{% else %}
+		{% if len(weapon_systems) != 0 %}
 			<table class="table table-striped">
 		        <thead>
 		          <tr>
@@ -117,6 +115,15 @@
 					{% end %}
 		        </tbody>
 		    </table>
+		</div>
+	{% end %}
+	{% if len(uninit_systems) != 0 %}
+		<h2>Uninitialized Systems</h2>
+		<br />
+		<div class="well">
+			{% for uninit in uninit_systems %}
+				{{ uninit.name }}: <a href="/initialize?uuid={{ uninit.uuid }}">Initialize</a>
+			{% end %}
 		</div>
 	{% end %}
 {% end %}

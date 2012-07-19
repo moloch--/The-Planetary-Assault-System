@@ -33,11 +33,12 @@ from models.BaseObject import BaseObject
 
 
 def gen_salt():
+    ''' Generate a 24-byte random salt '''
     return unicode(b64encode(urandom(24)))
 
 
 class User(BaseObject):
-    """ User definition """
+    ''' User definition '''
 
     user_name = Column(Unicode(64), unique=True, nullable=False)
     approved = Column(Boolean, default=False)
@@ -57,38 +58,38 @@ class User(BaseObject):
 
     @classmethod
     def by_id(cls, user_id):
-        """ Return the user object whose user id is user_id """
+        ''' Return the user object whose user id is user_id '''
         return dbsession.query(cls).filter_by(id=user_id).first()
 
     @classmethod
     def by_id(cls, user_uuid):
-        """ Return the user object whose user uuid is user_uuid """
+        ''' Return the user object whose user uuid is user_uuid '''
         return dbsession.query(cls).filter_by(uuid=unicode(user_uuid)).first()
 
     @classmethod
     def get_unapproved(cls):
-        """ Return all unapproved user objects """
+        ''' Return all unapproved user objects '''
         return dbsession.query(cls).filter_by(approved=False).all()
 
     @classmethod
     def get_approved(cls):
-        """ Return all approved user objects """
+        ''' Return all approved user objects '''
         return dbsession.query(cls).filter_by(approved=True).all()
 
     @classmethod
     def get_all(cls):
-        """ Return all non-admin user objects """
+        ''' Return all non-admin user objects '''
         return dbsession.query(cls).filter(cls.user_name != u'admin').all()
 
     @classmethod
     def by_user_name(cls, user_name):
-        """ Return the user object whose user name is 'user_name' """
+        ''' Return the user object whose user name is 'user_name' '''
         return dbsession.query(cls).filter_by(user_name=unicode(user_name)).first()
 
     @classmethod
     def _hash_password(cls, password, salt):
         '''
-        Hashes the password using 25,000 rounds of salted SHA-256, come at me bro.
+        Hashes the password using 25,001 rounds of salted SHA-256, come at me bro.
         This function will always return a unicode string, but can take an arg of
         any type not just ascii strings, the salt will always be unicode
         '''
@@ -101,29 +102,29 @@ class User(BaseObject):
     @property
     def queued_jobs(self):
         ''' Jobs owned by the user that have not been completed '''
-        return filter(lambda job: (job.completed == False), self.jobs)
+        return filter(lambda job: (job.status != u"COMPLETED"), self.jobs)
 
     @property
     def completed_jobs(self):
         ''' Jobs owned by the user that have been completed '''
-        return filter(lambda job: (job.completed == True), self.jobs)
+        return filter(lambda job: (job.status == u"COMPLETED"), self.jobs)
 
     @property
     def permissions(self):
-        """ Return a list with all permissions granted to the user """
+        ''' Return a list with all permissions granted to the user '''
         return dbsession.query(Permission).filter_by(user_id=self.id)
 
     @property
     def permissions_names(self):
-        """ Return a list with all permissions names granted to the user """
+        ''' Return a list with all permissions names granted to the user '''
         return [permission.permission_name for permission in self.permissions]
 
     def has_permission(self, permission):
-        """ Return True if 'permission' is in permissions_names """
+        ''' Return True if 'permission' is in permissions_names '''
         return True if permission in self.permissions_names else False
 
     def validate_password(self, attempt):
-        """ Check the password against existing credentials """
+        ''' Check the password against existing credentials '''
         return self.password == self._hash_password(attempt, self.salt)
 
     def __repr__(self):

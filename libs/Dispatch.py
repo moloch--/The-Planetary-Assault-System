@@ -4,7 +4,7 @@ Created on June 30, 2012
 
 @author: moloch
 
-  Copyright [2012] [Redacted Labs]
+    Copyright [2012] [Redacted Labs]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ from libs.ConfigManager import ConfigManager
 
 @Singleton
 class Dispatch(object):
+    ''' Dispatcher class, handles queue and RPC calls '''
 
     def __init__(self):
         self.__config__()
@@ -45,16 +46,20 @@ class Dispatch(object):
     def __config__(self):
         self.config = ConfigManager.Instance()
 
-    def start(self, job_id):
-        ''' Starts a job or leaves it in the queue '''
-        job = Job.by_id(job_id)
-        weapon_systems = WeaponSystem.ready_systems(job.hashes[0].algorithm)
-        if weapon_systems != None and 0 < len(weapon_systems):
-            self.__dispatch__(job, weapon_system)
-
-    def __dispatch__(self, job, weapon_system):
-        ''' Spawns a seperate cracking thread '''
-        thread.start_new_thread(self.__crack__, (job, weapon_system))
+    def check_queue(self):
+        ''' Starts a job or leaves it in the queue (thread safe) '''
+        self.mutex.acquire()
+        queue = list(Job.queue()) # Create a copy of the queue
+        for job in queue:
+            if len(job) == 0:
+                job.status = u"COMPLETED"
+                dbsession.add(job)
+                dbsession.flush()
+            else:
+                weapon_systems = WeaponSystem.ready_system(job.hashes[0].algorithm)
+                if weapon_systems != None and 0 < len(weapon_systems):
+                    thread.start_new_thread(self.__crack__, (job, weapon_systems[0],))
+        self.mutex.release()
 
     def __crack__(self, job, weapon_system):
         '''
@@ -64,11 +69,10 @@ class Dispatch(object):
         user = User.by_id(job.user_id)
         if user == None or job == None:
             logging.error("Invalid job passed to dispatcher.")
-        elif len(job) <= 0:
-            job.status = u"COMPLETED"
+        else:
+            job.status = u"IN_PROGRESS"
             dbsession.add(job)
             dbsession.flush()
-        else:
             algo = job.hashes[0].algorithm
             job.started = datetime.now()
             try:
@@ -86,7 +90,8 @@ class Dispatch(object):
                 logging.exception("Connection to remote weapon system failed, check parameters")
             finally:
                 ssh_keyfile.close()
-            job.save_results(results)
+            if results != None:
+                job.save_results(results)
             job.completed = True
             job.finished = datetime.now()
             dbsession.add(job)
@@ -94,16 +99,6 @@ class Dispatch(object):
             self.__next__()
 
     def __next__(self):
-        ''' Determines what to do next depending on queue state '''
+        ''' Called when a weapon system completes a job '''
         if 0 < Job.qsize():
-            logging.info("Popping a job off the queue, %d job(s) remain." %
-                         Job.qsize())
-            next_job = Job.pop()
-            self.__dispatch__(next_job)
-        else:
-            logging.info(
-                "No jobs remain in queue, cracking thread is stopping.")
-            self.mutex.acquire()
-            self.current_job_name = None
-            self.is_busy = False
-            self.mutex.release()
+            self.check_queue()

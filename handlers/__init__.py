@@ -19,6 +19,7 @@ Created on June 23, 2012
     limitations under the License.
 '''
 
+
 import os
 import sys
 import models
@@ -43,110 +44,109 @@ from handlers.PublicHandlers import *
 
 ### Check required files
 charset_path = os.path.abspath("charset.txt")
-if not (os.path.exists(charset_path) and os.path.isfile(charset_path)):
+if not (os.path.exists(charset_path) or os.path.isdir(charset_path)):
     logging.critical(
         "No charset.txt file found at %s, cannot continue." % charset_path)
     os._exit(1)
 config = ConfigManager.Instance()
 
 ### Application setup
-application = Application([
+app = Application([
+                  # Static Handlers - Serves static CSS, JavaScript and
+                  # image files
+                  (r'/static/(.*)',
+                      StaticFileHandler, {'path': 'static'}),
 
-                          # Static Handlers - Serves static CSS, JavaScript and
-                          # image files
-                          (r'/static/(.*)',
-                              StaticFileHandler, {'path': 'static'}),
+                  # User Handlers - Serves user related pages
+                  (r'/user', HomeHandler, {'dbsession': dbsession}),
+                  (r'/settings',
+                      SettingsHandler, {'dbsession': dbsession}),
+                  (r'/logout', LogoutHandler),
 
-                          # User Handlers - Serves user related pages
-                          (r'/user', HomeHandler, {'dbsession': dbsession}),
-                          (r'/settings',
-                              SettingsHandler, {'dbsession': dbsession}),
-                          (r'/logout', LogoutHandler),
+                  # Job Handlers - Serves job related pages
+                  (r'/createjob',
+                      CreateJobHandler, {'dbsession': dbsession}),
+                  (r'/queuedjobs',
+                      QueuedJobsHandler, {'dbsession': dbsession}),
+                  (r'/deletejob',
+                      DeleteJobHandler, {'dbsession': dbsession}),
+                  (r'/completedjobs',
+                      CompletedJobsHandler, {'dbsession': dbsession}),
+                  (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {
+                   'dbsession': dbsession}),
+                  (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {
+                   'dbsession': dbsession}),
+                  (r'/ajax/jobdata(.*)',
+                   AjaxJobDataHandler, {'dbsession': dbsession}),
 
-                          # Job Handlers - Serves job related pages
-                          (r'/createjob',
-                              CreateJobHandler, {'dbsession': dbsession}),
-                          (r'/queuedjobs',
-                              QueuedJobsHandler, {'dbsession': dbsession}),
-                          (r'/deletejob',
-                              DeleteJobHandler, {'dbsession': dbsession}),
-                          (r'/completedjobs',
-                              CompletedJobsHandler, {'dbsession': dbsession}),
-                          (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {
-                           'dbsession': dbsession}),
-                          (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {
-                           'dbsession': dbsession}),
-                          (r'/ajax/jobdata(.*)',
-                              AjaxJobDataHandler, {'dbsession': dbsession}),
+                  # Admin Handlers - Admin only pages
+                  (r'/manageusers', ManageUsersHandler, {
+                   'dbsession':dbsession}),
+                  (r'/addweaponsystem', AddWeaponSystemsHandler, {
+                   'dbsession':dbsession}),
+                  (r'/editweaponsystem', EditWeaponSystemsHandler, {
+                   'dbsession':dbsession}),
+                  (r'/initialize(.*)', InitializeHandler,{
+                   'dbsession':dbsession}),
 
-                          # Admin Handlers - Admin only pages
-                          (r'/manageusers',
-                              ManageUsersHandler, {'dbsession':dbsession}),
-                          (r'/addweaponsystem', AddWeaponSystemsHandler, {
-                           'dbsession':dbsession}),
-                          (r'/editweaponsystem', EditWeaponSystemsHandler, {
-                           'dbsession':dbsession}),
+                  # Public handlers - Serves all public pages
+                  (r'/', WelcomeHandler),
+                  (r'/login', LoginHandler, {'dbsession': dbsession}),
+                  (r'/register',
+                   RegistrationHandler, {'dbsession': dbsession}),
+                  (r'/about', AboutHandler),
 
-                          # Public handlers - Serves all public pages
-                          (r'/', WelcomeHandler),
-                          (r'/login', LoginHandler, {'dbsession': dbsession}),
-                          (r'/register',
-                              RegistrationHandler, {'dbsession': dbsession}),
-                          (r'/about', AboutHandler),
+                  # Error handlers - Serves error pages
+                  (r'/403', UnauthorizedHandler),
+                  (r'/robots.txt', RobotsHandler),
+                  (r'/(.*).php(.*)', PhpHandler),
+                  (r'/(.*)etc/passwd(.*)', PasswdHandler),
+                  (r'/(.*)', NotFoundHandler)
+                  ],
 
-                          # Error handlers - Serves error pages
-                          (r'/403', UnauthorizedHandler),
-                          (r'/robots.txt', RobotsHandler),
-                          (r'/(.*).php(.*)', PhpHandler),
-                          (r'/(.*)etc/passwd', PasswdHandler),
-                          (r'/(.*)', NotFoundHandler)
-                          ],
+                  # Randomly generated 64-byte secret key
+                  cookie_secret=b64encode(urandom(64)),
 
-                          # Randomly generated 64-byte secret key
-                          cookie_secret=b64encode(urandom(64)),
+                  # Ip addresses that access the admin interface
+                  admin_ips=config.admin_ips,
 
-                          # Ip addresses that access the admin interface
-                          admin_ips=config.admin_ips,
+                  # Template directory
+                  template_path='templates',
 
-                          # Template directory
-                          template_path='templates',
+                  # Requests that do not pass @authorized will be
+                  # redirected here
+                  forbidden_url='/403',
 
-                          # Requests that do not pass @authorized will be
-                          # redirected here
-                          forbidden_url='/403',
+                  # UI Modules
+                  ui_modules={"Menu": Menu},
 
-                          # UI Modules
-                          ui_modules={"Menu": Menu},
+                  # Enable XSRF forms (not optional)
+                  xsrf_cookies=True,
 
-                          # Enable XSRF forms
-                          xsrf_cookies=True,
+                  # Recaptcha Key
+                  recaptcha_private_key="6LcJJ88SAAAAAPPAN72hppldxema3LI7fkw0jaIa",
 
-                          # Recaptcha Key
-                          recaptcha_private_key="6LcJJ88SAAAAAPPAN72hppldxema3LI7fkw0jaIa",
+                  # Milli-Seconds between session clean up
+                  clean_up_timeout=int(60 * 1000),
 
-                          # Milli-Seconds between session clean up
-                          clean_up_timeout=int(60 * 1000),
+                  # Debug mode
+                  debug=config.debug,
 
-                          # Debug mode
-                          debug=config.debug,
-
-                          # Application version
-                          version='0.1'
-                          )
-
-### Main entry point
+                  # Application version
+                  version='0.1'
+                  )
 
 
 def start_server():
     ''' Main entry point for the application '''
     sockets = netutil.bind_sockets(config.listen_port)
-    server = HTTPServer(application)
+    server = HTTPServer(app)
     server.add_sockets(sockets)
     io_loop = IOLoop.instance()
     session_manager = SessionManager.Instance()
     session_clean_up = PeriodicCallback(
         session_manager.clean_up,
-        application.settings['clean_up_timeout'],
+        app.settings['clean_up_timeout'],
         io_loop=io_loop
     )
     try:
@@ -157,3 +157,5 @@ def start_server():
         logging.warn("Keyboard interrupt, shutdown everything!")
         session_clean_up.stop()
         io_loop.stop()
+    except:
+        logging.exception("Main I/O Loop threw an excetion!")

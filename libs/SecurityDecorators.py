@@ -18,6 +18,7 @@ Created on Mar 13, 2012
     limitations under the License.
 '''
 
+
 import logging
 import functools
 
@@ -36,14 +37,13 @@ def authenticated(method):
         if session != None:
             return method(self, *args, **kwargs)
         # Just render a 404 page, instead of redirecting - this prevents people
-        # from enumerating
-        # legitimate URLs based on if the page is a 404 or 302
+        # from enumerating legitimate URLs based on if the page is a 404 or 302
         self.render("public/404.html")
     return wrapper
 
 
 def restrict_ip_address(method):
-    """ Only allows access to ip addresses in a provided list """
+    ''' Only allows access to ip addresses in a provided list '''
 
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
@@ -57,7 +57,7 @@ def restrict_ip_address(method):
 
 
 def authorized(permission):
-    """ Checks user's permissions for a given value """
+    ''' Checks user's permissions for a given value '''
 
     def func(method):
         @functools.wraps(method)

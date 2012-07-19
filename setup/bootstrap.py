@@ -32,10 +32,10 @@ config = ConfigManager.Instance()
 if config.debug:
     password = 'nimda123'
 else:
-    sys.stdout.write("[?] New Admin ")
+    sys.stdout.write(PROMPT + "New Admin ")
     sys.stdout.flush()
     password1 = getpass.getpass()
-    sys.stdout.write("[?] Confirm New Admin ")
+    sys.stdout.write(PROMPT + "Confirm New Admin ")
     sys.stdout.flush()
     password2 = getpass.getpass()
     if password1 == password2 and 12 <= len(password1):

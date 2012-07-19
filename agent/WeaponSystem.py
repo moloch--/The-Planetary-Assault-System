@@ -53,10 +53,9 @@ logging.info('Loading config from: %s' % cfg_path)
 config = ConfigParser.SafeConfigParser()
 config.readfp(open(cfg_path, 'r'))
 
-### RPC Services
-
 
 class WeaponSystem(rpyc.Service):
+    ''' RPC Services '''
 
     def on_connect(self):
         ''' Called when successfully connected, does all the initialization '''

@@ -4,26 +4,26 @@ Created on Mar 13, 2012
 
 @author: moloch
 
- Copyright [2012] [Redacted Labs]
+    Copyright [2012] [Redacted Labs]
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 '''
 
 
 import os
 import logging
 
-from models import User
+from models import User, WeaponSystem
 from libs.Dispatch import Dispatch
 from libs.Session import SessionManager
 from libs.SecurityDecorators import authenticated
@@ -39,8 +39,7 @@ class HomeHandler(UserBaseHandler):
         ''' Display the default user page '''
         user = User.by_user_name(self.session.data['user_name'])
         dispatch = Dispatch.Instance()
-        self.render('user/home.html', user=user,
-                    current_job=dispatch.current_job_name)
+        self.render('user/home.html', user=user, all_weapons=WeaponSystem.get_all())
 
     @authenticated
     def post(self, *args, **kwargs):
@@ -48,6 +47,7 @@ class HomeHandler(UserBaseHandler):
 
 
 class SettingsHandler(UserBaseHandler):
+    ''' User controlled settings '''
 
     @authenticated
     def get(self, *args, **kwargs):
@@ -57,13 +57,11 @@ class SettingsHandler(UserBaseHandler):
 
     @authenticated
     def post(self, *args, **kwargs):
-        ''' Calls function based on parameter '''
-        if len(args) == 1 and args[0] in self.post_functions.keys():
-            self.change_password(*args, **kwargs)
-        else:
-            self.render("user/error.html")
+        ''' Currently only supports change password '''
+        self.change_password(*args, **kwargs)
 
     def change_password(self, *args, **kwargs):
+        ''' Updates a user accounts password '''
         user = User.by_user_name(self.session.data['user_name'])
         try:
             old_password = self.get_argument("old_password")
@@ -113,3 +111,7 @@ class LogoutHandler(RequestHandler):
         session_manager.remove_session(self.get_secure_cookie('auth'))
         self.clear_all_cookies()
         self.redirect("/")
+
+    def post(self, *args, **kwargs):
+        ''' Same as GET '''
+        self.get()

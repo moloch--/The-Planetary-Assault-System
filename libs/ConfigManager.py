@@ -42,7 +42,7 @@ class ConfigManager(object):
 
     def __init__(self):
         self.cfg_path = os.path.abspath("PlanetaryAssaultSystem.cfg")
-        if not (os.path.exists(self.cfg_path) and os.path.isfile(self.cfg_path)):
+        if not (os.path.exists(self.cfg_path) or os.path.isdir(self.cfg_path)):
             logging.critical("No configuration file found at %s, cannot continue." %
                              cfg_path)
             os._exit(1)

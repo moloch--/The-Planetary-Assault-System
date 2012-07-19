@@ -69,9 +69,9 @@ class Job(BaseObject):
         return dbsession.query(cls).filter_by(status=u"NOT_STARTED").count()
 
     @classmethod
-    def pop(cls):
+    def queue(cls):
         ''' Pop a job off the "queue" or return None if not jobs remain '''
-        return dbsession.query(cls).filter_by(status=u"NOT_STARTED").order_by(cls.created).first()
+        return dbsession.query(cls).filter_by(status=u"NOT_STARTED").order_by(cls.created).all()
 
     @property
     def solved_hashes(self):

@@ -33,6 +33,7 @@ from models import User
 
 
 class WelcomeHandler(RequestHandler):
+    ''' Landing page '''
 
     def get(self, *args, **kwargs):
         ''' Renders the welcome page '''
@@ -40,6 +41,7 @@ class WelcomeHandler(RequestHandler):
 
 
 class LoginHandler(RequestHandler):
+    ''' Handles the login progress '''
 
     def initialize(self, dbsession):
         self.dbsession = dbsession
@@ -71,14 +73,15 @@ class LoginHandler(RequestHandler):
                 self.request.remote_ip
             )
         except:
-            self.render(
-                'public/login.html', message="Please fill out recaptcha!")
+            self.render('public/login.html', 
+                        message="Please fill out recaptcha!")
             return
         if response == None or not response.is_valid:
             self.render('public/login.html', message="Invalid captcha")
         elif user != None and user.validate_password(password):
             if not user.approved:
-                self.render("public/login.html", message="Your account must be approved by an administrator.")
+                self.render("public/login.html", 
+                            message="Your account must be approved by an administrator.")
             else:
                 logging.info("Successful login: %s from %s" %
                              (user.user_name, self.request.remote_ip))
@@ -89,26 +92,27 @@ class LoginHandler(RequestHandler):
                 session.data['user_name'] = str(user.user_name)
                 session.data['ip'] = str(self.request.remote_ip)
                 if user.has_permission('admin'):
-                    session.data['menu'] = str('admin')
+                    session.data['menu'] = "admin"
                 else:
-                    session.data['menu'] = str('user')
+                    session.data['menu'] = "user"
                 self.redirect('/user')
         else:
             logging.info(
-                "Failed login attempt from %s " % self.request.remote_ip)
+                "Failed login attempt from %s" % self.request.remote_ip)
             self.render('public/login.html',
                         message="Failed login attempt, try again")
 
 
 class RegistrationHandler(RequestHandler):
+    ''' Handles the user registration process (surprise!) '''
 
     def initialize(self, dbsession):
         self.dbsession = dbsession
 
     def get(self, *args, **kwargs):
         ''' Renders registration page '''
-        self.render(
-            "public/registration.html", message="Fill out the form below")
+        self.render("public/registration.html", 
+                    message="Fill out the form below")
 
     def post(self, *args, **kwargs):
         ''' Attempts to create an account, with shitty form validation '''
@@ -145,17 +149,17 @@ class RegistrationHandler(RequestHandler):
         user_name = filter(lambda char: char in char_white_list, user_name)
         # Check parameters
         if not response.is_valid:
-            self.render(
-                'public/registration.html', message='Invalid Recaptcha!')
+            self.render('public/registration.html', 
+                        message='Invalid Recaptcha!')
         elif User.by_user_name(user_name) != None:
             self.render('public/registration.html',
                         message='Account name already taken')
         elif len(user_name) < 3 or 15 < len(user_name):
             self.render('public/registration.html',
                         message='Username must be 3-15 characters')
-        elif len(password) < 12:
+        elif not (12 <= len(password) <= 100):
             self.render('public/registration.html',
-                        message='Password must be 12+ characters')
+                        message='Password must be 12-100 characters')
         else:
             user = User(
                 user_name=unicode(user_name),
@@ -164,7 +168,7 @@ class RegistrationHandler(RequestHandler):
             self.dbsession.add(user)
             self.dbsession.flush()
             # Set password for user
-            user.password = password.encode('utf-8', 'ignore')
+            user.password = password
             self.dbsession.add(user)
             self.dbsession.flush()
             self.render("public/account_created.html", user=user)

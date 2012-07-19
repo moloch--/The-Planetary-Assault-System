@@ -17,6 +17,8 @@ Created on Mar 21, 2012
     See the License for the specific language governing permissions and
     limitations under the License.
 '''
+
+
 import socket
 import logging
 
@@ -24,7 +26,7 @@ import logging
 class HostIpAddress():
 
     @classmethod
-        def get_ip_address(cls, uri="http://google.com/", port=80):
+    def get_ip_address(cls, uri="http://google.com/", port=80):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.connect((uri, port))
         ip_address = sock.getsockname()[0]
