@@ -87,10 +87,10 @@
 					        <td>{{ wsys.ssh_port }}</td>
 					        <td>{{ wsys.service_port }}</td>
 					        <td>
-					        	{% if wsys.online %} Yes {% else %} No {% end %}
+					        	{% if wsys.is_online() %} Yes {% else %} No {% end %}
 					        </td>
 					        <td>
-					        	{% if wsys.is_busy %} Yes {% else %} No {% end %}
+					        	{% if wsys.is_busy() %} Yes {% else %} No {% end %}
 					        </td>
 					        <td>
 					        	{% if wsys.lm_capable %} Yes {% else %} No {% end %}

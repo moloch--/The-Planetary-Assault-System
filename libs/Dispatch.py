@@ -24,7 +24,6 @@ import os
 import thread
 import logging
 import ConfigParser
-import RainbowCrack
 
 from models import dbsession
 from models import Job, User
