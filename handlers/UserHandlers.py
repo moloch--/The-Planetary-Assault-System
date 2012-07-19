@@ -39,7 +39,8 @@ class HomeHandler(UserBaseHandler):
         ''' Display the default user page '''
         user = User.by_user_name(self.session.data['user_name'])
         dispatch = Dispatch.Instance()
-        self.render('user/home.html', user=user, all_weapons=WeaponSystem.get_all())
+        self.render(
+            'user/home.html', user=user, all_weapons=WeaponSystem.get_all())
 
     @authenticated
     def post(self, *args, **kwargs):

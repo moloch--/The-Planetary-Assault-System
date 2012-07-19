@@ -73,14 +73,14 @@ class LoginHandler(RequestHandler):
                 self.request.remote_ip
             )
         except:
-            self.render('public/login.html', 
+            self.render('public/login.html',
                         message="Please fill out recaptcha!")
             return
         if response == None or not response.is_valid:
             self.render('public/login.html', message="Invalid captcha")
         elif user != None and user.validate_password(password):
             if not user.approved:
-                self.render("public/login.html", 
+                self.render("public/login.html",
                             message="Your account must be approved by an administrator.")
             else:
                 logging.info("Successful login: %s from %s" %
@@ -111,7 +111,7 @@ class RegistrationHandler(RequestHandler):
 
     def get(self, *args, **kwargs):
         ''' Renders registration page '''
-        self.render("public/registration.html", 
+        self.render("public/registration.html",
                     message="Fill out the form below")
 
     def post(self, *args, **kwargs):
@@ -149,7 +149,7 @@ class RegistrationHandler(RequestHandler):
         user_name = filter(lambda char: char in char_white_list, user_name)
         # Check parameters
         if not response.is_valid:
-            self.render('public/registration.html', 
+            self.render('public/registration.html',
                         message='Invalid Recaptcha!')
         elif User.by_user_name(user_name) != None:
             self.render('public/registration.html',

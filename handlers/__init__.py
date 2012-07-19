@@ -86,7 +86,7 @@ app = Application([
                    'dbsession':dbsession}),
                   (r'/editweaponsystem', EditWeaponSystemsHandler, {
                    'dbsession':dbsession}),
-                  (r'/initialize(.*)', InitializeHandler,{
+                  (r'/initialize(.*)', InitializeHandler, {
                    'dbsession':dbsession}),
 
                   # Public handlers - Serves all public pages

@@ -49,16 +49,18 @@ class Dispatch(object):
     def check_queue(self):
         ''' Starts a job or leaves it in the queue (thread safe) '''
         self.mutex.acquire()
-        queue = list(Job.queue()) # Create a copy of the queue
+        queue = list(Job.queue())  # Create a copy of the queue
         for job in queue:
             if len(job) == 0:
                 job.status = u"COMPLETED"
                 dbsession.add(job)
                 dbsession.flush()
             else:
-                weapon_systems = WeaponSystem.ready_system(job.hashes[0].algorithm)
+                weapon_systems = WeaponSystem.ready_system(
+                    job.hashes[0].algorithm)
                 if weapon_systems != None and 0 < len(weapon_systems):
-                    thread.start_new_thread(self.__crack__, (job, weapon_systems[0],))
+                    thread.start_new_thread(
+                        self.__crack__, (job, weapon_systems[0],))
         self.mutex.release()
 
     def __crack__(self, job, weapon_system):
