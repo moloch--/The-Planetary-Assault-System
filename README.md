@@ -23,6 +23,7 @@ Orbital Command Setup
 Weapon System Setup
 ====================
 * Edit the RainbowTables section to point to your rainbow table directories
+	* You can download tables from: http://freerainbowtables.com/en/tables2/
 * Setup SSH to allow key auth with a __limited__ user account
 	* Recommended that you disable password auth entirely
 * Pair with orbital command via admin interface
