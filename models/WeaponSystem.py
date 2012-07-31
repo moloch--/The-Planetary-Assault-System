@@ -46,6 +46,7 @@ class WeaponSystem(BaseObject):
     ntlm_capable = Column(Boolean, default=False, nullable=False)
     md5_capable = Column(Boolean, default=False, nullable=False)
     cpu_count = Column(Integer, default=1, nullable=False)
+    gpu_count = Column(Integer, default=0, nullable=False)
 
     @classmethod
     def by_id(cls, weapon_id):
@@ -122,6 +123,7 @@ class WeaponSystem(BaseObject):
 
     @classmethod
     def ready_systems(cls, algo):
+        ''' Pseudo strategy pattern returns ready systems based on algo '''
         ready_funcs = {
             "LM": cls.ready_lm_capable,
             "NTLM": cls.ready_ntlm_capable,
