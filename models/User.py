@@ -45,7 +45,7 @@ class User(BaseObject):
     user_name = synonym('_user_name', descriptor=property(
         lambda self: self._user_name,
         lambda self, user_name: setattr(self, '_user_name',
-            self.__class__._filter_string(user_name, ""))
+                                        self.__class__._filter_string(user_name, ""))
     ))
     approved = Column(Boolean, default=False)
     jobs = relationship("Job", backref=backref(
@@ -58,7 +58,7 @@ class User(BaseObject):
     password = synonym('_password', descriptor=property(
         lambda self: self._password,
         lambda self, password: setattr(self, '_password',
-            self.__class__._hash_password(password, self.salt))
+                                       self.__class__._hash_password(password, self.salt))
     ))
 
     @classmethod

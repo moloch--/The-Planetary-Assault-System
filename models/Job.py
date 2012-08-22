@@ -40,7 +40,7 @@ class Job(BaseObject):
     job_name = synonym('_job_name', descriptor=property(
         lambda self: self._job_name,
         lambda self, job_name: setattr(self, '_job_name',
-            self.__class__._filter_string(job_name, "-_ "))
+                                       self.__class__._filter_string(job_name, "-_ "))
     ))
     status = Column(Unicode(64), default=u"NOT_STARTED",
                     nullable=False)  # NOT_STARTED / IN_PROGRESS / COMPLETED

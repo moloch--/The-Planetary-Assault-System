@@ -30,7 +30,7 @@ from base64 import b64encode
 class FileCache(object):
     ''' Caches files in memcached '''
 
-    MAX_FILE_SIZE = 1024 * 1024 * 10 # 10 Mb
+    MAX_FILE_SIZE = 1024 * 1024 * 10  # 10 Mb
 
     @classmethod
     def get(cls, file_path):
@@ -64,7 +64,7 @@ class FileCache(object):
 
 class JsonCache(object):
     ''' Caches json objects using memcached '''
-    
+
     @classmethod
     def get(cls, name):
         ''' Retrieves a json object '''
@@ -95,4 +95,3 @@ class JsonCache(object):
         ''' Flush memory cache '''
         mem = memcache.Client(['127.0.0.1:11211'], debug=False)
         mem.flush_all()
-

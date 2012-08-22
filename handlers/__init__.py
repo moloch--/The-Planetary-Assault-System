@@ -29,7 +29,7 @@ from os import urandom, path
 from base64 import b64encode
 from models import dbsession
 from modules.Menu import Menu
-from libs.ConfigManager import ConfigManager as ConfigMan # WTF?
+from libs.ConfigManager import ConfigManager as ConfigMan  # WTF?
 from libs.Session import SessionManager
 from tornado import netutil, options, process
 from tornado.web import Application, StaticFileHandler
@@ -55,23 +55,23 @@ app = Application([
                   # Static Handlers - Serves static CSS, JavaScript and
                   # image files
                   (r'/static/(.*)',
-                    StaticFileHandler, {'path': 'static'}),
+                   StaticFileHandler, {'path': 'static'}),
 
                   # User Handlers - Serves user related pages
                   (r'/user', HomeHandler, {'dbsession': dbsession}),
                   (r'/settings',
-                    SettingsHandler, {'dbsession': dbsession}),
+                   SettingsHandler, {'dbsession': dbsession}),
                   (r'/logout', LogoutHandler),
 
                   # Job Handlers - Serves job related pages
                   (r'/createjob',
-                    CreateJobHandler, {'dbsession': dbsession}),
+                   CreateJobHandler, {'dbsession': dbsession}),
                   (r'/queuedjobs',
-                    QueuedJobsHandler, {'dbsession': dbsession}),
+                   QueuedJobsHandler, {'dbsession': dbsession}),
                   (r'/deletejob',
-                    DeleteJobHandler, {'dbsession': dbsession}),
+                   DeleteJobHandler, {'dbsession': dbsession}),
                   (r'/completedjobs',
-                    CompletedJobsHandler, {'dbsession': dbsession}),
+                   CompletedJobsHandler, {'dbsession': dbsession}),
                   (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {
                    'dbsession': dbsession}),
                   (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {
