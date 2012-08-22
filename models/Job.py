@@ -26,25 +26,28 @@ import logging
 from sqlalchemy import Column, ForeignKey, and_
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean, DateTime
+from libs.Memcache import JsonCache
 from models import dbsession
 from models.PasswordHash import PasswordHash
 from models.BaseObject import BaseObject
+from string import ascii_letters, digits
 
 
 class Job(BaseObject):
 
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
-    name = Column(Unicode(64), unique=True, nullable=False)
+    _job_name = Column(Unicode(64), unique=True, nullable=False)
+    job_name = synonym('_job_name', descriptor=property(
+        lambda self: self._job_name,
+        lambda self, job_name: setattr(self, '_job_name',
+            self.__class__._filter_string(job_name, "-_ "))
+    ))
     status = Column(Unicode(64), default=u"NOT_STARTED",
                     nullable=False)  # NOT_STARTED / IN_PROGRESS / COMPLETED
     priority = Column(Integer, default=1, nullable=False)
     completed = Column(Boolean, default=False, nullable=False)
     hashes = relationship("PasswordHash", backref=backref(
         "Job", lazy="joined"), cascade="all, delete-orphan")
-    cached_complexity_analysis = Column(Unicode(256))
-    cached_solved_analysis = Column(Unicode(256))
-    cached_common_analysis = Column(Unicode(256))
-    cached_length_analysis = Column(Unicode(256))
     started = Column(DateTime)
     finished = Column(DateTime)
 
@@ -72,6 +75,11 @@ class Job(BaseObject):
     def queue(cls):
         ''' Pop a job off the "queue" or return None if not jobs remain '''
         return dbsession.query(cls).filter_by(status=u"NOT_STARTED").order_by(cls.created).all()
+
+    @classmethod
+    def _filter_string(cls, string, extra_chars=""):
+        char_white_list = ascii_letters + digits + extra_chars
+        return filter(lambda char: char in char_white_list, string)
 
     @property
     def solved_hashes(self):
@@ -139,29 +147,27 @@ class Job(BaseObject):
 
     def stats_solved(self):
         ''' Returns a stats on how many hases with the job were solved/unsolved '''
-        if self.cached_solved_analysis == None:
-            self.cached_solved_analysis = json.dumps([
+        if JsonCache.get(self.uuid + 'solved') == None:
+            solved_analysis = json.dumps([
                 {'Solved': len(self.solved_hashes)},
                 {'Unsolved': len(self.unsolved_hashes)},
             ])
-            dbsession.add(self)
-            dbsession.flush()
-        return self.cached_solved_analysis
+            JsonCache.set(self.uuid + 'solved', solved_analysis)
+        return JsonCache.get(self.uuid + 'solved')
 
     def stats_common(self):
         ''' Returns stats on how many solved hash's plain text was a common password '''
-        if self.cached_common_analysis == None:
-            self.cached_common_analysis = json.dumps([
+        if JsonCache.get(self.uuid + 'common') == None:
+            common_analysis = json.dumps([
                 {'Common': len(self.common_passwords)},
                 {'Uncommon': len(self.hashes) - len(self.common_passwords)},
             ])
-            dbsession.add(self)
-            dbsession.flush()
-        return self.cached_common_analysis
+            JsonCache.set(self.uuid + 'common', common_analysis)
+        return JsonCache.get(self.uuid + 'common')
 
     def stats_complexity(self):
         ''' Returns stats on solved hash's plain text complexity '''
-        if self.cached_complexity_analysis == None:
+        if JsonCache.get(self.uuid + 'complexity') == None:
             complexity = []
             if 0 < len(self.lower_case_passwords):
                 complexity.append(
@@ -183,10 +189,8 @@ class Job(BaseObject):
             if 0 < len(self.mixed_alpha_numeric_passwords):
                 complexity.append({'Mixed Case Alpha-numeric':
                                    len(self.mixed_alpha_numeric_passwords)})
-            self.cached_complexity_analysis = json.dumps(complexity)
-            dbsession.add(self)
-            dbsession.flush()
-        return self.cached_complexity_analysis
+            JsonCache.set(self.uuid + 'complexity', json.dumps(complexity))
+        return JsonCache.get(self.uuid + 'complexity')
 
     def save_results(self, results):
         ''' Save the results of the cracking session to the database '''
@@ -198,7 +202,7 @@ class Job(BaseObject):
                 dbsession.add(password)
             except KeyError:
                 logging.error("A database hash is missing from the result set (%s)" %
-                              (password.digest))
+                              (password.digest,))
         dbsession.flush()
 
     def to_list(self):
@@ -214,7 +218,7 @@ class Job(BaseObject):
 
     def __str__(self):
         ''' Returns name when str() is called '''
-        return self.name
+        return unicode(self.name)
 
     def __repr__(self):
         ''' Repr impl '''

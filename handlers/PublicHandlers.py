@@ -23,10 +23,11 @@ Created on Mar 13, 2012
 import os
 import logging
 
-from string import ascii_letters, digits
 from tornado.web import RequestHandler
 from BaseHandlers import UserBaseHandler
 from recaptcha.client import captcha
+from libs.Form import Form
+from libs.ConfigManager import ConfigManager
 from libs.Session import SessionManager
 from libs.SecurityDecorators import authenticated
 from models import User
@@ -45,133 +46,151 @@ class LoginHandler(RequestHandler):
 
     def initialize(self, dbsession):
         self.dbsession = dbsession
+        self.config = ConfigManager.Instance()
 
     def get(self, *args, **kwargs):
         ''' Renders the login page '''
-        self.render("public/login.html", message="User Authentication")
+        self.render("public/login.html", recaptcha_enable=self.config.recaptcha_enable, errors=None)
 
     def post(self, *args, **kwargs):
         ''' Checks login creds '''
-        try:
-            user_name = self.get_argument('username')
-            user = User.by_user_name(user_name)
-        except:
-            self.render(
-                'public/login.html', message="Type in an account name")
-            return
-        try:
-            password = self.get_argument('password')
-        except:
-            self.render('public/login.html', message="Type in a password")
-            return
-        response = None
-        try:
-            response = captcha.submit(
-                self.get_argument('recaptcha_challenge_field'),
-                self.get_argument('recaptcha_response_field'),
-                self.application.settings['recaptcha_private_key'],
-                self.request.remote_ip
-            )
-        except:
-            self.render('public/login.html',
-                        message="Please fill out recaptcha!")
-            return
-        if response == None or not response.is_valid:
-            self.render('public/login.html', message="Invalid captcha")
-        elif user != None and user.validate_password(password):
-            if not user.approved:
-                self.render("public/login.html",
-                            message="Your account must be approved by an administrator.")
-            else:
-                logging.info("Successful login: %s from %s" %
-                             (user.user_name, self.request.remote_ip))
-                session_manager = SessionManager.Instance()
-                sid, session = session_manager.start_session()
-                self.set_secure_cookie(name='auth',
-                                       value=str(sid), expires_days=1, HttpOnly=True)
-                session.data['user_name'] = str(user.user_name)
-                session.data['ip'] = str(self.request.remote_ip)
-                if user.has_permission('admin'):
-                    session.data['menu'] = "admin"
+        form = Form(
+            username="Please enter a username",
+            password="Please enter a password",
+            recaptcha_challenge_field="Invalid captcha",
+            recaptcha_response_field="Invalid captcha",
+        )
+        if not form.validate(self.request.arguments):
+            self.render("public/registration.html", errors=form.errors)
+        elif self.check_recaptcha():
+            user = User.by_user_name(self.request.get_argument('username'))
+            if user != None and user.validate_password(self.request.get_argument('password')):
+                if not user.approved:
+                    self.render("public/login.html", recaptcha_enable=self.config.recaptcha_enable,
+                                errors=["Your account must be approved by an administrator."])
                 else:
-                    session.data['menu'] = "user"
-                self.redirect('/user')
+                    self.successful_login(user)
+                    self.redirect('/user')
+            else:
+                self.failed_login()
         else:
-            logging.info(
-                "Failed login attempt from %s" % self.request.remote_ip)
-            self.render('public/login.html',
-                        message="Failed login attempt, try again")
+            self.render('public/login.html', recaptcha_enable=self.config.recaptcha_enable, errors=["Invalid captcha, try again"])
+
+    def check_recaptcha(self):
+        ''' Checks recaptcha '''
+        if self.config.recaptcha_enable:
+            response = None
+            try:
+                response = captcha.submit(
+                    self.get_argument('recaptcha_challenge_field'),
+                    self.get_argument('recaptcha_response_field'),
+                    self.application.settings['recaptcha_private_key'],
+                    self.request.remote_ip
+                )
+            except:
+                logging.exception("Recaptcha API called failed")
+            if response != None and response.is_valid:
+                return True
+            else:
+                return False
+        else:
+            return True
+
+    def successful_login(self, user):
+        ''' Called when a user successfully authenticates '''
+        logging.info("Successful login: %s from %s" %
+                                 (user.user_name, self.request.remote_ip))
+        session_manager = SessionManager.Instance()
+        sid, session = session_manager.start_session()
+        self.set_secure_cookie(name='auth', value=str(sid), expires_days=1, HttpOnly=True)
+        session.data['user_name'] = str(user.user_name)
+        session.data['ip'] = str(self.request.remote_ip)
+        if user.has_permission('admin'):
+            session.data['menu'] = "admin"
+        else:
+            session.data['menu'] = "user"
+
+    def failed_login(self):
+        ''' Called when someone fails to login '''
+        logging.info("Failed login attempt from %s" % self.request.remote_ip)
+        self.render('public/login.html', recaptcha_enable=self.config.recaptcha_enable,
+            errors=["Failed login attempt, try again"])
 
 
 class RegistrationHandler(RequestHandler):
-    ''' Handles the user registration process (surprise!) '''
+    ''' Handles the user registration process '''
 
     def initialize(self, dbsession):
         self.dbsession = dbsession
+        self.config = ConfigManager.Instance()
 
     def get(self, *args, **kwargs):
         ''' Renders registration page '''
-        self.render("public/registration.html",
-                    message="Fill out the form below")
+        self.render("public/registration.html", recaptcha_enable=self.config.recaptcha_enable, errors=None)
 
     def post(self, *args, **kwargs):
-        ''' Attempts to create an account, with shitty form validation '''
-        # Check user_name parameter
-        try:
-            user_name = self.get_argument('username')
-        except:
-            self.render('public/registration.html',
-                        message='Please enter a valid account name')
-        # Check password parameter
-        try:
-            password1 = self.get_argument('pass1')
-            password2 = self.get_argument('pass2')
-            if password1 != password2:
-                self.render('public/registration.html',
-                            message='Passwords did not match')
+        ''' Attempts to create an account '''
+        form = Form(
+            username="Please enter a username",
+            pass1="Please enter a password",
+            pass2="Please confirm your password",
+            recaptcha_challenge_field="Invalid captcha",
+            recaptcha_response_field="Invalid captcha",
+        )
+        if not form.validate(self.request.arguments):
+            self.render("public/registration.html", errors=form.errors)
+        elif self.check_recaptcha():
+            user_name = self.request.get_argument('username')
+            if User.by_user_name(user_name) != None:
+                self.render('public/registration.html', recaptcha_enable=self.config.recaptcha_enable,
+                            errors=['Account name already taken'])
+            elif len(user_name) < 3 or 15 < len(user_name):
+                self.render('public/registration.html', recaptcha_enable=self.config.recaptcha_enable,
+                            errors=['Username must be 3-15 characters'])
+            elif not pass1 == pass2:
+                self.render('public/registration.html', recaptcha_enable=self.config.recaptcha_enable, 
+                    errors=['Passwords do not match'])
+            elif not (12 <= len(pass1) <= 100):
+                self.render('public/registration.html', recaptcha_enable=self.config.recaptcha_enable,
+                            errors=['Password must be 12-100 characters'])
             else:
-                password = password1
-        except:
-            self.render('public/registration.html',
-                        message='Please enter a password')
-        # Get recaptcha results
-        try:
-            response = captcha.submit(
-                self.get_argument('recaptcha_challenge_field'),
-                self.get_argument('recaptcha_response_field'),
-                self.application.settings['recaptcha_private_key'],
-                self.request.remote_ip,)
-        except:
-            self.render('public/registration.html',
-                        message="Please fill out recaptcha")
-        # Strip any non-white listed chars
-        char_white_list = ascii_letters + digits
-        user_name = filter(lambda char: char in char_white_list, user_name)
-        # Check parameters
-        if not response.is_valid:
-            self.render('public/registration.html',
-                        message='Invalid Recaptcha!')
-        elif User.by_user_name(user_name) != None:
-            self.render('public/registration.html',
-                        message='Account name already taken')
-        elif len(user_name) < 3 or 15 < len(user_name):
-            self.render('public/registration.html',
-                        message='Username must be 3-15 characters')
-        elif not (12 <= len(password) <= 100):
-            self.render('public/registration.html',
-                        message='Password must be 12-100 characters')
+                self.create_user(user_name, pass1)
+                self.render("public/account_created.html", user=user)
         else:
-            user = User(
-                user_name=unicode(user_name),
-            )
-            # Create user, init class variables
-            self.dbsession.add(user)
-            self.dbsession.flush()
-            # Set password for user
-            user.password = password
-            self.dbsession.add(user)
-            self.dbsession.flush()
-            self.render("public/account_created.html", user=user)
+            self.render("public/registration.html", recaptcha_enable=self.config.recaptcha_enable,
+                errors=['Invalid captcha'])
+
+    def create_user(self, username, password):
+        user = User(
+            user_name=unicode(username),
+        )
+        # Create user, init class variables
+        self.dbsession.add(user)
+        self.dbsession.flush()
+        # Set password for user
+        user.password = password
+        self.dbsession.add(user)
+        self.dbsession.flush()
+
+    def check_recaptcha(self):
+        ''' Checks recaptcha '''
+        if self.config.recaptcha_enable:
+            response = None
+            try:
+                response = captcha.submit(
+                    self.get_argument('recaptcha_challenge_field'),
+                    self.get_argument('recaptcha_response_field'),
+                    self.application.settings['recaptcha_private_key'],
+                    self.request.remote_ip
+                )
+            except:
+                logging.exception("Recaptcha API called failed")
+            if response != None and response.is_valid:
+                return True
+            else:
+                return False
+        else:
+            return True
 
 
 class AboutHandler(RequestHandler):

@@ -51,6 +51,7 @@ class ConfigManager(object):
         self.config.readfp(open(self.cfg_path, 'r'))
         self.__system__()
         self.__network__()
+        self.__recaptcha__()
         self.__security__()
         self.__database__()
 
@@ -61,6 +62,11 @@ class ConfigManager(object):
     def __network__(self):
         ''' Load network configurations '''
         self.listen_port = self.config.getint("Network", 'port')
+
+    def __recaptcha__(self):
+        ''' Loads recaptcha settings '''
+        self.recaptcha_enable = self.config.getboolean("Recaptcha", 'enable')
+        self.recaptcha_private_key = self.config.get("Recaptcha", 'private_key')
 
     def __security__(self):
         ''' Load security configurations '''

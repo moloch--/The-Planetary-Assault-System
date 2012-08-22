@@ -26,6 +26,7 @@ from hashlib import sha256
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean
+from string import ascii_letters, digits
 from models import dbsession
 from models.Job import Job
 from models.Permission import Permission
@@ -40,7 +41,12 @@ def gen_salt():
 class User(BaseObject):
     ''' User definition '''
 
-    user_name = Column(Unicode(64), unique=True, nullable=False)
+    _user_name = Column(Unicode(64), unique=True, nullable=False)
+    user_name = synonym('_user_name', descriptor=property(
+        lambda self: self._user_name,
+        lambda self, user_name: setattr(self, '_user_name',
+            self.__class__._filter_string(user_name, ""))
+    ))
     approved = Column(Boolean, default=False)
     jobs = relationship("Job", backref=backref(
         "User", lazy="joined"), cascade="all, delete-orphan")
@@ -50,11 +56,10 @@ class User(BaseObject):
         Unicode(32), unique=True, nullable=False, default=gen_salt)
     _password = Column('password', Unicode(64))
     password = synonym('_password', descriptor=property(
-                       lambda self: self._password,
-                       lambda self, password: setattr(self, '_password',
-                                                      self.__class__._hash_password(password, self.salt))
-                       )
-                       )
+        lambda self: self._password,
+        lambda self, password: setattr(self, '_password',
+            self.__class__._hash_password(password, self.salt))
+    ))
 
     @classmethod
     def by_id(cls, user_id):
@@ -85,6 +90,11 @@ class User(BaseObject):
     def by_user_name(cls, user_name):
         ''' Return the user object whose user name is 'user_name' '''
         return dbsession.query(cls).filter_by(user_name=unicode(user_name)).first()
+
+    @classmethod
+    def _filter_string(cls, string, extra_chars=""):
+        char_white_list = ascii_letters + digits + extra_chars
+        return filter(lambda char: char in char_white_list, string)
 
     @classmethod
     def _hash_password(cls, password, salt):

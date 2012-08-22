@@ -29,7 +29,7 @@ from os import urandom, path
 from base64 import b64encode
 from models import dbsession
 from modules.Menu import Menu
-from libs.ConfigManager import ConfigManager
+from libs.ConfigManager import ConfigManager as ConfigMan # WTF?
 from libs.Session import SessionManager
 from tornado import netutil, options, process
 from tornado.web import Application, StaticFileHandler
@@ -48,30 +48,30 @@ if not (os.path.exists(charset_path) or os.path.isdir(charset_path)):
     logging.critical(
         "No charset.txt file found at %s, cannot continue." % charset_path)
     os._exit(1)
-config = ConfigManager.Instance()
+config = ConfigMan.Instance()
 
 ### Application setup
 app = Application([
                   # Static Handlers - Serves static CSS, JavaScript and
                   # image files
                   (r'/static/(.*)',
-                      StaticFileHandler, {'path': 'static'}),
+                    StaticFileHandler, {'path': 'static'}),
 
                   # User Handlers - Serves user related pages
                   (r'/user', HomeHandler, {'dbsession': dbsession}),
                   (r'/settings',
-                      SettingsHandler, {'dbsession': dbsession}),
+                    SettingsHandler, {'dbsession': dbsession}),
                   (r'/logout', LogoutHandler),
 
                   # Job Handlers - Serves job related pages
                   (r'/createjob',
-                      CreateJobHandler, {'dbsession': dbsession}),
+                    CreateJobHandler, {'dbsession': dbsession}),
                   (r'/queuedjobs',
-                      QueuedJobsHandler, {'dbsession': dbsession}),
+                    QueuedJobsHandler, {'dbsession': dbsession}),
                   (r'/deletejob',
-                      DeleteJobHandler, {'dbsession': dbsession}),
+                    DeleteJobHandler, {'dbsession': dbsession}),
                   (r'/completedjobs',
-                      CompletedJobsHandler, {'dbsession': dbsession}),
+                    CompletedJobsHandler, {'dbsession': dbsession}),
                   (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {
                    'dbsession': dbsession}),
                   (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {
@@ -124,7 +124,7 @@ app = Application([
                   xsrf_cookies=True,
 
                   # Recaptcha Key
-                  recaptcha_private_key="6LcJJ88SAAAAAPPAN72hppldxema3LI7fkw0jaIa",
+                  recaptcha_private_key=config.recaptcha_private_key,
 
                   # Milli-Seconds between session clean up
                   clean_up_timeout=int(60 * 1000),

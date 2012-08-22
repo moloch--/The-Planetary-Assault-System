@@ -42,7 +42,12 @@ class CreateJobHandler(UserBaseHandler):
     @authenticated
     def post(self, *args, **kwargs):
         ''' Creates a job based on the parameters '''
-        if self.validate_form():
+        form = Form(
+            jobname="Please enter a job name",
+            algorithm="Please select a valid algorithm",
+            hashes="Please provide the target hashes",
+        )
+        if form.validate(self.request.arguments):
             user = self.get_current_user()
             job = Job(
                 user_id=user.id,
@@ -62,33 +67,16 @@ class CreateJobHandler(UserBaseHandler):
             self.start_job(job)
             self.render("job/created_job.html", job=job)
 
-    def validate_form(self):
-        ''' Shitty form validation '''
-        try:
-            self.job_name = self.filter_string(self.get_argument('jobname'))
-            if len(job_name) < 3 or 15 < len(job_name):
-                raise ValueError
-        except:
-            self.render("job/create_job.html", message="Invalid Job Name")
-            return False
-        # Get algorithm
-        try:
-            algorithm = self.get_argument('algorithm')
-            if not algorithm in self.application.settings['rainbow_tables'].keys():
-                raise ValueError
-        except:
-            self.render("job/create_job.html", message="Invalid algorithm")
-            return False
-        # Get hashes
+    def get_hashes(self, remove_duplicates=False):
+        ''' Parses the provided hashes '''
         try:
             hashes = self.get_argument('hashes').replace('\r', '').split('\n')
-            self.hashes = list(set(hashes))  # Remove any duplicates
+            if remove_duplicates:
+                self.hashes = list(set(hashes))
             if len(hashes) == 0:
                 raise ValueError
         except:
-            self.render("job/create_job.html", message="No Hashes")
-            return False
-        return True
+            self.render("job/create_job.html", errors=["Cannot parse hashes"])
 
     def filter_string(self, string):
         ''' Removes erronious chars from a string '''

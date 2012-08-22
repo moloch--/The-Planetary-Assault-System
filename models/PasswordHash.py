@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 '''
 Created on Mar 12, 2012
 
@@ -27,16 +28,22 @@ from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean
 from models import dbsession
 from models.BaseObject import BaseObject
+from string import ascii_letters, digits
 
 
 class PasswordHash(BaseObject):
 
     job_id = Column(Integer, ForeignKey('job.id'), nullable=False)
-    algorithm = Column(Unicode(16), nullable=False)
+    algorithm = Column(Unicode(16), nullable=False) # MD5 / LM / NTLM
     user_name = Column(Unicode(64))
-    digest = Column(Unicode(128), nullable=False)
-    solved = Column(Boolean, default=False, nullable=False)
+    _cipher_text = Column(Unicode(128), nullable=False)
+    cipher_text = synonym('_cipher_text', descriptor=property(
+        lambda self: self._cipher_text,
+        lambda self, cipher_text: setattr(self, '_cipher_text',
+            self.__class__._filter_string(cipher_text))
+    ))
     plain_text = Column(Unicode(64))
+    solved = Column(Boolean, default=False, nullable=False)
     common_passwords = ['123456', '12345', '123456789', 'password', 'iloveyou', 'princess',
                         'rockyou', '1234567', '12345678', 'abc123', 'nicole', 'daniel', 'babygirl', 'monkey',
                         'jessica', 'lovely', 'michael', 'ashley', '654321', 'qwerty', 'letmein', 'admin', 'fuck',
@@ -53,6 +60,11 @@ class PasswordHash(BaseObject):
     def by_digest(cls, digest_value, job_id_value):
         """ Return the digest based on valud and job_id """
         return dbsession.query(cls).filter(and_(digest == digest_value, job_id == job_id_value)).first()
+
+    @classmethod
+    def _filter_string(cls, string, extra_chars=""):
+        char_white_list = ascii_letters + digits + extra_chars
+        return filter(lambda char: char in char_white_list, string)
 
     @property
     def lower_case(self):

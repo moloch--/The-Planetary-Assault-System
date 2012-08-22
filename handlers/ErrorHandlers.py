@@ -19,6 +19,7 @@ Created on Mar 13, 2012
     limitations under the License.
 '''
 
+
 from tornado.web import RequestHandler
 
 
@@ -92,7 +93,7 @@ class PhpHandler(RequestHandler):
 class RobotsHandler(RequestHandler):
 
     def get(self, *args, **kwargs):
-        ''' Renders a fake robots.txt file to screw with people (for fun) '''
+        ''' Renders a fake robots.txt file to screw with people/bots '''
         self.set_header('Content-Type', 'text/plain')
         self.write("# Disallow for extra security\n")  # lol
         self.write("Disallow: /admin\n")
@@ -108,6 +109,10 @@ class RobotsHandler(RequestHandler):
         self.write("Disallow: /admin/rpc_api\n")
         self.write("Disallow: /admin/xmlrpc\n")
         self.write("Disallow: /admin/exec_cmd\n")
+        # Never let bots near your db interface!
         self.write("\n# Prevent bots from querying the db\n")
         self.write("Disallow: /ajax/sql\n")
         self.finish()
+
+    def post(self, *args, **kwargs):
+        self.get()
