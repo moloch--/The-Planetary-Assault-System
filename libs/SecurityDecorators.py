@@ -37,7 +37,7 @@ def authenticated(method):
         if session != None:
             return method(self, *args, **kwargs)
         # Just render a 404 page, instead of redirecting - this prevents people
-        # from enumerating legitimate URLs based on if the page is a 404 or 302
+        # from enumerating legitimate URLs based on if the page is a 200 or 302
         self.render("public/404.html")
     return wrapper
 

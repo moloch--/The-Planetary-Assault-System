@@ -23,7 +23,7 @@ import socket
 import logging
 
 
-class HostIpAddress():
+class NetworkConfig():
 
     @classmethod
     def get_ip_address(cls, uri="http://google.com/", port=80):

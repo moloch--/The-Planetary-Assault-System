@@ -25,6 +25,7 @@ from sys import argv
 from time import sleep
 from datetime import datetime
 from libs import ConsoleColors
+from setup.recovery import RecoveryConsole
 from handlers import start_server
 from models import __create__, boot_strap
 
@@ -46,12 +47,23 @@ def create():
                '%s : Bootstrapping the database ... ' % current_time())
         boot_strap()
 
+def recovery():
+    ''' Recovery console '''
+    print (ConsoleColors.INFO + '%s : Starting recovery console ... ' %
+           current_time())
+    console = RecoveryConsole()
+    try:
+        console.cmdloop()
+    except KeyboardInterrupt:
+        print (ConsoleColors.INFO + "Have a nice day!")
+        os._exit(1)
 
 def help():
     print('Usage:')
     print('\tpython . serve - Starts the web server')
     print('\tpython . create - Inits the database tables')
     print('\tpython . create bootstrap - Inits the database tables and creates an admin account')
+    print('\tpython . recovery - Starts a recovery console')
 
 ### Main
 if len(argv) == 1:
@@ -59,8 +71,9 @@ if len(argv) == 1:
 options = {
     'serve': serve,
     'create': create,
+    'recovery': recovery,
 }
 if argv[1] in options:
     options[argv[1]]()
 else:
-    print(ConsoleColors.WARN + 'Error: PEBKAC')
+    print(ConsoleColors.WARN + 'PEBKAC: Command not found.')

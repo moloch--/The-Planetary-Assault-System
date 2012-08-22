@@ -82,9 +82,15 @@ class User(BaseObject):
         return dbsession.query(cls).filter_by(approved=True).all()
 
     @classmethod
-    def get_all(cls):
+    def all(cls):
+        ''' Return all non-admin user objects '''
+        return dbsession.query(cls).all()
+
+    @classmethod
+    def all_users(cls):
         ''' Return all non-admin user objects '''
         return dbsession.query(cls).filter(cls.user_name != u'admin').all()
+
 
     @classmethod
     def by_user_name(cls, user_name):
