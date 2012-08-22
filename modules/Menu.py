@@ -33,7 +33,6 @@ class Menu(UIModule):
             if session.data['menu'] == 'user':
                 dispatch = Dispatch.Instance()
                 return self.render_string('menu/user.html',
-                                          current_job=dispatch.current_job_name,
                                           uri=self.handler.request.uri,
                                           user_name=session.data['user_name']
                                           )

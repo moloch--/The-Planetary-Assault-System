@@ -61,10 +61,10 @@ class LoginHandler(RequestHandler):
             recaptcha_response_field="Invalid captcha",
         )
         if not form.validate(self.request.arguments):
-            self.render("public/registration.html", errors=form.errors)
+            self.render("public/login.html", recaptcha_enable=self.config.recaptcha_enable, errors=form.errors)
         elif self.check_recaptcha():
-            user = User.by_user_name(self.request.get_argument('username'))
-            if user != None and user.validate_password(self.request.get_argument('password')):
+            user = User.by_user_name(self.get_argument('username'))
+            if user != None and user.validate_password(self.get_argument('password')):
                 if not user.approved:
                     self.render("public/login.html", recaptcha_enable=self.config.recaptcha_enable,
                                 errors=["Your account must be approved by an administrator."])
@@ -138,24 +138,24 @@ class RegistrationHandler(RequestHandler):
             recaptcha_response_field="Invalid captcha",
         )
         if not form.validate(self.request.arguments):
-            self.render("public/registration.html", errors=form.errors)
+            self.render("public/registration.html", recaptcha_enable=self.config.recaptcha_enable, errors=form.errors)
         elif self.check_recaptcha():
-            user_name = self.request.get_argument('username')
+            user_name = self.get_argument('username')
             if User.by_user_name(user_name) != None:
                 self.render('public/registration.html', recaptcha_enable=self.config.recaptcha_enable,
                             errors=['Account name already taken'])
             elif len(user_name) < 3 or 15 < len(user_name):
                 self.render('public/registration.html', recaptcha_enable=self.config.recaptcha_enable,
                             errors=['Username must be 3-15 characters'])
-            elif not pass1 == pass2:
+            elif not self.get_argument('pass1') == self.get_argument('pass2'):
                 self.render('public/registration.html', recaptcha_enable=self.config.recaptcha_enable, 
                     errors=['Passwords do not match'])
-            elif not (12 <= len(pass1) <= 100):
+            elif not (12 <= len(self.get_argument('pass1')) <= 100):
                 self.render('public/registration.html', recaptcha_enable=self.config.recaptcha_enable,
                             errors=['Password must be 12-100 characters'])
             else:
-                self.create_user(user_name, pass1)
-                self.render("public/account_created.html", user=user)
+                user = self.create_user(user_name, self.get_argument('pass1'))
+                self.render("public/account_created.html", user_name=user.user_name)
         else:
             self.render("public/registration.html", recaptcha_enable=self.config.recaptcha_enable,
                 errors=['Invalid captcha'])
@@ -171,6 +171,7 @@ class RegistrationHandler(RequestHandler):
         user.password = password
         self.dbsession.add(user)
         self.dbsession.flush()
+        return user
 
     def check_recaptcha(self):
         ''' Checks recaptcha '''
