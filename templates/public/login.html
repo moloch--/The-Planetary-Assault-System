@@ -2,26 +2,7 @@
 
 {% block title %}Login{% end %}
 
-{% block header %}
-  {% if recaptcha_enable == True %}
-    <script type="text/javascript" src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
-  {% end %}
-{% end %}
-
 {% block content %}
-  {% if recaptcha_enable == True %}
-      <!-- Wrapping the Recaptcha create method in a javascript function -->
-      <script type="text/javascript">
-      function showRecaptcha(element) {
-         Recaptcha.create("6LcJJ88SAAAAAFzcmQqDPWGKRQXmJ0DCiZoPWTZf", element, {
-           theme: "blackglass",
-           callback: null});
-       }
-      $(document).ready(function() {
-    	  showRecaptcha('recaptcha_div'); 
-       });
-    </script>
-  {% end %}
   <h2>Login</h2>
   <br />
   {% if errors != None and len(errors) != 0 %}
@@ -46,19 +27,7 @@
           <label for="password">Password</label>
           <input name="password" placeholder="Password" type="password" />
         </p>
-        {% if recaptcha_enable == True %}
-          <p>
-            <label for="recaptch_div">Are you a Cylon?</label>
-            <div id="recaptcha_div">
-            </div>
-          </p>
-        {% else %}
-          <p>
-            <!-- Recaptcha has been disabled -->
-            <input name="recaptcha_challenge_field" type="hidden" value="disabled" />
-            <input name="recaptcha_response_field" type="hidden" value="disabled" />
-          </p>
-        {% end %}
+        {% module Recaptcha() %}
       </fieldset>
       <p class="submit">
         <button class="btn btn-primary btn-large" type="submit"> Authenticate </button>

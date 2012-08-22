@@ -29,6 +29,7 @@ from os import urandom, path
 from base64 import b64encode
 from models import dbsession
 from modules.Menu import Menu
+from modules.Recaptcha import Recaptcha
 from libs.ConfigManager import ConfigManager as ConfigMan  # WTF?
 from libs.Session import SessionManager
 from tornado import netutil, options, process
@@ -42,12 +43,7 @@ from handlers.AdminHandlers import *
 from handlers.PublicHandlers import *
 
 
-### Check required files
-charset_path = os.path.abspath("charset.txt")
-if not (os.path.exists(charset_path) or os.path.isdir(charset_path)):
-    logging.critical(
-        "No charset.txt file found at %s, cannot continue." % charset_path)
-    os._exit(1)
+### Load configuration
 config = ConfigMan.Instance()
 
 ### Application setup
@@ -118,7 +114,7 @@ app = Application([
                   forbidden_url='/403',
 
                   # UI Modules
-                  ui_modules={"Menu": Menu},
+                  ui_modules={"Menu": Menu, "Recaptcha": Recaptcha},
 
                   # Enable XSRF forms (not optional)
                   xsrf_cookies=True,
