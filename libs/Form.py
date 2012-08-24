@@ -21,7 +21,12 @@ Created on Mar 12, 2012
 
 
 class Form(object):
-    ''' Held by FormHandler's to deal with easy validation '''
+    ''' 
+    This class is an easy way to determine if all the variables in a form
+    were submitted to the server.  Tornado by default will throw an Exception
+    if a parameter is missing, this will catch any Exceptions and instead just
+    return False and add the errors to a list. 
+    '''
 
     def __init__(self, *args, **kwargs):
         self.form_pieces = []

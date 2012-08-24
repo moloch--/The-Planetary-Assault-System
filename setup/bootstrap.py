@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 Created on Jul 2, 2012
 
     Copyright [2012] [Redacted Labs]
@@ -15,7 +15,7 @@ Created on Jul 2, 2012
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
-"""
+'''
 
 
 import os
@@ -25,6 +25,7 @@ import getpass
 from libs.ConsoleColors import *
 from libs.ConfigManager import ConfigManager
 from models import dbsession, User, Permission
+
 
 # Fills the database with some startup data.
 config = ConfigManager.Instance()
@@ -52,17 +53,19 @@ user = User(
 )
 dbsession.add(user)
 dbsession.flush()
-
+# Set password
 user.password = password
 dbsession.add(user)
 dbsession.flush()
-
+# Add admin permission
 permission = Permission(
     permission_name=unicode('admin'),
     user_id=user.id
 )
 dbsession.add(permission)
 dbsession.flush()
+
+### Print details for user
 if config.debug:
     environ = bold + R + "Developement boot strap" + W
     details = ", default admin password is '%s'." % password

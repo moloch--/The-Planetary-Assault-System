@@ -24,7 +24,7 @@ import logging
 import hashlib
 import memcache
 
-from base64 import b64encode
+from base64 import b64encode, b64decode
 
 
 class FileCache(object):
@@ -39,15 +39,15 @@ class FileCache(object):
         key = b64encode(file_path)
         data = mem.get(key)
         if data == None:
-            f = open(file_path, 'r')
-            data = f.read()
-            f.close()
+            local_file = open(file_path, 'r')
+            data = b64encode(local_file.read())
+            local_file.close()
             if len(data) < cls.MAX_FILE_SIZE:
                 if mem.set(key, data):
                     logging.info("Cached %s in memory." % file_path)
                 else:
-                    logging.error("Failed to properly cache image file.")
-        return data
+                    logging.error("Failed to properly cache file (%s)" % file_path)
+        return b64decode(data)
 
     @classmethod
     def delete(cls, file_path):
@@ -62,24 +62,24 @@ class FileCache(object):
         mem.flush_all()
 
 
-class JsonCache(object):
-    ''' Caches json objects using memcached '''
+class MemoryCache(object):
+    ''' Caches strings and the like using memcached '''
 
     @classmethod
     def get(cls, name):
-        ''' Retrieves a json object '''
+        ''' Retrieves text from the cache '''
         mem = memcache.Client(['127.0.0.1:11211'], debug=False)
-        return mem.get(cls.__key__(name))
+        return b64decode(mem.get(cls.__key__(name)))
 
     @classmethod
     def set(cls, name, data):
-        ''' Saves a json object in memory '''
+        ''' Puts text-like data into the cache '''
         mem = memcache.Client(['127.0.0.1:11211'], debug=False)
-        mem.set(cls.__key__(name), data)
+        mem.set(cls.__key__(name), b64encode(data))
 
     @classmethod
     def delete(cls, name):
-        ''' Remove file from memory cache '''
+        ''' Remove data from memory cache '''
         mem = memcache.Client(['127.0.0.1:11211'], debug=False)
         mem.delete(cls.__key__(name))
 
@@ -87,7 +87,7 @@ class JsonCache(object):
     def __key__(cls, data):
         ''' Creates the key '''
         md5 = hashlib.md5()
-        md5.update("json-cache:" + str(data))
+        md5.update("text-cache:" + str(data))
         return md5.hexdigest()
 
     @classmethod

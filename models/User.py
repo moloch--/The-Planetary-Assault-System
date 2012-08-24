@@ -91,7 +91,6 @@ class User(BaseObject):
         ''' Return all non-admin user objects '''
         return filter(lambda user: user.has_permission('admin') == False, cls.all())
 
-
     @classmethod
     def by_user_name(cls, user_name):
         ''' Return the user object whose user name is 'user_name' '''

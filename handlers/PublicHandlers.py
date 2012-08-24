@@ -74,7 +74,8 @@ class LoginHandler(RequestHandler):
             else:
                 self.failed_login()
         else:
-            self.render('public/login.html', errors=["Invalid captcha, try again"])
+            self.render(
+                'public/login.html', errors=["Invalid captcha, try again"])
 
     def check_recaptcha(self):
         ''' Checks recaptcha '''

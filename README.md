@@ -18,7 +18,8 @@ Orbital Command Setup
 	* Set __debug__ to __false__ for production systems
 	* Edit database settings, set user and/or pass to __RUNTIME__ for production systems
 * Run __"python . create bootstrap"__ to initialize the database, you only need to run this once
-* Run __"python . serve"__ to start the server
+* Run __"python . serve"__ to start the application
+* Run __"python . recovery"__  to start a recovery console (reset account passwords, etc)
 
 Weapon System Setup
 ====================

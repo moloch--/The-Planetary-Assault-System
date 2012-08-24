@@ -26,7 +26,7 @@ import logging
 from sqlalchemy import Column, ForeignKey, and_
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean, DateTime
-from libs.Memcache import JsonCache
+from libs.Memcache import MemoryCache
 from models import dbsession
 from models.PasswordHash import PasswordHash
 from models.BaseObject import BaseObject
@@ -147,27 +147,27 @@ class Job(BaseObject):
 
     def stats_solved(self):
         ''' Returns a stats on how many hases with the job were solved/unsolved '''
-        if JsonCache.get(self.uuid + 'solved') == None:
+        if MemoryCache.get(self.uuid + 'solved') == None:
             solved_analysis = json.dumps([
                 {'Solved': len(self.solved_hashes)},
                 {'Unsolved': len(self.unsolved_hashes)},
             ])
-            JsonCache.set(self.uuid + 'solved', solved_analysis)
-        return JsonCache.get(self.uuid + 'solved')
+            MemoryCache.set(self.uuid + 'solved', solved_analysis)
+        return MemoryCache.get(self.uuid + 'solved')
 
     def stats_common(self):
         ''' Returns stats on how many solved hash's plain text was a common password '''
-        if JsonCache.get(self.uuid + 'common') == None:
+        if MemoryCache.get(self.uuid + 'common') == None:
             common_analysis = json.dumps([
                 {'Common': len(self.common_passwords)},
                 {'Uncommon': len(self.hashes) - len(self.common_passwords)},
             ])
-            JsonCache.set(self.uuid + 'common', common_analysis)
-        return JsonCache.get(self.uuid + 'common')
+            MemoryCache.set(self.uuid + 'common', common_analysis)
+        return MemoryCache.get(self.uuid + 'common')
 
     def stats_complexity(self):
         ''' Returns stats on solved hash's plain text complexity '''
-        if JsonCache.get(self.uuid + 'complexity') == None:
+        if MemoryCache.get(self.uuid + 'complexity') == None:
             complexity = []
             if 0 < len(self.lower_case_passwords):
                 complexity.append(
@@ -189,8 +189,8 @@ class Job(BaseObject):
             if 0 < len(self.mixed_alpha_numeric_passwords):
                 complexity.append({'Mixed Case Alpha-numeric':
                                    len(self.mixed_alpha_numeric_passwords)})
-            JsonCache.set(self.uuid + 'complexity', json.dumps(complexity))
-        return JsonCache.get(self.uuid + 'complexity')
+            MemoryCache.set(self.uuid + 'complexity', json.dumps(complexity))
+        return MemoryCache.get(self.uuid + 'complexity')
 
     def save_results(self, results):
         ''' Save the results of the cracking session to the database '''

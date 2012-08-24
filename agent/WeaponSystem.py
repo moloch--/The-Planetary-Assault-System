@@ -55,9 +55,9 @@ config.readfp(open(cfg_path, 'r'))
 
 
 class WeaponSystem(rpyc.Service):
-    ''' 
+    '''
     RPC Services: This is the code that does the actual password cracking
-    and returns the results to orbital command.  Currently only supports 
+    and returns the results to orbital command.  Currently only supports
     cracking using rainbow tables (RCrackPy)
     '''
 
