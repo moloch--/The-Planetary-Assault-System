@@ -30,13 +30,13 @@ from base64 import b64encode
 from models import dbsession
 from modules.Menu import Menu
 from modules.Recaptcha import Recaptcha
-from libs.ConfigManager import ConfigManager as ConfigMan  # WTF?
+from libs.ConfigManager import ConfigManager as ConfigMan
 from libs.Session import SessionManager
 from tornado import netutil, options, process
-from tornado.web import Application, StaticFileHandler
+from tornado.web import Application
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
-from handlers.JobHandlers import *
+from handlers.CrackingHandlers import *
 from handlers.UserHandlers import *
 from handlers.ErrorHandlers import *
 from handlers.AdminHandlers import *
@@ -45,6 +45,12 @@ from handlers.PublicHandlers import *
 
 ### Load configuration
 config = ConfigMan.Instance()
+
+### Setup static file handler
+if config.static_cache:
+    from handlers.StaticFileHandler import StaticFileHandler
+else:
+    from tornado.web import StaticFileHandler
 
 ### Application setup
 app = Application([
@@ -60,19 +66,19 @@ app = Application([
                   (r'/logout', LogoutHandler),
 
                   # Job Handlers - Serves job related pages
-                  (r'/createjob',
+                  (r'/cracking/createjob',
                    CreateJobHandler, {'dbsession': dbsession}),
-                  (r'/queuedjobs',
+                  (r'/cracking/queuedjobs',
                    QueuedJobsHandler, {'dbsession': dbsession}),
-                  (r'/deletejob',
+                  (r'/cracking/deletejob',
                    DeleteJobHandler, {'dbsession': dbsession}),
-                  (r'/completedjobs',
+                  (r'/cracking/completedjobs',
                    CompletedJobsHandler, {'dbsession': dbsession}),
-                  (r'/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {
+                  (r'/cracking/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {
                    'dbsession': dbsession}),
-                  (r'/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {
+                  (r'/cracking/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {
                    'dbsession': dbsession}),
-                  (r'/ajax/jobdata(.*)',
+                  (r'/cracking/ajax/jobdata(.*)',
                    AjaxJobDataHandler, {'dbsession': dbsession}),
 
                   # Admin Handlers - Admin only pages
@@ -121,6 +127,9 @@ app = Application([
 
                   # Milli-Seconds between session clean up
                   clean_up_timeout=int(60 * 1000),
+
+                  # Supported hash types
+                  hash_algorithms=['MD5', 'LM', 'NTLM'],
 
                   # Debug mode
                   debug=config.debug,

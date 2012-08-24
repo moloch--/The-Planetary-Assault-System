@@ -46,10 +46,10 @@ from models.User import User
 from models.WeaponSystem import WeaponSystem
 
 # Calling this will create the tables at the database
-__create__ = lambda: (
+create_tables = lambda: (
     setattr(engine, 'echo', True), metadata.create_all(engine))
 
-# Bootstrap the database with some shit
+# Bootstrap the database
 
 
 def boot_strap():

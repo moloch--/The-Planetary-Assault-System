@@ -44,16 +44,15 @@ class RecoveryConsole(cmd.Cmd):
         '''
         user = User.by_user_name(username)
         if user == None:
-            print WARN + str("%s user not found in database." % username)
+            print(WARN + str("%s user not found in database." % username))
         else:
-            print INFO + str("Loaded %s from database" % user.user_name)
             sys.stdout.write(PROMPT + "New ")
             sys.stdout.flush()
             user.password = getpass.getpass()
             dbsession.add(user)
             dbsession.flush()
-            print INFO + str(
-                "Updated %s password successfully." % user.user_name)
+            print(INFO + str(
+                "Updated %s password successfully." % user.user_name))
 
     def do_ls(self, partial):
         '''
@@ -69,9 +68,9 @@ class RecoveryConsole(cmd.Cmd):
                     permissions += perm + str(", ")
                 permissions += str("%s)" % user.permissions_names[-1])
             if user.approved:
-                print INFO + user.user_name + permissions
+                print(INFO + user.user_name + permissions)
             else:
-                print WARN + user.user_name + permissions
+                print(WARN + user.user_name + permissions)
 
     def do_delete(self, username):
         '''
@@ -80,20 +79,21 @@ class RecoveryConsole(cmd.Cmd):
         '''
         user = User.by_user_name(username)
         if user == None:
-            print WARN + str("%s user not found in database." % username)
+            print(WARN + str("%s user not found in database." % username))
         else:
             username = user.user_name
-            print WARN + str("Are you sure you want to delete %s?" % username)
+            print(WARN + str("Are you sure you want to delete %s?" % username))
             if raw_input(PROMPT + "Delete [y/n]: ").lower() == 'y':
                 permissions = Permission.by_user_id(user.id)
                 for perm in permissions:
-                    print INFO + "Removing permission: " + perm.permission_name
+                    print(
+                        INFO + "Removing permission: " + perm.permission_name)
                     dbsession.delete(perm)
                 dbsession.flush()
                 dbsession.delete(user)
                 dbsession.flush()
-                print INFO + str(
-                    "Successfully deleted %s from database." % username)
+                print(INFO + str(
+                    "Successfully deleted %s from database." % username))
 
     def do_create(self, username):
         '''
@@ -111,7 +111,7 @@ class RecoveryConsole(cmd.Cmd):
         user.approved = True
         dbsession.add(user)
         dbsession.flush()
-        print INFO + "Successfully created, and approved new account."
+        print(INFO + "Successfully created, and approved new account.")
 
     def do_approve(self, username):
         '''
@@ -120,13 +120,13 @@ class RecoveryConsole(cmd.Cmd):
         '''
         user = User.by_user_name(username)
         if user == None:
-            print WARN + str("%s user not found in database." % username)
+            print(WARN + str("%s user not found in database." % username))
         else:
             user.approved = True
             dbsession.add(user)
             dbsession.flush()
-            print INFO + str(
-                "Successfully approved %s's account." % user.user_name)
+            print(INFO + str(
+                "Successfully approved %s's account." % user.user_name))
 
     def do_disapprove(self, username):
         '''
@@ -135,13 +135,13 @@ class RecoveryConsole(cmd.Cmd):
         '''
         user = User.by_user_name(username)
         if user == None:
-            print WARN + str("%s user not found in database." % username)
+            print(WARN + str("%s user not found in database." % username))
         else:
             user.approved = False
             dbsession.add(user)
             dbsession.flush()
-            print INFO + str(
-                "Successfully disapproved %s's account." % user.user_name)
+            print(INFO + str(
+                "Successfully disapproved %s's account." % user.user_name))
 
     def do_grant(self, username):
         '''
@@ -150,7 +150,7 @@ class RecoveryConsole(cmd.Cmd):
         '''
         user = User.by_user_name(username)
         if user == None:
-            print WARN + str("%s user not found in database." % username)
+            print(WARN + str("%s user not found in database." % username))
         else:
             name = raw_input(PROMPT + "Add permission: ")
             permission = Permission(
@@ -160,8 +160,8 @@ class RecoveryConsole(cmd.Cmd):
             dbsession.add(permission)
             dbsession.add(user)
             dbsession.flush()
-            print INFO + str("Successfully granted %s permissions to %s." %
-                             (name, user.user_name))
+            print(INFO + str("Successfully granted %s permissions to %s." %
+                             (name, user.user_name,)))
 
     def do_strip(self, username):
         '''
@@ -170,21 +170,28 @@ class RecoveryConsole(cmd.Cmd):
         '''
         user = User.by_user_name(username)
         if user == None:
-            print WARN + str("%s user not found in database." % username)
+            print(WARN + str("%s user not found in database." % username))
         else:
             username = user.user_name
             permissions = Permission.by_user_id(user.id)
             if len(permissions) == 0:
-                print WARN + str("%s has no permissions." % user.user_name)
+                print(WARN + str("%s has no permissions." % user.user_name))
             else:
                 for perm in permissions:
-                    print INFO + "Removing permission: " + perm.permission_name
+                    print(
+                        INFO + "Removing permission: " + perm.permission_name)
                     dbsession.delete(perm)
+            dbsession.flush()
+            print(INFO + "Successfully removed %s's permissions." % user.user_name)
 
     def do_exit(self, *args, **kwargs):
         '''
         Exit recovery console
         Usage: exit
         '''
-        print INFO + "Have a nice day!"
+        print(INFO + "Have a nice day!")
         os._exit(0)
+
+    def default(self, command):
+        ''' Called when input is not a command '''
+        print(WARN + "Unknown command " + bold + command + W + ", see help.")

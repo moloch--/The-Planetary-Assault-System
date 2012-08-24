@@ -46,7 +46,8 @@ class FileCache(object):
                 if mem.set(key, data):
                     logging.info("Cached %s in memory." % file_path)
                 else:
-                    logging.error("Failed to properly cache file (%s)" % file_path)
+                    logging.error(
+                        "Failed to properly cache file (%s)" % file_path)
         return b64decode(data)
 
     @classmethod

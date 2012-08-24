@@ -1,36 +1,27 @@
 <div class="nav-collapse">
     <ul class="nav">
-        
         {% if uri == "/user" %}
         	<li class="active">
         {% else %}
         	<li>
         {% end %}
-        	<a href="/user">User Home</a>
+        	<a href="/user">Home</a>
         </li>
-        
-        {% if uri == "/createjob" %}
-        	<li class="active">
-        {% else %}
-        	<li>
-        {% end %}
-        	<a href="/createjob">Create Job</a>
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Password Cracking<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <li><a href="/cracking/createjob">Create Job</a></li>
+                <li><a href="/cracking/queuedjobs">Queued Jobs</a></li>
+                <li><a href="/cracking/completedjobs">Completed Jobs</a></li>
+            </ul>
         </li>
-        
-        {% if uri == "/queuedjobs" %}
-        	<li class="active">
-        {% else %}
-        	<li>
-        {% end %}
-        	<a href="/queuedjobs">Queued Jobs</a>
-        </li>
-
-        {% if uri == "/completedjobs" %}
-            <li class="active">
-        {% else %}
-            <li>
-        {% end %}
-            <a href="/completedjobs">Completed Jobs</a>
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Entropy Analysis<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <li><a href="/entropy/createjob">Create Job</a></li>
+                <li><a href="/entropy/queuedjobs">Queued Jobs</a></li>
+                <li><a href="/entropy/completedjobs">Completed Jobs</a></li>
+            </ul>
         </li>
     </ul>
 </div>

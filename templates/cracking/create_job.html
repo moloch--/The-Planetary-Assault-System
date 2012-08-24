@@ -3,7 +3,17 @@
 {% block title %}Create Job{% end %}
 
 {% block content %}
-  <h2>Create Job</h2>
+  <h2>Targeting System</h2>
+  <br />
+  {% if errors != None and len(errors) != 0 %}
+    {% for error in errors %}
+      <div class="alert alert-error">
+        <a class="close" data-dismiss="alert" href="#">×</a>
+        <h4 class="alert-heading">ERROR</h4>
+        {{ error }}
+      </div>
+    {% end %}
+  {% end %}
   <script>
     function setAlgo(new_algo) {
         document.getElementById('algorithm').value = new_algo;
@@ -13,27 +23,24 @@
     }
   </script>
   <div class="well">
-    <form action="/createjob" method="post">  
+    <form action="/cracking/createjob" method="post">  
       {% raw xsrf_form_html() %}
       <fieldset>
-      <legend>{{ message }}</legend>
+      <legend>Create a New Job</legend>
         <p>
-          <br />
           <label for="jobname">Job Name</label>
           <input placeholder="Job Name" type="text" name="jobname" id="jobname" />
         </p>
         <p>
-          <br />
           <label for="algorithm">Hash Algorithm</label>
           <input type="hidden" id="algorithm" name="algorithm" value="" />
           <div class="btn-group" data-toggle="buttons-radio">
-              {% for algo in handler.application.settings['rainbow_tables'].keys() %}
+              {% for algo in handler.application.settings['hash_algorithms'] %}
                 <button class="btn btn-primary" type="button" onclick="setAlgo('{{ algo }}')">{{ algo }}</button>
               {% end %}
           </div>
         </p>
         <p>
-          <br />
           <label for="format">Hash Format</label>
           <input type="hidden" id="format" name="format" value="" />
           <div class="btn-group" data-toggle="buttons-radio">
@@ -43,14 +50,13 @@
           </div>
         </p>
         <p>
-          <br />
           <label for="hashes">Password Hashes</label>
-          <textarea placeholder="Copy &amp; Paste Hashes" style="width:auto" name="hashes" rows="15" cols="45">
+          <textarea name="hashes" placeholder="Copy &amp; Paste Hashes" style="width:auto" rows="15" cols="45">
           </textarea>
         </p>
       </fieldset>
       <p class="submit">
-        <button class="btn btn-primary btn-large" data-loading-text="loading..." type="submit"> Create Job </button>
+        <button class="btn btn-primary btn-large" type="submit"> Create Job </button>
       </p>   
     </form>
     <script>

@@ -40,6 +40,19 @@ logging.basicConfig(format='\r[%(levelname)s] %(asctime)s - %(message)s',
 class ConfigManager(object):
     '''  Central class which handles any user-controlled settings '''
 
+    defaults = {
+        'debug': 'false',
+        'static_cache': 'true',
+        'port': '8888',
+        'captcha': 'off',
+        'private_key': '',
+        'admin_ips': '127.0.0.1',
+        'db_server': 'localhost',
+        'db_name': 'PlanetaryAssaultSystem',
+        'db_user': 'RUNTIME',
+        'db_password': 'RUNTIME',
+    }
+
     def __init__(self):
         self.cfg_path = os.path.abspath("PlanetaryAssaultSystem.cfg")
         if not (os.path.exists(self.cfg_path) or os.path.isdir(self.cfg_path)):
@@ -47,7 +60,7 @@ class ConfigManager(object):
                              cfg_path)
             os._exit(1)
         logging.info('Loading config from %s' % self.cfg_path)
-        self.config = ConfigParser.SafeConfigParser()
+        self.config = ConfigParser.SafeConfigParser(self.defaults)
         self.config.readfp(open(self.cfg_path, 'r'))
         self.__system__()
         self.__network__()
@@ -55,9 +68,11 @@ class ConfigManager(object):
         self.__security__()
         self.__database__()
 
+
     def __system__(self):
         ''' Load system configurations '''
         self.debug = self.config.getboolean("System", 'debug')
+        self.static_cache = self.config.getboolean("System", 'static_cache')
 
     def __network__(self):
         ''' Load network configurations '''
@@ -65,9 +80,9 @@ class ConfigManager(object):
 
     def __recaptcha__(self):
         ''' Loads recaptcha settings '''
-        self.recaptcha_enable = self.config.getboolean("Recaptcha", 'enable')
+        self.recaptcha_enable = self.config.getboolean("Recaptcha", 'captcha')
         self.recaptcha_private_key = self.config.get(
-            "Recaptcha", 'private_key')
+            "Recaptcha", 'private_key', "")
 
     def __security__(self):
         ''' Load security configurations '''
@@ -78,13 +93,13 @@ class ConfigManager(object):
 
     def __database__(self):
         ''' Loads database connection information '''
-        self.db_server = self.config.get("Database", 'server')
-        self.db_name = self.config.get("Database", 'name')
-        user = self.config.get("Database", 'user')
+        self.db_server = self.config.get("Database", 'db_server')
+        self.db_name = self.config.get("Database", 'db_name')
+        user = self.config.get("Database", 'db_user')
         if user == 'RUNTIME':
             user = raw_input(ConsoleColors.PROMPT + "Database User: ")
         self.db_user = user
-        password = self.config.get("Database", 'password')
+        password = self.config.get("Database", 'db_password')
         if password == 'RUNTIME':
             sys.stdout.write(ConsoleColors.PROMPT + "Database ")
             sys.stdout.flush()

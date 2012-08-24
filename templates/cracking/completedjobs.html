@@ -1,8 +1,8 @@
 {% extends "../main.html" %}
 
 {% block header %}
-<script src="/static/js/libs/highcharts.js"></script>
-<script src="/static/js/libs/exporting.js"></script>
+	<script src="/static/js/libs/highcharts.js"></script>
+	<script src="/static/js/libs/exporting.js"></script>
 {% end %}
 
 {% block title %}Completed Job{% end %}
@@ -43,7 +43,7 @@
 	    <div class="modal-body">
 	        <h4>Are you sure you want to delete this job?</h4>
 	    </div>
-	    <form id="deletejob" action="/deletejob" method="post">
+	    <form id="deletejob" action="/cracking/deletejob" method="post">
 	    	{% raw xsrf_form_html() %}
 	    	<input type="hidden" id="delete_job_id" name="job_id" value=""/>
 	    </form>
@@ -114,16 +114,16 @@
 				});
 			}
 			function getDetails(job_id) {
-				$.get('/ajax/jobdetails?job_id=' + job_id, function(data) {
+				$.get('/cracking/ajax/jobdetails?job_id=' + job_id, function(data) {
 			  		document.getElementById('job_view').innerHTML = data;
 				});
 				document.getElementById('download-job').value = job_id;
 			}
 			function getStats(job_id) {
-				$('#job_view').load('/ajax/jobstatistics?job_id='+job_id, function() {
+				$('#job_view').load('/cracking/ajax/jobstatistics?job_id='+job_id, function() {
 					createGraph();
 					/* Load stats data */
-					$.get('/ajax/jobdata?job_id=' + job_id, function(data) {
+					$.get('/cracking/ajax/jobdata?job_id=' + job_id, function(data) {
 					  	var dataSet = $.parseJSON(data);
 					  	for (var index = 0; index < dataSet.length; ++index) {
 					  		console.log(dataSet);
