@@ -61,7 +61,16 @@ class RecoveryConsole(cmd.Cmd):
         '''
         users = User.all()
         for user in users:
-            print INFO + user.user_name
+            permissions = ""
+            if 0 < len(user.permissions_names):
+                permissions = " ("
+                for perm in user.permissions_names[:-1]:
+                    permissions += perm + str(", ")
+                permissions += str("%s)" % user.permissions_names[-1])
+            if user.approved:
+                print INFO + user.user_name + permissions
+            else:
+                print WARN + user.user_name + permissions
 
     def do_delete(self, username):
         '''
@@ -110,6 +119,39 @@ class RecoveryConsole(cmd.Cmd):
             dbsession.add(user)
             dbsession.flush()
             print INFO + str("Successfully approved %s's account." % user.user_name)
+
+    def do_disapprove(self, username):
+        '''
+        Disapprove a user account
+        Usage: disapprove <user name>
+        '''
+        user = User.by_user_name(username)
+        if user == None:
+            print WARN + str("%s user not found in database." % username)
+        else:
+            user.approved = False
+            dbsession.add(user)
+            dbsession.flush()
+            print INFO + str("Successfully disapproved %s's account." % user.user_name)
+
+    def do_grant(self, username):
+        ''' 
+        Add user permissions
+        Usage: grant <user name>
+        '''
+        user = User.by_user_name(username)
+        if user == None:
+            print WARN + str("%s user not found in database." % username)
+        else:
+            name = raw_input(PROMPT + "Add permission: ")
+            permission = Permission(
+                permission_name=unicode(name),
+                user_id=user.id
+            )
+            dbsession.add(permission)
+            dbsession.add(user)
+            dbsession.flush()
+            print INFO + str("Successfully granted %s permissions to %s" % (name, user.user_name))
 
     def do_exit(self, *args, **kwargs):
         ''' 

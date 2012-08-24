@@ -119,9 +119,6 @@ app = Application([
                   # Enable XSRF forms (not optional)
                   xsrf_cookies=True,
 
-                  # Recaptcha Key
-                  recaptcha_private_key=config.recaptcha_private_key,
-
                   # Milli-Seconds between session clean up
                   clean_up_timeout=int(60 * 1000),
 

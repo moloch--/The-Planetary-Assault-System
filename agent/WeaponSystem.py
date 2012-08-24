@@ -55,39 +55,46 @@ config.readfp(open(cfg_path, 'r'))
 
 
 class WeaponSystem(rpyc.Service):
-    ''' RPC Services '''
+    ''' 
+    RPC Services: This is the code that does the actual password cracking
+    and returns the results to orbital command.  Currently only supports 
+    cracking using rainbow tables (RCrackPy)
+    '''
 
     def on_connect(self):
         ''' Called when successfully connected, does all the initialization '''
         logging.info("Uplink to orbital control active; weapon system initializing ...")
-        self.__cpu__()
         self.rainbow_tables = {'LM': None, 'NTLM': None, 'MD5': None}
         self.algorithms = self.rainbow_tables.keys()
         self.__tables__()
+        self.__cpu__()
         self.is_busy = False
         self.mutex = Lock()
+        self.debug = config.get("RCrack", 'debug', False)
+        if config.get("RCrack", 'threads', 0) <= 0:
+            self.threads = self.cpu_cores
+        else:
+            self.threads = config.get("RCrack", 'threads')
         logging.info("Weapon system online, good hunting.")
 
     def on_disconnect(self):
-        ''' Called if the connection is lost '''
-        pass
+        ''' Called if the connection is lost/disconnected '''
+        logging.info("Disconnected from orbital command server.")
 
-    def exposed_crack_list(self, job_id, hashes, hash_type, threads=0):
+    def exposed_crack_list(self, job_id, hashes, hash_type):
         '''
         Cracks a list of hashes, note the control server sets the number of threads
         by default this should equal the number of detected CPU cores
         '''
-        if threads <= 0:
-            threads = 1
         self.mutex.acquire()
         self.is_busy = True
         self.current_job_id = job_id
         self.mutex.release()
         tables = self.rainbow_tables[hash_type]
         logging.info(
-            "Recieved new assignment, now targeting %s hashes" % len(hashes))
+            "Recieved new assignment, now targeting %d hashes with %d thread(s)" % (len(hashes), self.threads))
         results = RainbowCrack.hash_list(
-            len(hashes), hashes, tables, maxThreads=threads)
+            len(hashes), hashes, tables, maxThreads=self.threads, debug=self.debug)
         self.mutex.acquire()
         self.is_busy = False
         self.mutex.release()

@@ -89,7 +89,7 @@ class User(BaseObject):
     @classmethod
     def all_users(cls):
         ''' Return all non-admin user objects '''
-        return dbsession.query(cls).filter(cls.user_name != u'admin').all()
+        return filter(lambda user: user.has_permission('admin') == False, cls.all())
 
 
     @classmethod
@@ -99,6 +99,7 @@ class User(BaseObject):
 
     @classmethod
     def _filter_string(cls, string, extra_chars=""):
+        ''' Remove any non-white listed chars from a string '''
         char_white_list = ascii_letters + digits + extra_chars
         return filter(lambda char: char in char_white_list, string)
 
