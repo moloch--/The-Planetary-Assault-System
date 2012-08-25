@@ -34,7 +34,7 @@ from string import ascii_letters, digits
 class PasswordHash(BaseObject):
 
     job_id = Column(Integer, ForeignKey('job.id'), nullable=False)
-    algorithm = Column(Unicode(16), nullable=False)  # MD5 / LM / NTLM
+    algorithm_id = Column(Integer, ForeignKey('algorithm.id'), nullable=False)
     user_name = Column(Unicode(64))
     _cipher_text = Column(Unicode(128), nullable=False)
     cipher_text = synonym('_cipher_text', descriptor=property(

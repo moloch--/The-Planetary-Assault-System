@@ -24,7 +24,7 @@ import getpass
 
 from libs.ConsoleColors import *
 from libs.ConfigManager import ConfigManager
-from models import dbsession, User, Permission
+from models import dbsession, User, Permission, Algorithm
 
 
 # Fills the database with some startup data.
@@ -42,22 +42,41 @@ else:
     if password1 == password2 and 12 <= len(password1):
         password = password1
     else:
-        print WARN + \
-            'Error: Passwords did not match, or were less than 12 chars'
+        print(WARN + \
+            'Error: Passwords did not match, or were less than 12 chars')
         os._exit(1)
 
-# User Account
+### Initialize algorithms
+md5 = Algorithm(
+    name=u'MD5',
+    length=32,
+    chars=u'1234567890ABCDEF',
+)
+lm = Algorithm(
+    name=u'LM',
+    length=16,
+    chars=u'1234567890ABCDEF',
+)
+ntlm = Algorithm(
+    name=u'NTLM',
+    length=16,
+    chars=u'1234567890ABCDEF',
+)
+dbsession.add(md5)
+dbsession.add(lm)
+dbsession.add(ntlm)
+dbsession.flush()
+
+### Create admin account
 user = User(
     user_name=unicode('admin'),
     approved=True
 )
 dbsession.add(user)
 dbsession.flush()
-# Set password
 user.password = password
 dbsession.add(user)
 dbsession.flush()
-# Add admin permission
 permission = Permission(
     permission_name=unicode('admin'),
     user_id=user.id
@@ -65,11 +84,11 @@ permission = Permission(
 dbsession.add(permission)
 dbsession.flush()
 
-### Print details for user
+### Print details for user'
 if config.debug:
     environ = bold + R + "Developement boot strap" + W
     details = ", default admin password is '%s'." % password
 else:
     environ = bold + "Production boot strap" + W
     details = '.'
-print INFO + '%s complete successfully%s' % (environ, details)
+print(INFO + '%s complete successfully%s' % (environ, details))

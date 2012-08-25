@@ -35,8 +35,9 @@
           <label for="algorithm">Hash Algorithm</label>
           <input type="hidden" id="algorithm" name="algorithm" value="" />
           <div class="btn-group" data-toggle="buttons-radio">
-              {% for algo in handler.application.settings['hash_algorithms'] %}
-                <button class="btn btn-primary" type="button" onclick="setAlgo('{{ algo }}')">{{ algo }}</button>
+              {% from models import Algorithm %}
+              {% for algo in Algorithm.all() %}
+                <button class="btn btn-primary" type="button" onclick="setAlgo('{{ algo }}')">{{ algo.name }}</button>
               {% end %}
           </div>
         </p>
@@ -44,8 +45,8 @@
           <label for="format">Hash Format</label>
           <input type="hidden" id="format" name="format" value="" />
           <div class="btn-group" data-toggle="buttons-radio">
-                <button class="btn btn-primary" type="button" onclick="setFormat('line')">Line Seperated</button>
-                <button class="btn btn-primary" type="button" onclick="setFormat('pwd')">PWDump</button>
+                <button class="btn btn-primary" type="button" onclick="setFormat('newline')">Line Seperated</button>
+                <button class="btn btn-primary" type="button" onclick="setFormat('pwdump')">PW Dump</button>
                 <button class="btn btn-primary" type="button" onclick="setFormat('lst')">Cain &amp; Able</button>
           </div>
         </p>

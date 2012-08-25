@@ -44,6 +44,7 @@ from models.PasswordHash import PasswordHash
 from models.Permission import Permission
 from models.User import User
 from models.WeaponSystem import WeaponSystem
+from models.Algorithm import Algorithm
 
 # Calling this will create the tables at the database
 create_tables = lambda: (

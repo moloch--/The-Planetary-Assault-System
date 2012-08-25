@@ -57,45 +57,45 @@ app = Application([
                   # Static Handlers - Serves static CSS, JavaScript and
                   # image files
                   (r'/static/(.*)',
-                   StaticFileHandler, {'path': 'static'}),
+                      StaticFileHandler, {'path': 'static'}),
 
                   # User Handlers - Serves user related pages
                   (r'/user', HomeHandler, {'dbsession': dbsession}),
                   (r'/settings',
-                   SettingsHandler, {'dbsession': dbsession}),
+                      SettingsHandler, {'dbsession': dbsession}),
                   (r'/logout', LogoutHandler),
 
                   # Job Handlers - Serves job related pages
                   (r'/cracking/createjob',
-                   CreateJobHandler, {'dbsession': dbsession}),
+                      CreateJobHandler, {'dbsession': dbsession}),
                   (r'/cracking/queuedjobs',
-                   QueuedJobsHandler, {'dbsession': dbsession}),
+                      QueuedJobsHandler, {'dbsession': dbsession}),
                   (r'/cracking/deletejob',
-                   DeleteJobHandler, {'dbsession': dbsession}),
+                      DeleteJobHandler, {'dbsession': dbsession}),
                   (r'/cracking/completedjobs',
-                   CompletedJobsHandler, {'dbsession': dbsession}),
+                      CompletedJobsHandler, {'dbsession': dbsession}),
                   (r'/cracking/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {
-                   'dbsession': dbsession}),
+                      'dbsession': dbsession}),
                   (r'/cracking/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {
-                   'dbsession': dbsession}),
+                      'dbsession': dbsession}),
                   (r'/cracking/ajax/jobdata(.*)',
-                   AjaxJobDataHandler, {'dbsession': dbsession}),
+                      AjaxJobDataHandler, {'dbsession': dbsession}),
 
                   # Admin Handlers - Admin only pages
                   (r'/manageusers', ManageUsersHandler, {
-                   'dbsession':dbsession}),
+                      'dbsession':dbsession}),
                   (r'/addweaponsystem', AddWeaponSystemsHandler, {
-                   'dbsession':dbsession}),
+                      'dbsession':dbsession}),
                   (r'/editweaponsystem', EditWeaponSystemsHandler, {
-                   'dbsession':dbsession}),
+                      'dbsession':dbsession}),
                   (r'/initialize(.*)', InitializeHandler, {
-                   'dbsession':dbsession}),
+                      'dbsession':dbsession}),
 
                   # Public handlers - Serves all public pages
                   (r'/', WelcomeHandler),
                   (r'/login', LoginHandler, {'dbsession': dbsession}),
                   (r'/register',
-                   RegistrationHandler, {'dbsession': dbsession}),
+                      RegistrationHandler, {'dbsession': dbsession}),
                   (r'/about', AboutHandler),
 
                   # Error handlers - Serves error pages
@@ -127,9 +127,6 @@ app = Application([
 
                   # Milli-Seconds between session clean up
                   clean_up_timeout=int(60 * 1000),
-
-                  # Supported hash types
-                  hash_algorithms=['MD5', 'LM', 'NTLM'],
 
                   # Debug mode
                   debug=config.debug,

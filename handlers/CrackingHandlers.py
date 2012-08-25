@@ -24,7 +24,7 @@ import os
 import json
 import logging
 
-from models import Job, User, PasswordHash
+from models import Job, User, PasswordHash, Algorithm
 from string import ascii_letters, digits
 from libs.Form import Form
 from libs.Dispatch import Dispatch
@@ -45,40 +45,58 @@ class CreateJobHandler(UserBaseHandler):
         ''' Creates a job based on the parameters '''
         form = Form(
             jobname="Please enter a job name",
-            algorithm="Please select a valid algorithm",
+            algorithm="Please select an algorithm",
             format="Please select a format",
             hashes="Please provide the target hashes",
         )
+        self.parsers = {
+            'newline': self.parse_line_seperated,
+            'pwdump': self.parse_pwdump,
+            'lst': self.parse_lst,
+        }
         if form.validate(self.request.arguments):
+            algo = Algorithm.by_name(self.get_argument('algorithm'))
             user = self.get_current_user()
-            job = Job(
-                user_id=user.id,
-                name=unicode(self.job_name),
-            )
-            self.dbsession.add(job)
-            self.dbsession.flush()
-            for passwd in self.hashes:
-                if 0 < len(passwd) <= 64:
-                    password_hash = PasswordHash(
-                        job_id=job.id,
-                        algorithm=unicode(algorithm),
-                        digest=unicode(passwd),
-                    )
-                    self.dbsession.add(password_hash)
-            self.dbsession.flush()
-            self.start_job(job)
-            self.render("cracking/created_job.html", job=job)
+            if not self.get_argument('format') in self.parsers.keys():
+                self.render('cracking/create_job.html', errors=['Invalid format'])
+            elif algo == None:
+                self.render('cracking/create_job.html', errors=['Invalid algorithm'])
+            else:
+                self.create_job(user, algo)
+                dispatch = Dispatch.Instance()
+                dispatch.refresh()
+                self.render("cracking/created_job.html", job=job)
         else:
             self.render('cracking/create_job.html', errors=form.errors)
 
-    def get_hashes(self, remove_duplicates=False):
+    def create_job(self, user, algorithm):
+        ''' Creates a job '''
+        job = Job(
+            user_id=user.id,
+            name=unicode(self.get_argument('jobname')),
+            algorithm_id=algorithm.id,
+        )
+        self.dbsession.add(job)
+        self.dbsession.flush()
+        hashes = self.parsers[self.get_argument('format')]
+        for passwd in hashes:
+            if 0 < len(passwd) <= 64:
+                password_hash = PasswordHash(
+                    job_id=job.id,
+                    algorithm_id=algorithm.id,
+                    digest=unicode(passwd),
+                )
+                self.dbsession.add(password_hash)
+        self.dbsession.flush()
+
+    def parse_line_seperated(self, remove_duplicates=False):
         ''' Parses the provided hashes '''
         try:
             hashes = self.get_argument('hashes').replace('\r', '').split('\n')
             if remove_duplicates:
                 self.hashes = list(set(hashes))
             if len(hashes) == 0:
-                raise ValueError
+                raise ValueError("No hashes found")
         except:
             self.render("cracking/create_job.html", errors=["Cannot parse hashes"])
 
@@ -86,11 +104,6 @@ class CreateJobHandler(UserBaseHandler):
         ''' Removes erronious chars from a string '''
         char_white_list = ascii_letters + digits
         return filter(lambda char: char in char_white_list, string)
-
-    def start_job(self, job):
-        ''' Sends the new job to the dispather '''
-        dispather = Dispatch.Instance()
-        dispather.start(job.id)
 
 
 class QueuedJobsHandler(UserBaseHandler):

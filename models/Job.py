@@ -48,6 +48,7 @@ class Job(BaseObject):
     completed = Column(Boolean, default=False, nullable=False)
     hashes = relationship("PasswordHash", backref=backref(
         "Job", lazy="joined"), cascade="all, delete-orphan")
+    algorithm_id = Column(Integer, ForeignKey('algorithm.id'), nullable=False)
     started = Column(DateTime)
     finished = Column(DateTime)
 
@@ -207,10 +208,7 @@ class Job(BaseObject):
 
     def to_list(self):
         ''' Returns all hash digests as a Python list '''
-        ls = []
-        for passwordHash in self.hashes:
-            ls.append(passwordHash.digest.encode('ascii', 'ignore'))
-        return ls
+        return [hsh.cipher_text for hsh in self.hashes]
 
     def __len__(self):
         ''' Returns the number of hashes in the job '''

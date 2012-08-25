@@ -50,47 +50,47 @@ class WeaponSystem(BaseObject):
 
     @classmethod
     def by_id(cls, weapon_id):
-        """ Return the WeaponSystem object whose id is 'weapon_id' """
+        ''' Return the WeaponSystem object whose id is 'weapon_id' '''
         return dbsession.query(cls).filter_by(id=weapon_id).first()
 
     @classmethod
     def by_uuid(cls, weapon_uuid):
-        """ Return the WeaponSystem object whose uuid is 'weapon_uuid' """
+        ''' Return the WeaponSystem object whose uuid is 'weapon_uuid' '''
         return dbsession.query(cls).filter_by(uuid=unicode(weapon_uuid)).first()
 
     @classmethod
     def get_all(cls):
-        """ Get all WeaponSystem objects that have been initialized """
+        ''' Get all WeaponSystem objects that have been initialized '''
         return dbsession.query(cls).filter_by(initialized=True).all()
 
     @classmethod
     def get_uninitialized(cls):
-        """ Get all WeaponSystem objects that have not been initialized """
+        ''' Get all WeaponSystem objects that have not been initialized '''
         return dbsession.query(cls).filter_by(initialized=False).all()
 
     @classmethod
     def by_name(cls, weapon_name):
-        """ Return the WeaponSystem object whose name is 'weapon_name' """
+        ''' Return the WeaponSystem object whose name is 'weapon_name' '''
         return dbsession.query(cls).filter_by(name=unicode(weapon_name)).first()
 
     @classmethod
     def by_ip_address(cls, weapon_ip_address):
-        """ Return the WeaponSystem object whose ip_address is 'weapon_ip_address' """
+        ''' Return the WeaponSystem object whose ip_address is 'weapon_ip_address' '''
         return dbsession.query(cls).filter_by(ip_address=unicode(weapon_ip_address)).first()
 
     @classmethod
     def all_lm_capable(cls):
-        """ Return all the WeaponSystem objects that are lm capable """
+        ''' Return all the WeaponSystem objects that are lm capable '''
         return dbsession.query(cls).filter_by(lm_capable=True).all()
 
     @classmethod
     def all_ntlm_capable(cls):
-        """ Return all the WeaponSystem objects that are ntlm capable """
+        ''' Return all the WeaponSystem objects that are ntlm capable '''
         return dbsession.query(cls).filter_by(ntlm_capable=True).all()
 
     @classmethod
     def all_md5_capable(cls):
-        """ Return all the WeaponSystem objects that are md5 capable """
+        ''' Return all the WeaponSystem objects that are md5 capable '''
         return dbsession.query(cls).filter_by(md5_capable=True).all()
 
     @classmethod
@@ -102,21 +102,21 @@ class WeaponSystem(BaseObject):
 
     @classmethod
     def ready_md5_capable(cls):
-        """ Return all the WeaponSystem objects that are online, not busy and md5 capable """
+        ''' Return all the WeaponSystem objects that are online, not busy and md5 capable '''
         online_systems = filter(lambda weapon_system:
                                 weapon_system.is_online() == True, cls.all_md5_capable())
         return filter(lambda weapon_system: weapon_system.is_busy() == False, online_systems)
 
     @classmethod
     def ready_lm_capable(cls):
-        """ Return all the WeaponSystem objects that are online, not busy and lm capable """
+        ''' Return all the WeaponSystem objects that are online, not busy and lm capable '''
         online_systems = filter(lambda weapon_system:
                                 weapon_system.is_online() == True, cls.all_lm_capable())
         return filter(lambda weapon_system: weapon_system.is_busy() == False, online_systems)
 
     @classmethod
     def ready_ntlm_capable(cls):
-        """ Return all the WeaponSystem objects that are online, not busy and ntlm capable """
+        ''' Return all the WeaponSystem objects that are online, not busy and ntlm capable '''
         online_systems = filter(lambda weapon_system:
                                 weapon_system.is_online() == True, cls.all_ntlm_capable())
         return filter(lambda weapon_system: weapon_system.is_busy() == False, online_systems)
@@ -156,12 +156,12 @@ class WeaponSystem(BaseObject):
             success = True
         except ValueError:
             logging.exception(
-                "Failed to initialize weapon system, check parameters")
+                "Failed to initialize weapon system, check parameters (ValueError)")
         except EOFError:
             logging.exception(
-                "Failed to initialize weapon system, check parameters")
+                "Failed to initialize weapon system, check parameters (EOF)")
         finally:
-            ssh_keyfile.close()
+            ssh_keyfile.close() # TempFile is deleted upon .close()
             return success
 
     def is_online(self):

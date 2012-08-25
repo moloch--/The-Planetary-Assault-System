@@ -43,8 +43,8 @@ def create():
           current_time())
     create_tables()
     if len(argv) == 3 and (argv[2] == 'bootstrap' or argv[2] =='-b'):
-        print(INFO +
-            '\n%s : Bootstrapping the database ... ' % current_time())
+        print('\n\n\n' + INFO +
+            '%s : Bootstrapping the database ... \n' % current_time())
         boot_strap()
 
 def recovery():

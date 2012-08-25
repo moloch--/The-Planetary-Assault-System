@@ -39,16 +39,20 @@ class Dispatch(object):
 
     def __init__(self):
         self.__config__()
-        self.is_busy = False
         self.mutex = Lock()
 
     def __config__(self):
         self.config = ConfigManager.Instance()
 
+    def refresh(self):
+        ''' Non-blocking call to check the queue for new jobs '''
+        thread.start_new_thread(self.__next__)
+
     def check_queue(self):
         ''' Starts a job or leaves it in the queue (thread safe) '''
         self.mutex.acquire()
-        queue = list(Job.queue())  # Create a copy of the queue
+        queue = list(Job.queue()) # Create a copy of the queue
+        assert not queue is Job.queue()
         for job in queue:
             if len(job) == 0:
                 job.status = u"COMPLETED"
@@ -72,10 +76,10 @@ class Dispatch(object):
             logging.error("Invalid job passed to dispatcher.")
         else:
             job.status = u"IN_PROGRESS"
+            job.started = datetime.now()
             dbsession.add(job)
             dbsession.flush()
             algo = job.hashes[0].algorithm
-            job.started = datetime.now()
             try:
                 ssh_keyfile = NamedTemporaryFile()
                 ssh_keyfile.write(weapon_system.ssh_key)
@@ -88,7 +92,7 @@ class Dispatch(object):
                 results = rpc_connection.root.exposed_crack_list(
                     job.id, job.to_list(), algo, weapon_system.cpu_count)
             except:
-                logging.exception("Connection to remote weapon system failed, check parameters")
+                logging.exception("Connection to remote weapon system failed, check parameters.")
             finally:
                 ssh_keyfile.close()
             if results != None:
