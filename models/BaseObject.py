@@ -30,11 +30,6 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.declarative import declarative_base
 
 
-def get_uuid():
-    ''' Generates a random unicode uuid '''
-    return unicode(uuid4())
-
-
 class SimpleDatabaseObject(object):
     '''
     All database objects inherit from this object, it automatically
@@ -53,7 +48,7 @@ class SimpleDatabaseObject(object):
                    lambda letter: "_" + letter.group(0).lower(), name[1:])
         )
     id = Column(Integer, primary_key=True, unique=True, nullable=False)
-    uuid = Column(Unicode(36), unique=True, nullable=False, default=get_uuid)
+    uuid = Column(Unicode(36), unique=True, nullable=False, default=lambda: unicode(uuid4()))
     created = Column(DateTime, default=datetime.now)
 
 # Create an instance called "BaseObject", inherit from this

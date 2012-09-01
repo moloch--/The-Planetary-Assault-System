@@ -42,7 +42,7 @@ def create():
     print(INFO + '%s : Creating the database ... ' %
           current_time())
     create_tables()
-    if len(argv) == 3 and (argv[2] == 'bootstrap' or argv[2] =='-b'):
+    if len(argv) == 3 and (argv[2] == 'bootstrap' or argv[2] == '-b'):
         print('\n\n\n' + INFO +
             '%s : Bootstrapping the database ... \n' % current_time())
         boot_strap()

@@ -38,6 +38,16 @@ class AdminBaseHandler(RequestHandler):
             self.get_secure_cookie('auth'), self.request.remote_ip)
 
     @authenticated
+    def get(self, *args, **kwargs):
+        ''' Renders a 404 in case, will prbly get overloaded '''
+        self.render("public/404.html")
+
+    @authenticated
+    def post(self, *args, **kwargs):
+        ''' Renders a 404 in case, will prbly get overloaded '''
+        self.render("public/404.html")  
+
+    @authenticated
     def put(self, *args, **kwargs):
         ''' Log odd behavior, this should never get legitimately called '''
         logging.warn("%s attempted to use PUT method" % self.request.remote_ip)
@@ -79,6 +89,16 @@ class UserBaseHandler(RequestHandler):
         if self.session != None:
             return User.by_user_name(self.session.data['user_name'])
         return None
+
+    @authenticated
+    def get(self, *args, **kwargs):
+        ''' Renders a 404 in case, will prbly get overloaded '''
+        self.render("public/404.html")
+
+    @authenticated
+    def post(self, *args, **kwargs):
+        ''' Renders a 404 in case, will prbly get overloaded '''
+        self.render("public/404.html")      
 
     @authenticated
     def put(self, *args, **kwargs):

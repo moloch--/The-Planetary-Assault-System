@@ -34,6 +34,9 @@ from string import ascii_letters, digits
 
 
 class Job(BaseObject):
+    '''
+    Cracking job, holds refs to all the PasswordHash objects
+    '''
 
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     _job_name = Column(Unicode(64), unique=True, nullable=False)

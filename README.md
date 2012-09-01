@@ -1,7 +1,8 @@
 The-Planetary-Assault-System
 ============================
 Fire and forget password cracking and complexity analysis.
-__This is a work in progress!__
+
+__This is a work in progress, please keep that in mind!__
 
 Requirements
 ===============
@@ -12,7 +13,7 @@ Requirements
 * RPyC v3.x
 * Debian/Ubuntu recommened, but should run on any Linux or BSD system
 
-Orbital Command Setup
+Orbital Control Setup
 =====================
 * Run __/setup/depends.sh__ (Debian/Ubuntu only) to automatically install all required libs
 * Edit __PlanetaryAssaultSystem.cfg__

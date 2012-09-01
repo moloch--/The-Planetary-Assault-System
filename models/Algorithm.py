@@ -26,6 +26,10 @@ from models.BaseObject import BaseObject
 from models import dbsession
 
 class Algorithm(BaseObject):
+    '''
+    Holds information about an algorithm, typically
+    this is a read-only object but that is not enforced
+    '''
 
     name = Column(Unicode(64), nullable=False)
     length = Column(Integer, nullable=False)

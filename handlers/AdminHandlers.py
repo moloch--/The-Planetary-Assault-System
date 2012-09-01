@@ -49,7 +49,7 @@ class ManageUsersHandler(AdminBaseHandler):
         try:
             user_name = self.get_argument("username")
         except:
-            self.render("admin/error.html", error="User does not exist")
+            self.render("admin/error.html", errors=["User does not exist"])
         user = User.by_user_name(user_name)
         user.approved = True
         self.dbsession.add(user)
@@ -80,14 +80,22 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
     def get(self, *args, **kwargs):
         ''' Renders the create weapon system page '''
         self.render(
-            "admin/create_weaponsystem.html", message="Uplink Parameters")
+            "admin/create_weaponsystem.html", errors=None)
 
     @authenticated
     @authorized('admin')
     @restrict_ip_address
     def post(self, *args, **kwargs):
-        '''  Creates a new weapon system, and yes the form validation is shit '''
-        if self.validate_form():
+        ''' Creates a new weapon system, and yes the form validation is shit '''
+        form = Form(
+            name="Please enter a name",
+            ssh_user="Please enter an ssh user name",
+            ssh_key="Please enter an ssh key",
+            ip_address="Please enter a ip address",
+            ssh_port="Please enter an ssh port",
+            service_port="Please enter a service port",
+        )
+        if form.validate():
             weapon_system = WeaponSystem(
                 name=unicode(self.name),
                 ssh_user=unicode(self.ssh_user),
@@ -99,65 +107,9 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
             dbsession.add(weapon_system)
             dbsession.flush()
             weapon_system.initialize()
-            self.render("admin/created_weaponsystem.html")
-
-    def validate_form(self):
-        ''' Shitty form validation '''
-        # Name
-        try:
-            self.name = self.filter_string(self.get_argument("name"))
-            if WeaponSystem.by_name(self.name) != None:
-                raise ValueError("Name already exits")
-        except:
-            self.render(
-                "admin/create_weaponsystem.html", message="Invalid Name")
-            return False
-        # IP Address
-        try:
-            self.ip_address = self.filter_string(
-                self.get_argument("ipaddress"), extra_chars=".")
-            if WeaponSystem.by_ip_address(self.ip_address) != None:
-                raise ValueError("IP Address already in use")
-        except:
-            self.render("admin/create_weaponsystem.html",
-                        message="Missing IP Address")
-            return False
-        # Service Port
-        try:
-            self.listen_port = int(self.get_argument("srvport"))
-            if not 1 < self.listen_port < 65535:
-                raise ValueError("Invalid port range, or not a number")
-        except:
-            self.render("admin/create_weaponsystem.html",
-                        message="Invalid Listen Port")
-            return False
-        # SSH User
-        try:
-            self.ssh_user = self.filter_string(self.get_argument("sshuser"))
-            if self.ssh_user.lower() == 'root':
-                raise ValueError("SSH User cannot be 'root'")
-        except:
-            self.render("admin/create_weaponsystem.html",
-                        message="Missing SSH User")
-            return False
-        # SSH Key
-        try:
-            self.ssh_key = self.filter_string(
-                self.get_argument("sshkey"), extra_chars="+/=- \n")
-        except:
-            self.render("admin/create_weaponsystem.html",
-                        message="Missing SSH Private Key")
-            return False
-        # SSH Port
-        try:
-            self.ssh_port = int(self.get_argument("sshport"))
-            if not 1 < self.ssh_port < 65535:
-                raise ValueError("Invalid port range, or not a number")
-        except:
-            self.render("admin/create_weaponsystem.html",
-                        message="Missing SSH Port")
-            return False
-        return True
+            self.render("admin/created_weaponsystem.html", errors=None)
+        else:
+            self.render("admin/created_weaponsystem.html", errors=form.errors)
 
     def filter_string(self, string, extra_chars=""):
         ''' Removes erronious chars from a string '''

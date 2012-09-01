@@ -33,7 +33,9 @@ from tempfile import NamedTemporaryFile
 
 
 class WeaponSystem(BaseObject):
-    ''' Holds configuration information for remote agents '''
+    ''' 
+    Holds configuration information for remote agents
+    '''
 
     name = Column(Unicode(64), unique=True, nullable=False)
     initialized = Column(Boolean, default=False, nullable=False)

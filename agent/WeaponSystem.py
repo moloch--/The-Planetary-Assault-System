@@ -65,15 +65,15 @@ class WeaponSystem(rpyc.Service):
     mutex = Lock()
     rainbow_tables = {'LM': None, 'NTLM': None, 'MD5': None}
     is_busy = False
-    debug = config.get("RCrack", 'debug', False)
+    debug = config.get("RCrack", 'debug')
 
     def initialize(self):
-        ''' initializes variables, this should only be called once '''
+        ''' Initializes variables, this should only be called once '''
         logging.info("Weapon system initializing ...")
         self.algorithms = self.rainbow_tables.keys()
         self.__tables__()
         self.__cpu__()
-        if config.get("RCrack", 'threads', 0) <= 0:
+        if config.get("RCrack", 'threads') <= 0:
             self.threads = self.cpu_cores
         else:
             self.threads = config.get("RCrack", 'threads')

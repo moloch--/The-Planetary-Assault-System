@@ -127,7 +127,7 @@ class CompletedJobsHandler(UserBaseHandler):
 
     @authenticated
     def post(self, *args, **kwargs):
-        self.render("public/404.html")
+        pass
 
 
 class DeleteJobHandler(UserBaseHandler):
@@ -180,10 +180,6 @@ class AjaxJobDetailsHandler(UserBaseHandler):
         else:
             self.render("cracking/ajax_jobdetails.html", job=job)
 
-    @authenticated
-    def post(self, *args, **kwargs):
-        self.render("public/404.html")
-
 
 class AjaxJobStatisticsHandler(UserBaseHandler):
 
@@ -203,10 +199,6 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
             self.render("cracking/ajax_error.html", message="Job does not exist")
         else:
             self.render("cracking/ajax_jobstatistics.html", job=job)
-
-    @authenticated
-    def post(self, *args, **kwargs):
-        self.render("public/404.html")
 
 
 class AjaxJobDataHandler(UserBaseHandler):
@@ -228,10 +220,6 @@ class AjaxJobDataHandler(UserBaseHandler):
         stats = job.stats_complexity()
         self.write(stats)
         self.finish()
-
-    @authenticated
-    def post(self, *args, **kwargs):
-        self.render("public/404.html")
 
 
 class DownloadHandler(UserBaseHandler):

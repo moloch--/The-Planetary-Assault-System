@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 
     Copyright [2012] [Redacted Labs]
 
@@ -15,9 +15,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -------------
+
 This sets up sqlalchemy.
 For more information about sqlalchemy check out http://www.sqlalchemy.org/
-"""
+
+'''
 
 
 from sqlalchemy import create_engine
@@ -50,8 +52,6 @@ from models.Algorithm import Algorithm
 create_tables = lambda: (
     setattr(engine, 'echo', True), metadata.create_all(engine))
 
-# Bootstrap the database
-
-
+# Bootstrap the databases
 def boot_strap():
     import setup.bootstrap

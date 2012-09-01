@@ -38,7 +38,7 @@ logging.basicConfig(format='\r[%(levelname)s] %(asctime)s - %(message)s',
 
 @Singleton
 class ConfigManager(object):
-    '''  Central class which handles any user-controlled settings '''
+    ''' Central class which handles any user-controlled settings '''
 
     defaults = {
         'debug': 'false',

@@ -33,13 +33,10 @@ from models.Permission import Permission
 from models.BaseObject import BaseObject
 
 
-def gen_salt():
-    ''' Generate a 24-byte random salt '''
-    return unicode(b64encode(urandom(24)))
-
-
 class User(BaseObject):
-    ''' User definition '''
+    ''' 
+    User class used for authentication/autorization 
+    '''
 
     _user_name = Column(Unicode(64), unique=True, nullable=False)
     user_name = synonym('_user_name', descriptor=property(
@@ -53,7 +50,7 @@ class User(BaseObject):
     permissions = relationship("Permission", backref=backref(
         "User", lazy="joined"), cascade="all, delete-orphan")
     salt = Column(
-        Unicode(32), unique=True, nullable=False, default=gen_salt)
+        Unicode(32), unique=True, nullable=False, default=lambda: unicode(b64encode(urandom(24))))
     _password = Column('password', Unicode(64))
     password = synonym('_password', descriptor=property(
         lambda self: self._password,

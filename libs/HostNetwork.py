@@ -31,4 +31,4 @@ class NetworkConfig():
         sock.connect((uri, port))
         ip_address = sock.getsockname()[0]
         sock.close()
-            return ip_address
+        return ip_address

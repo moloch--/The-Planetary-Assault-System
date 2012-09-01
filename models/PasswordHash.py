@@ -32,6 +32,9 @@ from string import ascii_letters, digits
 
 
 class PasswordHash(BaseObject):
+    '''
+    Generic password hash object, can be of any algorithm
+    '''
 
     job_id = Column(Integer, ForeignKey('job.id'), nullable=False)
     algorithm_id = Column(Integer, ForeignKey('algorithm.id'), nullable=False)
@@ -44,22 +47,27 @@ class PasswordHash(BaseObject):
     ))
     plain_text = Column(Unicode(64))
     solved = Column(Boolean, default=False, nullable=False)
-    common_passwords = ['123456', '12345', '123456789', 'password', 'iloveyou', 'princess',
-                        'rockyou', '1234567', '12345678', 'abc123', 'nicole', 'daniel', 'babygirl', 'monkey',
-                        'jessica', 'lovely', 'michael', 'ashley', '654321', 'qwerty', 'letmein', 'admin', 'fuck',
+    common_passwords = ['12345', '123456', '1234567', '12345678','123456789', '654321', 'password',
+                        'abc123', 'nicole', 'daniel', 'babygirl', 'monkey', 'iloveyou', 'princess',
+                        'jessica', 'lovely', 'michael', 'ashley', 'qwerty', 'letmein', 'admin', 'fuck',
                         'fuckyou', 'dragon', 'pussy', 'baseball', 'football', '696969', 'mustang', '111111', '2000',
                         'shadow', 'master', 'jennifer', 'jordan', 'superman', 'love', 'sex', 'secret', 'god',
                         ]
 
     @classmethod
     def by_id(cls, hash_id):
-        """ Return the PasswordHash object whose user id is 'hash_id' """
+        ''' Return the PasswordHash object whose user id is 'hash_id' '''
         return dbsession.query(cls).filter_by(id=hash_id).first()
 
     @classmethod
     def by_digest(cls, digest_value, job_id_value):
-        """ Return the digest based on valud and job_id """
+        ''' Return the digest based on valud and job_id '''
         return dbsession.query(cls).filter(and_(digest == digest_value, job_id == job_id_value)).first()
+
+    @classmethod
+    def by_algorithm(cls, algo_id):
+        ''' Return all passwordHash objects of a given algorithm id '''
+        return dbsession.query(cls).filter_by(algorithm_id=algo_id).all()
 
     @classmethod
     def _filter_string(cls, string, extra_chars=""):
@@ -105,15 +113,14 @@ class PasswordHash(BaseObject):
     @property
     def mixed_alpha_numeric(self):
         ''' Checks to see if the password is only lower/upper case and numeric chars '''
-        contains_mixed_alpha_numeric = self.__regex__(
-            "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$")
+        contains_mixed_alpha_numeric = self.__regex__("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$")
         only_mixed_alpha_numeric = self.__regex__("^[a-zA-Z0-9]*$")
         return (contains_mixed_alpha_numeric and only_mixed_alpha_numeric)
 
     @property
     def is_common(self):
         ''' Checks to see if the password is in the common password list (ignores case) '''
-        return self.plain_text.lower() in self.common_passwords
+        return (self.plain_text.lower() in self.common_passwords)
 
     def __regex__(self, expression):
         ''' Runs a regex returns a bool '''
