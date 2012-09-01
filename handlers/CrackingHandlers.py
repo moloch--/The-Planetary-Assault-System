@@ -55,14 +55,16 @@ class CreateJobHandler(UserBaseHandler):
             'lst': self.parse_lst,
         }
         if form.validate(self.request.arguments):
-            algo = Algorithm.by_name(self.get_argument('algorithm'))
+            algo = Algorithm.by_uuid(self.get_argument('algorithm'))
             user = self.get_current_user()
             if not self.get_argument('format') in self.parsers.keys():
                 self.render('cracking/create_job.html', errors=['Invalid format'])
             elif algo == None:
                 self.render('cracking/create_job.html', errors=['Invalid algorithm'])
+            elif Job.by_job_name(self.get_argument('jobname')) != None:
+                self.render('cracking/create_job.html', errors=['Duplicate job name'])
             else:
-                self.create_job(user, algo)
+                job = self.create_job(user, algo)
                 dispatch = Dispatch.Instance()
                 dispatch.refresh()
                 self.render("cracking/created_job.html", job=job)
@@ -73,44 +75,54 @@ class CreateJobHandler(UserBaseHandler):
         ''' Creates a job '''
         job = Job(
             user_id=user.id,
-            name=unicode(self.get_argument('jobname')),
+            job_name=unicode(self.get_argument('jobname')),
             algorithm_id=algorithm.id,
         )
         self.dbsession.add(job)
         self.dbsession.flush()
-        hashes = self.parsers[self.get_argument('format')]
+        parser = self.parsers[self.get_argument('format')]
+        hashes = parser(algorithm)
         for passwd in hashes:
-            if 0 < len(passwd) <= 64:
-                password_hash = PasswordHash(
-                    job_id=job.id,
-                    algorithm_id=algorithm.id,
-                    digest=unicode(passwd),
-                )
-                self.dbsession.add(password_hash)
+            password_hash = PasswordHash(
+                job_id=job.id,
+                algorithm_id=algorithm.id,
+                cipher_text=unicode(passwd),
+            )
+            self.dbsession.add(password_hash)
         self.dbsession.flush()
+        return job
 
-    def parse_line_seperated(self, remove_duplicates=False):
+    def parse_line_seperated(self, algorithm, remove_duplicates=True):
         ''' Parses the provided hashes '''
+        logging.info("Called ls parser....")
+        hashes = []
         try:
-            hashes = self.get_argument('hashes').replace('\r', '').split('\n')
+            for hsh in self.get_argument('hashes').replace('\r', '').split('\n'):
+                if len(hsh) == len(algorithm):
+                    hashes.append(hsh)
+                elif len(hsh) != 0:
+                    logging.debug("Hash of improper length submitted.")
             if remove_duplicates:
-                self.hashes = list(set(hashes))
-            if len(hashes) == 0:
-                raise ValueError("No hashes found")
+                hashes = list(set(hashes))
+            return hashes
         except:
-            self.render("cracking/create_job.html", errors=["Cannot parse hashes"])
+            logging.exception("Exception while parsing hashes.")
+            self.render("cracking/create_job.html", errors=["Failed to correctly parse hashes"])
 
-    def filter_string(self, string):
-        ''' Removes erronious chars from a string '''
-        char_white_list = ascii_letters + digits
-        return filter(lambda char: char in char_white_list, string)
+    def parse_pwdump(self):
+        pass
 
+    def parse_lst(self):
+        pass
+        
 
 class QueuedJobsHandler(UserBaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
         ''' Renders the cracking queue '''
+        dispatch = Dispatch.Instance()
+        dispatch.refresh()
         self.render("cracking/queuedjobs.html", all_users=User.all_users(), queue_size=Job.qsize())
 
     @authenticated

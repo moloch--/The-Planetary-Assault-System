@@ -25,12 +25,11 @@ import thread
 import logging
 import ConfigParser
 
-from models import dbsession
-from models import Job, User
 from threading import Lock
 from datetime import datetime
 from libs.Singleton import Singleton
 from libs.ConfigManager import ConfigManager
+from models import dbsession, Job, User, WeaponSystem, Algorithm
 
 
 @Singleton
@@ -46,11 +45,13 @@ class Dispatch(object):
 
     def refresh(self):
         ''' Non-blocking call to check the queue for new jobs '''
-        thread.start_new_thread(self.__next__)
+        thread.start_new_thread(self.__next__, (None,))
 
-    def check_queue(self):
+    def __queue__(self):
         ''' Starts a job or leaves it in the queue (thread safe) '''
+        logging.debug("Attempting to acquire queue mutex ...")
         self.mutex.acquire()
+        logging.debug("Successfully acquired queue mutex.")
         queue = list(Job.queue()) # Create a copy of the queue
         assert not queue is Job.queue()
         for job in queue:
@@ -59,8 +60,8 @@ class Dispatch(object):
                 dbsession.add(job)
                 dbsession.flush()
             else:
-                weapon_systems = WeaponSystem.ready_system(
-                    job.hashes[0].algorithm)
+                algo = Algorithm.by_id(job.algorithm_id)
+                weapon_systems = WeaponSystem.system_ready(algo)
                 if weapon_systems != None and 0 < len(weapon_systems):
                     thread.start_new_thread(
                         self.__crack__, (job, weapon_systems[0],))
@@ -103,7 +104,7 @@ class Dispatch(object):
             dbsession.flush()
             self.__next__()
 
-    def __next__(self):
+    def __next__(self, *args, **kwargs):
         ''' Called when a weapon system completes a job '''
         if 0 < Job.qsize():
-            self.check_queue()
+            self.__queue__()

@@ -48,17 +48,17 @@ else:
 
 ### Initialize algorithms
 md5 = Algorithm(
-    name=u'MD5',
+    algorithm_name=u'MD5',
     length=32,
     chars=u'1234567890ABCDEF',
 )
 lm = Algorithm(
-    name=u'LM',
+    algorithm_name=u'LM',
     length=16,
     chars=u'1234567890ABCDEF',
 )
 ntlm = Algorithm(
-    name=u'NTLM',
+    algorithm_name=u'NTLM',
     length=16,
     chars=u'1234567890ABCDEF',
 )

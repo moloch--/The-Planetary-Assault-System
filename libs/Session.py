@@ -18,7 +18,10 @@ Created on Mar 13, 2012
    limitations under the License.
 '''
 
+
+from time import sleep
 from os import urandom
+from random import seed, random
 from base64 import b64encode
 from threading import Lock
 from libs.Singleton import *
@@ -35,6 +38,7 @@ class SessionManager():
     def __init__(self):
         self.sessions = {}
         self.sessions_lock = Lock()
+        seed(urandom(8))
 
     def start_session(self):
         ''' Creates a new session and returns the session id and the new session object '''
@@ -46,6 +50,7 @@ class SessionManager():
 
     def remove_session(self, sid):
         ''' Removes a given session '''
+        sleep(random() / 100) # Prevent remote timing attacks
         if sid in self.sessions.keys():
             self.sessions_lock.acquire()
             del self.sessions[sid]
@@ -53,6 +58,7 @@ class SessionManager():
 
     def get_session(self, sid, ip_address):
         ''' Returns a session object if it exists or None '''
+        sleep(random() / 100) # Prevent remote timing attacks
         if sid in self.sessions.keys():
             if self.sessions[sid].is_expired():
                 self.remove_session(sid)

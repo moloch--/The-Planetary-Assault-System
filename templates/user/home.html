@@ -13,9 +13,9 @@
 				<strong> Weapon Systems </strong>
 				{% for ws in all_weapons %}
 					{% if ws.is_online() %}
-						<h4>{{ ws.name }}: <code> ONLINE </code> </h4>
+						<h4>{{ ws.weapon_system_name }}: <code> ONLINE </code> </h4>
 					{% else %}
-						<h4>{{ ws.name }}: <code> OFFLINE </code> </h4>
+						<h4>{{ ws.weapon_system_name }}: <code> OFFLINE </code> </h4>
 					{% end %}
 				{% end %}
 			</p>

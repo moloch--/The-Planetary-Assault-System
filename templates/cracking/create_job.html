@@ -37,7 +37,7 @@
           <div class="btn-group" data-toggle="buttons-radio">
               {% from models import Algorithm %}
               {% for algo in Algorithm.all() %}
-                <button class="btn btn-primary" type="button" onclick="setAlgo('{{ algo }}')">{{ algo.name }}</button>
+                <button class="btn btn-primary" type="button" onclick="setAlgo('{{ algo.uuid }}')">{{ algo.algorithm_name }}</button>
               {% end %}
           </div>
         </p>

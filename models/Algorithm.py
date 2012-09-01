@@ -31,7 +31,7 @@ class Algorithm(BaseObject):
     this is a read-only object but that is not enforced
     '''
 
-    name = Column(Unicode(64), nullable=False)
+    algorithm_name = Column(Unicode(64), nullable=False)
     length = Column(Integer, nullable=False)
     chars = Column(Unicode(64), nullable=False)
 
@@ -58,10 +58,10 @@ class Algorithm(BaseObject):
     @classmethod
     def by_name(cls, name):
         ''' Return a algorithm object based on name '''
-        return dbsession.query(cls).filter_by(name=name).first()
+        return dbsession.query(cls).filter_by(algorithm_name=name).first()
 
     def __len__(self):
         return self.length
 
     def __str__(self):
-        return self.name
+        return self.algorithm_name

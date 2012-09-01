@@ -27,8 +27,7 @@ from sqlalchemy import Column, ForeignKey, and_
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean, DateTime
 from libs.Memcache import MemoryCache
-from models import dbsession
-from models.PasswordHash import PasswordHash
+from models import dbsession, PasswordHash, Algorithm
 from models.BaseObject import BaseObject
 from string import ascii_letters, digits
 
@@ -57,18 +56,18 @@ class Job(BaseObject):
 
     @classmethod
     def by_id(cls, job_id):
-        """ Return the job object whose user id is 'job_id' """
+        ''' Return the job object whose user id is 'job_id' '''
         return dbsession.query(cls).filter_by(id=job_id).first()
 
     @classmethod
     def by_uuid(cls, job_uuid):
-        """ Return the job object whose user uuid is 'job_uuid' """
+        ''' Return the job object whose user uuid is 'job_uuid' '''
         return dbsession.query(cls).filter_by(uuid=unicode(job_uuid)).first()
 
     @classmethod
     def by_job_name(cls, job_name):
-        """ Return the job object whose user name is 'job_name' """
-        return dbsession.query(cls).filter_by(name=unicode(job_name)).first()
+        ''' Return the job object whose user name is 'job_name' '''
+        return dbsession.query(cls).filter_by(job_name=unicode(job_name)).first()
 
     @classmethod
     def qsize(cls):
@@ -134,6 +133,11 @@ class Job(BaseObject):
     def common_passwords(self):
         ''' Returns all common passwords in the job '''
         return filter(lambda password_hash: password_hash.is_common == True, self.solved_hashes)
+
+    @property
+    def algorithm(self):
+        ''' Returns an algorithm object based on self.algorithm_id '''
+        return Algorithm.by_id(self.algorithm_id)
 
     def stats_length(self):
         ''' Returns stats on password length '''

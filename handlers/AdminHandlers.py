@@ -25,6 +25,7 @@ import logging
 
 from models import dbsession, User, WeaponSystem
 from handlers.BaseHandlers import AdminBaseHandler
+from libs.Form import Form
 from libs.SecurityDecorators import *
 from string import ascii_letters, digits
 
@@ -95,26 +96,38 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
             ssh_port="Please enter an ssh port",
             service_port="Please enter a service port",
         )
-        if form.validate():
-            weapon_system = WeaponSystem(
-                name=unicode(self.name),
-                ssh_user=unicode(self.ssh_user),
-                ssh_key=unicode(self.ssh_key),
-                ip_address=unicode(self.ip_address),
-                ssh_port=self.ssh_port,
-                service_port=self.listen_port,
-            )
-            dbsession.add(weapon_system)
-            dbsession.flush()
-            weapon_system.initialize()
-            self.render("admin/created_weaponsystem.html", errors=None)
+        if form.validate(self.request.arguments):
+            if WeaponSystem.by_name(self.get_argument('name')) != None:
+                self.render("admin/create_weaponsystem.html", errors=['That name already exists'])
+            elif WeaponSystem.by_ip_address(self.get_argument('ip_address')) != None:
+                self.render("admin/create_weaponsystem.html", errors=['IP Address already in use'])
+            else:
+                try:
+                    if not 1 <= int(self.get_argument('ssh_port')) < 65535:
+                        raise ValueError
+                    if not 1 <= int(self.get_argument('service_port')) < 65535:
+                        raise ValueError               
+                    weapon_system = self.create_weapon()
+                    weapon_system.initialize()
+                    self.render("admin/created_weaponsystem.html", errors=None)
+                except ValueError:
+                    self.render("admin/create_weaponsystem.html", errors=["Invalid port number must be 1-65535"])
         else:
-            self.render("admin/created_weaponsystem.html", errors=form.errors)
+            self.render("admin/create_weaponsystem.html", errors=form.errors)
 
-    def filter_string(self, string, extra_chars=""):
-        ''' Removes erronious chars from a string '''
-        char_white_list = ascii_letters + digits + extra_chars
-        return filter(lambda char: char in char_white_list, string)
+    def create_weapon(self):
+        ''' Adds parameters to the database '''
+        weapon_system = WeaponSystem(
+            weapon_system_name=unicode(self.get_argument('name')),
+            ssh_user=unicode(self.get_argument('ssh_user')),
+            ssh_key=unicode(self.get_argument('ssh_key')),
+            ip_address=unicode(self.get_argument('ip_address')),
+            ssh_port=int(self.get_argument('ssh_port')),
+            service_port=int(self.get_argument('service_port')),
+        )
+        dbsession.add(weapon_system)
+        dbsession.flush()
+        return weapon_system
 
 
 class InitializeHandler(AdminBaseHandler):

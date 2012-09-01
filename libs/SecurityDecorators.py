@@ -74,3 +74,20 @@ def authorized(permission):
             self.redirect(self.application.settings['forbidden_url'])
         return wrapper
     return func
+
+
+def rpc(method):
+    ''' Ensure the ssh keyfile is destroyed after an rpc function returns '''
+
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        logging.debug("Wrapping rpc call.")
+        type(method)
+        method.__self__.ssh_keyfile = None
+        ret_value = method(self, *args, **kwargs)
+        if method.__self__.ssh_keyfile != None:
+            method.__self__.ssh_keyfile.close()
+        logging.debug("Destroyed keyfile.")
+        return ret_value
+    return wrapper
+

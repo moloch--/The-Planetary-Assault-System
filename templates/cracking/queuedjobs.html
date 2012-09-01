@@ -17,22 +17,21 @@
 			              <div class="accordion-heading">
 			                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" 
 			                	href="#collapse{{ user.jobs.index(job) }}">
-			                  <strong>{{ user.queued_jobs.index(job) + 1 }}. {{ user.user_name }} - {{ job.name }} ({{ job.hashes[0].algorithm }})</strong>
+			                	{% from models import Algorithm %}
+			                  <strong>{{ user.queued_jobs.index(job) + 1 }}. {{ user.user_name }} - {{ job.job_name }} ({{ Algorithm.by_id(job.algorithm_id) }})</strong>
 			                </a>
 			              </div>
 			              <div id="collapse{{ user.jobs.index(job) }}" class="accordion-body collapse" style="height: 0px; ">
 			                <div class="accordion-inner">
-			                	<ol>
-				                  	{% for hash in job.hashes %}
-				                  		<li> {{ hash.digest }} </li>
-				                  	{% end %}
-			                  	</ol>
+				                <p> 
+				                	Number of hashes: {{ len(job) }} 
+				                </p>
 			                </div>
 			              </div>
 			            </div>
 		            {% end %}
 		        {% end %}
-			</div>
+			</div
 		{% else %}
 			<h3>There are no jobs in the queue.</h3>
 		{% end %}

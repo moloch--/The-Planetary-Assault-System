@@ -37,6 +37,13 @@ db_connection = 'mysql://%s:%s@%s/%s' % (
 engine = create_engine(db_connection)
 Session = sessionmaker(bind=engine, autocommit=True)
 
+association_table = Table('weapon_system_to_algorithm', BaseObject.metadata,
+                          Column('weapon_system_id',
+                                 Integer, ForeignKey('weapon_system.id'), nullable=False),
+                          Column('algorithm_id',
+                                 Integer, ForeignKey('algorithm.id'), nullable=False)
+                          )
+
 # Import the dbsession instance to execute queries
 dbsession = Session(autoflush=True)
 
