@@ -12,9 +12,10 @@
 	<meta name="viewport" content="width=device-width">
   <link href="/static/favicon.ico" rel="shortcut icon" type="image/x-icon" />
   <link href='/static/css/animate.css' rel='stylesheet' />
-  <link href='/static/css/bootstrap.css' rel='stylesheet' />
-  <link href='/static/css/bootstrap.responsive' rel='stylesheet' />
-  <link href='/static/css/darkstrap.css' rel='stylesheet' />
+  <link href='/static/css/bootstrap.min.css' rel='stylesheet' />
+  <link href='/static/css/bootstrap-responsive.css' rel='stylesheet' />
+  <link href='/static/css/docs.css' rel='stylesheet' />
+
   <style>
   body {
     padding-top: 60px;
@@ -41,7 +42,6 @@
           </a>
           <a class="brand" href="/">The Planetary Assault System</a>
             {% module Menu() %}
-          <!--/.nav-collapse -->
         </div>
       </div>
     </div>
@@ -56,6 +56,6 @@
           Version {{ handler.application.settings['version'] }}
         </p>
       </footer>
-    </div> <!-- /container -->
+    </div>
   </body>
 </html>
