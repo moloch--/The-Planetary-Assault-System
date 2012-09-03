@@ -30,7 +30,7 @@
 	        	{% for password in job.hashes %}
 			          <tr>
 			            <td>{{ job.hashes.index(password) + 1 }}</td>
-			            <td>{{ password.digest }}</td>
+			            <td>{{ password.cipher_text }}</td>
 			            <td>{{ password.plain_text }}</td>
 			          </tr>
 			    {% end %}

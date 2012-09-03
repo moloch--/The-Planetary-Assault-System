@@ -101,6 +101,7 @@ class WeaponSystem(BaseObject):
             logging.info("Failed to connect to remote system.")
             return False
         else:
+            all_algos = Algorithm.all_names()
             capabilities = rpc_connection.root.exposed_get_capabilities()
             self.cpu_count = rpc_connection.root.exposed_cpu_count()
             self.initialized = True

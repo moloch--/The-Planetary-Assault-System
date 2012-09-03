@@ -31,8 +31,10 @@ from models import dbsession, User, Permission, Algorithm
 config = ConfigManager.Instance()
 
 if config.debug:
+    username = 'admin'
     password = 'nimda123'
 else:
+    username = raw_input(PROMPT + "User name: ")
     sys.stdout.write(PROMPT + "New Admin ")
     sys.stdout.flush()
     password1 = getpass.getpass()
@@ -69,7 +71,7 @@ dbsession.flush()
 
 ### Create admin account
 user = User(
-    user_name=unicode('admin'),
+    user_name=unicode(username),
     approved=True
 )
 dbsession.add(user)
@@ -78,7 +80,7 @@ user.password = password
 dbsession.add(user)
 dbsession.flush()
 permission = Permission(
-    permission_name=unicode('admin'),
+    permission_name=user.user_name,
     user_id=user.id
 )
 dbsession.add(permission)

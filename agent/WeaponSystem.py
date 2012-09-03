@@ -108,7 +108,7 @@ class WeaponSystem(rpyc.Service):
         self.mutex.release()
         return results
 
-    def exposed_get_capabilities(self):
+    def exposed_get_capabilities(self, known_algorithms):
         ''' Returns what algorithms can be cracked '''
         capabilities = []
         for algo in self.algorithms:
