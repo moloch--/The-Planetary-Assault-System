@@ -65,7 +65,7 @@ class WeaponSystem(rpyc.Service):
     mutex = Lock()
     rainbow_tables = {'LM': None, 'NTLM': None, 'MD5': None}
     is_busy = False
-    debug = config.get("RCrack", 'debug')
+    debug = config.getboolean("RCrack", 'debug')
 
     def initialize(self):
         ''' Initializes variables, this should only be called once '''
@@ -73,7 +73,7 @@ class WeaponSystem(rpyc.Service):
         self.algorithms = self.rainbow_tables.keys()
         self.__tables__()
         self.__cpu__()
-        if config.get("RCrack", 'threads') <= 0:
+        if config.getint("RCrack", 'threads') <= 0:
             self.threads = self.cpu_cores
         else:
             self.threads = config.getint("RCrack", 'threads')
@@ -96,14 +96,17 @@ class WeaponSystem(rpyc.Service):
         ''' Cracks a list of hashes '''
         logging.info("Method called: exposed_crack_list")
         self.mutex.acquire()
+        ascii_hashes = []
+        for hsh in hashes:
+            ascii_hashes.append(hsh.encode('ascii', 'ignore'))
         self.is_busy = True
         self.current_job_id = job_id
         self.mutex.release()
-        tables = self.rainbow_tables[hash_type]
+        tables = self.rainbow_tables[hash_type].encode('ascii', 'ignore')
         logging.info(
             "Recieved new assignment, now targeting %d hashes with %d thread(s)" % (len(hashes), self.threads))
         results = RainbowCrack.hash_list(
-            len(hashes), hashes, tables, maxThreads=self.threads, debug=self.debug)
+            len(ascii_hashes), ascii_hashes, tables, maxThreads=self.threads, debug=self.debug)
         self.mutex.acquire()
         self.is_busy = False
         self.mutex.release()
