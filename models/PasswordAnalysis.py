@@ -43,14 +43,14 @@ class PasswordAnalysis(BaseObject):
     job_id = Column(Integer, ForeignKey('job.id'), nullable=False)
     common_passwords = relationship("PasswordHash",
                                     secondary=common_association_table, backref="Analysis")
-    lower_case_passwords = relationship(
-        "PasswordHash", secondary=lower_association_table, backref="Analysis")
-    upper_case_passwords = relationship(
-        "PasswordHash", secondary=upper_association_table, backref="Analysis")
+    lower_case_passwords = relationship("PasswordHash", 
+                                    secondary=lower_association_table, backref="Analysis")
+    upper_case_passwords = relationship("PasswordHash", 
+                                    secondary=upper_association_table, backref="Analysis")
     numeric_passwords = relationship("PasswordHash",
-                                     secondary=numeric_association_table, backref="Analysis")
-    mixed_case_passwords = relationship(
-        "PasswordHash", secondary=mixed_association_table, backref="Analysis")
+                                    secondary=numeric_association_table, backref="Analysis")
+    mixed_case_passwords = relationship("PasswordHash", 
+                                    secondary=mixed_association_table, backref="Analysis")
     lower_alpha_numeric_passwords = relationship("PasswordHash",
                                                  secondary=lower_alpha_association_table, backref="Analysis")
     upper_alpha_numeric_passwords = relationship("PasswordHash",
