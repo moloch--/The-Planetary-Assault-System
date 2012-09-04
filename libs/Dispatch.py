@@ -21,15 +21,19 @@ Created on June 30, 2012
 
 
 import os
+import rpyc
 import thread
 import logging
 import ConfigParser
 
 from threading import Lock
 from datetime import datetime
+from tempfile import NamedTemporaryFile
+from rpyc.utils.ssh import SshContext
 from libs.Singleton import Singleton
 from libs.ConfigManager import ConfigManager
 from models import dbsession, Job, User, WeaponSystem, Algorithm
+
 
 
 @Singleton
@@ -53,8 +57,8 @@ class Dispatch(object):
         self.mutex.acquire()
         logging.debug("Successfully acquired queue mutex.")
         queue = list(Job.queue()) # Create a copy of the queue
-        assert not queue is Job.queue()
         for job in queue:
+            logging.info("Dispatching job: %s" % job.job_name)
             if len(job) == 0:
                 job.status = u"COMPLETED"
                 dbsession.add(job)
@@ -63,8 +67,11 @@ class Dispatch(object):
                 algo = Algorithm.by_id(job.algorithm_id)
                 weapon_systems = WeaponSystem.system_ready(algo)
                 if weapon_systems != None and 0 < len(weapon_systems):
+                    logging.info("Weapon systems available: %d" % len(weapon_systems))
                     thread.start_new_thread(
                         self.__crack__, (job, weapon_systems[0],))
+                else:
+                    logging.info("No available weapon systems at this time.")
         self.mutex.release()
 
     def __crack__(self, job, weapon_system):
@@ -72,15 +79,15 @@ class Dispatch(object):
         Does the actual password cracking, before calling this function you should
         ensure the weapon system is online and not busy
         '''
+        results = None
         user = User.by_id(job.user_id)
-        if user == None or job == None:
-            logging.error("Invalid job passed to dispatcher.")
+        if user == None:
+            logging.error("Invalid job passed to dispatcher (no user with id %d)." % job.user_id)
+        elif job == None:
+            logging.error("Invalid job passed to dispatcher (job is None).")
         else:
-            job.status = u"IN_PROGRESS"
             job.started = datetime.now()
-            dbsession.add(job)
-            dbsession.flush()
-            algo = job.hashes[0].algorithm
+            algorithm = Algorithm.by_id(job.algorithm_id)
             try:
                 ssh_keyfile = NamedTemporaryFile()
                 ssh_keyfile.write(weapon_system.ssh_key)
@@ -88,16 +95,22 @@ class Dispatch(object):
                 ssh_context = SshContext(weapon_system.ip_address,
                                          user=weapon_system.ssh_user, keyfile=ssh_keyfile.name)
                 rpc_connection = rpyc.ssh_connect(
-                    ssh_context, self.service_port)
+                    ssh_context, weapon_system.service_port)
                 hashes = job.to_list()
+                logging.info("Sending %s job to %s for cracking." % (job.job_name, weapon_system.weapon_system_name))
+                job.status = u"IN_PROGRESS"
+                dbsession.add(job)
+                dbsession.flush()
                 results = rpc_connection.root.exposed_crack_list(
-                    job.id, job.to_list(), algo, weapon_system.cpu_count)
+                    job.id, job.to_list(), algorithm.algorithm_name)
             except:
                 logging.exception("Connection to remote weapon system failed, check parameters.")
             finally:
                 ssh_keyfile.close()
             if results != None:
                 job.save_results(results)
+            else:
+                logging.warn("No results returned from weapon system.")
             job.completed = True
             job.finished = datetime.now()
             dbsession.add(job)

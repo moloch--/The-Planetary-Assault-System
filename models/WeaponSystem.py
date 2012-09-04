@@ -28,9 +28,9 @@ from sqlalchemy.orm import synonym, relationship
 from sqlalchemy.types import Unicode, Boolean, Integer
 from models import dbsession, association_table
 from models.BaseObject import BaseObject
+from models.Algorithm import Algorithm
 from rpyc.utils.ssh import SshContext
 from tempfile import NamedTemporaryFile
-from libs.SecurityDecorators import rpc
 
 
 class WeaponSystem(BaseObject):
@@ -88,10 +88,9 @@ class WeaponSystem(BaseObject):
 
     @classmethod
     def system_ready(cls, algo):
-        ''' Pseudo strategy pattern returns ready systems based on algo '''
-        available_systems = cls.all_idle()
+        ''' Returns list of ready systems based on algo '''
+        return filter(lambda weapon_system: algo in weapon_system.algorithms, cls.all_idle())
 
-    @rpc
     def initialize(self, *args):
         ''' One time initialization, gathers system information '''
         logging.info(
@@ -101,43 +100,43 @@ class WeaponSystem(BaseObject):
             logging.info("Failed to connect to remote system.")
             return False
         else:
-            all_algos = Algorithm.all_names()
+            algorithms = Algorithm.all()
             capabilities = rpc_connection.root.exposed_get_capabilities()
+            for algo in algorithms:
+                if algo.algorithm_name in capabilities:
+                    self.algorithms.append(algo)
             self.cpu_count = rpc_connection.root.exposed_cpu_count()
             self.initialized = True
             dbsession.add(self)
             dbsession.flush()
             return True
 
-    @rpc
     def is_online(self):
         ''' Checks if a system is online '''
         rpc_connection = self.__connect__()
-        if rcp_connection != None:
+        if rpc_connection != None:
             return rpc_connection.root.exposed_ping() == "PONG"
         else:
             return False
 
-    @rpc
     def is_busy(self):
         ''' Checks to see if a remote system is busy returns bool, or none '''
         rpc_connection = self.__connect__()
-        if rcp_connection != None:
-            return rcp_connection.is_busy()
+        if rpc_connection != None:
+            return rpc_connection.root.exposed_is_busy()
 
     def __connect__(self):
         ''' 
-        Creates an ssh connection and returns the rcp_connection object 
-        Any function calling this should be decorated with @rpc to ensure
-        the ssh_keyfile is destroyed when the function returns
+        Creates an ssh connection and returns the rpc_connection object
+        The ssh keyfile is destroyed when the object is garbage collected.
         '''
         try:
             self.ssh_keyfile = NamedTemporaryFile()
             self.ssh_keyfile.write(self.ssh_key)
             self.ssh_keyfile.seek(0)
             ssh_context = SshContext(self.ip_address,
-                                     user=self.ssh_user, keyfile=ssh_keyfile.name)
+                                     user=self.ssh_user, keyfile=self.ssh_keyfile.name)
             return rpyc.ssh_connect(ssh_context, self.service_port)
         except:
             logging.exception(
-                "Connection to remote weapon system failed, check parameters")
+                "Connection to remote weapon system failed, check parameters.")

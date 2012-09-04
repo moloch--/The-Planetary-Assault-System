@@ -27,9 +27,7 @@ from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean
 from string import ascii_letters, digits
-from models import dbsession
-from models.Job import Job
-from models.Permission import Permission
+from models import dbsession, Job, Permission
 from models.BaseObject import BaseObject
 
 
@@ -64,7 +62,7 @@ class User(BaseObject):
         return dbsession.query(cls).filter_by(id=user_id).first()
 
     @classmethod
-    def by_id(cls, user_uuid):
+    def by_uuid(cls, user_uuid):
         ''' Return the user object whose user uuid is user_uuid '''
         return dbsession.query(cls).filter_by(uuid=unicode(user_uuid)).first()
 
@@ -141,4 +139,7 @@ class User(BaseObject):
         return self.password == self._hash_password(attempt, self.salt)
 
     def __repr__(self):
-        return ('<User - user_name: %s>' % (self.user_name,)).encode('utf-8', 'ignore')
+        return unicode('<User - user_name: %s, jobs: %d>' % (self.user_name, len(self.jobs)))
+
+    def __str__(self):
+        return unicode(self.user_name)

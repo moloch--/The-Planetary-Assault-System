@@ -122,7 +122,7 @@
 		<br />
 		<div class="well">
 			{% for uninit in uninit_systems %}
-				{{ uninit.name }}: <a href="/initialize?uuid={{ uninit.uuid }}">Initialize</a>
+				{{ uninit.weapon_system_name }}: <a href="/initialize?uuid={{ uninit.uuid }}">Initialize</a>
 			{% end %}
 		</div>
 	{% end %}

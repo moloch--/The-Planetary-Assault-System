@@ -76,7 +76,7 @@ class WeaponSystem(rpyc.Service):
         if config.get("RCrack", 'threads') <= 0:
             self.threads = self.cpu_cores
         else:
-            self.threads = config.get("RCrack", 'threads')
+            self.threads = config.getint("RCrack", 'threads')
         logging.info("Weapon system online, good hunting.")
 
     def on_connect(self):
@@ -94,6 +94,7 @@ class WeaponSystem(rpyc.Service):
 
     def exposed_crack_list(self, job_id, hashes, hash_type):
         ''' Cracks a list of hashes '''
+        logging.info("Method called: exposed_crack_list")
         self.mutex.acquire()
         self.is_busy = True
         self.current_job_id = job_id
@@ -108,8 +109,9 @@ class WeaponSystem(rpyc.Service):
         self.mutex.release()
         return results
 
-    def exposed_get_capabilities(self, known_algorithms):
+    def exposed_get_capabilities(self):
         ''' Returns what algorithms can be cracked '''
+        logging.info("Method called: exposed_get_capabilities")
         capabilities = []
         for algo in self.algorithms:
             if self.rainbow_tables[algo] != None:
@@ -118,10 +120,12 @@ class WeaponSystem(rpyc.Service):
 
     def exposed_ping(self):
         ''' Returns a pong message '''
+        logging.info("Method called: exposed_ping")
         return "PONG"
 
     def exposed_is_busy(self):
         ''' Returns True/False if the current system is busy (thread safe) '''
+        logging.info("Method called: is_busy")
         self.mutex.acquire()
         busy = self.is_busy
         self.mutex.release()
@@ -129,6 +133,7 @@ class WeaponSystem(rpyc.Service):
 
     def exposed_current_job(self):
         ''' Returns the current job id (thread safe) '''
+        logging.info("Method called: exposed_current_job")
         self.mutex.acquire()
         job = self.current_job_id
         self.mutex.release()
@@ -136,6 +141,7 @@ class WeaponSystem(rpyc.Service):
 
     def exposed_cpu_count(self):
         ''' Returns the number of detected cpu cores '''
+        logging.info("Method called: exposed_cpu_count")
         return self.cpu_cores
 
     def __cpu__(self):

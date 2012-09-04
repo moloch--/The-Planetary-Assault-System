@@ -184,6 +184,13 @@ class RecoveryConsole(cmd.Cmd):
             dbsession.flush()
             print(INFO + "Successfully removed %s's permissions." % user.user_name)
 
+    def do_id(self, user_id):
+        '''
+        Pull user based on id.
+        Usage: id <user_id>
+        '''
+        print str(User.by_id(user_id))
+
     def do_exit(self, *args, **kwargs):
         '''
         Exit recovery console

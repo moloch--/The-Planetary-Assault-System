@@ -7,10 +7,11 @@
 {% end %}
 
 {% block content %}
-<h2>Queued Jobs</h2>
+	<h2>Queued Jobs</h2>
+	<br />
 	<div class="well">
 		{% if queue_size != 0 %}
-			<div class="well accordion" id="accordion1">
+			<div class="accordion" id="accordion1">
 		        {% for user in all_users %}
 		        	{% for job in user.queued_jobs %}
 			            <div class="accordion-group">
@@ -31,7 +32,7 @@
 			            </div>
 		            {% end %}
 		        {% end %}
-			</div
+			</div>
 		{% else %}
 			<h3>There are no jobs in the queue.</h3>
 		{% end %}

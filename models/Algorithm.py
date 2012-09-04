@@ -61,7 +61,17 @@ class Algorithm(BaseObject):
         return dbsession.query(cls).filter_by(algorithm_name=name).first()
 
     def __len__(self):
+        ''' Returns length of the hash output '''
         return self.length
 
     def __str__(self):
+        ''' Returns the name of the algorithm '''
         return self.algorithm_name
+
+    def __eq__(self, other):
+        ''' Equality '''
+        return str(self) == str(other)
+
+    def __ne__(self, other):
+        ''' Inequality '''
+        return not self.__eq__(other)

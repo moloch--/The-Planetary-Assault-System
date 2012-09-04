@@ -140,6 +140,7 @@ class InitializeHandler(AdminBaseHandler):
             weapon_system = WeaponSystem.by_uuid(self.get_argument('uuid'))
             success = weapon_system.initialize()
         except:
+            logging.exception("Error while initializing weapon system.")
             self.render("admin/initialize_failure.html")
             return
         if success:

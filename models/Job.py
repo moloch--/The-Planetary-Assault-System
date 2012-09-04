@@ -223,7 +223,7 @@ class Job(BaseObject):
 
     def __str__(self):
         ''' Returns name when str() is called '''
-        return unicode(self.name)
+        return unicode(self.job_name)
 
     def __repr__(self):
         ''' Repr impl '''
