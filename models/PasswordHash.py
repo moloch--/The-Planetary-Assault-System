@@ -47,12 +47,6 @@ class PasswordHash(BaseObject):
     ))
     plain_text = Column(Unicode(64))
     solved = Column(Boolean, default=False, nullable=False)
-    common_passwords = ['12345', '123456', '1234567', '12345678','123456789', '654321', 'password',
-                        'abc123', 'nicole', 'daniel', 'babygirl', 'monkey', 'iloveyou', 'princess',
-                        'jessica', 'lovely', 'michael', 'ashley', 'qwerty', 'letmein', 'admin', 'fuck',
-                        'fuckyou', 'dragon', 'pussy', 'baseball', 'football', '696969', 'mustang', '111111', '2000',
-                        'shadow', 'master', 'jennifer', 'jordan', 'superman', 'love', 'sex', 'secret', 'god',
-                        ]
 
     @classmethod
     def by_id(cls, hash_id):
@@ -60,74 +54,22 @@ class PasswordHash(BaseObject):
         return dbsession.query(cls).filter_by(id=hash_id).first()
 
     @classmethod
-    def by_digest(cls, digest_value, job_id_value):
+    def by_cipher_text(cls, cipher_text_value, job_id_value):
         ''' Return the digest based on valud and job_id '''
-        return dbsession.query(cls).filter(and_(digest == digest_value, job_id == job_id_value)).first()
+        return dbsession.query(cls).filter(and_(cipher_text == cipher_text_value, job_id == job_id_value)).first()
 
     @classmethod
-    def by_algorithm(cls, algo_id):
+    def by_algorithm(cls, algo):
         ''' Return all passwordHash objects of a given algorithm id '''
-        return dbsession.query(cls).filter_by(algorithm_id=algo_id).all()
+        if type(algo) == int:
+            return dbsession.query(cls).filter_by(algorithm_id=algo).all()
+        else:
+            return dbsession.query(cls).filter_by(algorithm_id=algo.id).all()
 
     @classmethod
     def _filter_string(cls, string, extra_chars=""):
         char_white_list = ascii_letters + digits + extra_chars
         return filter(lambda char: char in char_white_list, string)
-
-    @property
-    def lower_case(self):
-        ''' Checks to see if the password is only lower case chars '''
-        return self.__regex__("^[a-z]*$")
-
-    @property
-    def upper_case(self):
-        ''' Checks to see if the password is only upper case chars '''
-        return self.__regex__("^[A-Z]*$")
-
-    @property
-    def numeric(self):
-        ''' Checks to see if the password is only numeric chars '''
-        return self.__regex__("^[0-9]*$")
-
-    @property
-    def mixed_case(self):
-        ''' Checks to see if the password is only lower/upper chars '''
-        contains_cases = self.__regex__("^(?=.*[a-z])(?=.*[A-Z]).+$")
-        only_alpha = self.__regex__("^[a-zA-Z]*$")
-        return (contains_cases and only_alpha)
-
-    @property
-    def lower_alpha_numeric(self):
-        ''' Checks to see if the password is only lower case/numeric chars '''
-        contains_alph_numeric = self.__regex__("^(?=.*[a-z])(?=.*[0-9]).+$")
-        only_alpha_numeric = self.__regex__("^[a-z0-9]*$")
-        return (contains_alph_numeric and only_alpha_numeric)
-
-    @property
-    def upper_alpha_numeric(self):
-        ''' Checks to see if the password is only upper case/numeric chars '''
-        contains_alph_numeric = self.__regex__("^(?=.*[A-Z])(?=.*[0-9]).+$")
-        only_alpha_numeric = self.__regex__("^[A-Z0-9]*$")
-        return (contains_alph_numeric and only_alpha_numeric)
-
-    @property
-    def mixed_alpha_numeric(self):
-        ''' Checks to see if the password is only lower/upper case and numeric chars '''
-        contains_mixed_alpha_numeric = self.__regex__("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$")
-        only_mixed_alpha_numeric = self.__regex__("^[a-zA-Z0-9]*$")
-        return (contains_mixed_alpha_numeric and only_mixed_alpha_numeric)
-
-    @property
-    def is_common(self):
-        ''' Checks to see if the password is in the common password list (ignores case) '''
-        return (self.plain_text.lower() in self.common_passwords)
-
-    def __regex__(self, expression):
-        ''' Runs a regex returns a bool '''
-        if not self.solved:
-            raise ValueError("Cannot analyze unsolved hashes")
-        regex = re.compile(expression)
-        return bool(regex.match(self.plain_text))
 
     def __len__(self):
         ''' Returns the length of the digest '''

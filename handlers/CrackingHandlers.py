@@ -160,11 +160,11 @@ class DeleteJobHandler(UserBaseHandler):
         user = self.get_current_user()
         if job != None and user != None and job.user_id == user.id:
             dispather = Dispatch.Instance()
-            if job.name == dispather.current_job_name:
+            if job.status == u'IN_PROGRESS':
                 self.render("cracking/ajax_error.html",
                             message="Cannot delete job while it is in progress")
             else:
-                job_name = str(job.name)
+                job_name = str(job.job_name)
                 self.dbsession.delete(job)
                 self.dbsession.flush()
                 self.render("cracking/deletejob_success.html", job_name=job_name)

@@ -111,7 +111,7 @@ class Dispatch(object):
                 job.save_results(results)
             else:
                 logging.warn("No results returned from weapon system.")
-            job.completed = True
+            job.status = u"COMPLETED";
             job.finished = datetime.now()
             dbsession.add(job)
             dbsession.flush()

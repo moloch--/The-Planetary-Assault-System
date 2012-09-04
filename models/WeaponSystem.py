@@ -26,7 +26,7 @@ import logging
 from sqlalchemy import Column
 from sqlalchemy.orm import synonym, relationship
 from sqlalchemy.types import Unicode, Boolean, Integer
-from models import dbsession, association_table
+from models import dbsession, algorithm_association_table
 from models.BaseObject import BaseObject
 from models.Algorithm import Algorithm
 from rpyc.utils.ssh import SshContext
@@ -47,7 +47,7 @@ class WeaponSystem(BaseObject):
     service_port = Column(Integer, default=31337, nullable=False)
     cpu_count = Column(Integer, default=1, nullable=False)
     gpu_count = Column(Integer, default=0, nullable=False)
-    algorithms = relationship("Algorithm", secondary=association_table, backref="WeaponSystem")
+    algorithms = relationship("Algorithm", secondary=algorithm_association_table, backref="WeaponSystem")
 
     @classmethod
     def by_id(cls, weapon_id):

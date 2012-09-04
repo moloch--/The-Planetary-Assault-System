@@ -20,7 +20,6 @@ Created on Mar 12, 2012
 '''
 
 
-import json
 import logging
 
 from sqlalchemy import Column, ForeignKey, and_
@@ -85,132 +84,21 @@ class Job(BaseObject):
         return filter(lambda char: char in char_white_list, string)
 
     @property
-    def solved_hashes(self):
-        ''' Returns only solved hashes in the job '''
-        return filter(lambda password_hash: password_hash.solved == True, self.hashes)
-
-    @property
-    def unsolved_hashes(self):
-        ''' Returns only unsolved hashes in the job '''
-        return filter(lambda password_hash: password_hash.solved == False, self.hashes)
-
-    @property
-    def lower_case_passwords(self):
-        ''' Returns all lower case passwords in the job '''
-        return filter(lambda password_hash: password_hash.lower_case == True, self.solved_hashes)
-
-    @property
-    def upper_case_passwords(self):
-        ''' Returns all upper case passwords in the job '''
-        return filter(lambda password_hash: password_hash.upper_case == True, self.solved_hashes)
-
-    @property
-    def numeric_passwords(self):
-        ''' Returns all upper case passwords in the job '''
-        return filter(lambda password_hash: password_hash.numeric == True, self.solved_hashes)
-
-    @property
-    def mixed_case_passwords(self):
-        ''' Returns all mixed case passwords in the job '''
-        return filter(lambda password_hash: password_hash.mixed_case == True, self.solved_hashes)
-
-    @property
-    def lower_alpha_numeric_passwords(self):
-        ''' Returns all lower case alpha-numeric passwords in the job '''
-        return filter(lambda password_hash: password_hash.lower_alpha_numeric == True, self.solved_hashes)
-
-    @property
-    def upper_alpha_numeric_passwords(self):
-        ''' Returns all upper case alpha-numeric passwords in the job '''
-        return filter(lambda password_hash: password_hash.upper_alpha_numeric == True, self.solved_hashes)
-
-    @property
-    def mixed_alpha_numeric_passwords(self):
-        ''' Returns all mixed case alpha-numeric passwords in the job '''
-        return filter(lambda password_hash: password_hash.mixed_alpha_numeric == True, self.solved_hashes)
-
-    @property
-    def common_passwords(self):
-        ''' Returns all common passwords in the job '''
-        return filter(lambda password_hash: password_hash.is_common == True, self.solved_hashes)
-
-    @property
     def algorithm(self):
         ''' Returns an algorithm object based on self.algorithm_id '''
         return Algorithm.by_id(self.algorithm_id)
-
-    def stats_length(self):
-        ''' Returns stats on password length '''
-        if self.cached_length_analysis == None:
-            results = {}
-            for password in self.solved_hashes:
-                if len(password.plain_text) in self.results.keys():
-                    results[len(password.plain_text)] += 1
-                else:
-                    results[len(password.plain_text)] = 1
-            self.cached_length_analysis = json.dumps(results)
-            dbsession.add(self)
-            dbsession.flush()
-        return self.cached_length_analysis
-
-    def stats_solved(self):
-        ''' Returns a stats on how many hases with the job were solved/unsolved '''
-        if MemoryCache.get(self.uuid + 'solved') == None:
-            solved_analysis = json.dumps([
-                {'Solved': len(self.solved_hashes)},
-                {'Unsolved': len(self.unsolved_hashes)},
-            ])
-            MemoryCache.set(self.uuid + 'solved', solved_analysis)
-        return MemoryCache.get(self.uuid + 'solved')
-
-    def stats_common(self):
-        ''' Returns stats on how many solved hash's plain text was a common password '''
-        if MemoryCache.get(self.uuid + 'common') == None:
-            common_analysis = json.dumps([
-                {'Common': len(self.common_passwords)},
-                {'Uncommon': len(self.hashes) - len(self.common_passwords)},
-            ])
-            MemoryCache.set(self.uuid + 'common', common_analysis)
-        return MemoryCache.get(self.uuid + 'common')
-
-    def stats_complexity(self):
-        ''' Returns stats on solved hash's plain text complexity '''
-        if MemoryCache.get(self.uuid + 'complexity') == None:
-            complexity = []
-            if 0 < len(self.lower_case_passwords):
-                complexity.append(
-                    {'Lower Case': len(self.lower_case_passwords)})
-            if 0 < len(self.upper_case_passwords):
-                complexity.append(
-                    {'Upper Case': len(self.upper_case_passwords)})
-            if 0 < len(self.numeric_passwords):
-                complexity.append({'Numeric': len(self.numeric_passwords)})
-            if 0 < len(self.mixed_case_passwords):
-                complexity.append(
-                    {'Mixed Case': len(self.mixed_case_passwords)})
-            if 0 < len(self.lower_alpha_numeric_passwords):
-                complexity.append({'Lower Case Alpha-numeric':
-                                   len(self.lower_alpha_numeric_passwords)})
-            if 0 < len(self.upper_alpha_numeric_passwords):
-                complexity.append({'Upper Case Alpha-numeric':
-                                   len(self.upper_alpha_numeric_passwords)})
-            if 0 < len(self.mixed_alpha_numeric_passwords):
-                complexity.append({'Mixed Case Alpha-numeric':
-                                   len(self.mixed_alpha_numeric_passwords)})
-            MemoryCache.set(self.uuid + 'complexity', json.dumps(complexity))
-        return MemoryCache.get(self.uuid + 'complexity')
 
     def save_results(self, results):
         ''' Save the results of the cracking session to the database '''
         for password in self.hashes:
             try:
-                password.plain_text = unicode(results[password.digest])
-                if results[password.digest] != "<Not Found>":
+                password.plain_text = unicode(results[password.cipher_text])
+                if results[password.cipher_text] != "<Not Found>":
                     password.solved = True
                 dbsession.add(password)
             except KeyError:
                 logging.error("A database hash is missing from the result set (%s)" %
-                              (password.digest,))
+                              (password.cipher_text,))
         dbsession.flush()
 
     def to_list(self):

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 '''
-
     Copyright [2012] [Redacted Labs]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
 
-       http://www.apache.org/licenses/LICENSE-2.0
+        http://www.apache.org/licenses/LICENSE-2.0
 
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,11 +36,69 @@ db_connection = 'mysql://%s:%s@%s/%s' % (
 engine = create_engine(db_connection)
 Session = sessionmaker(bind=engine, autocommit=True)
 
-association_table = Table('weapon_system_to_algorithm', BaseObject.metadata,
+algorithm_association_table = Table('weapon_system_to_algorithm', BaseObject.metadata,
                           Column('weapon_system_id',
                                  Integer, ForeignKey('weapon_system.id'), nullable=False),
                           Column('algorithm_id',
                                  Integer, ForeignKey('algorithm.id'), nullable=False)
+                          )
+
+# Association tables for the analysis
+common_association_table = Table('analysis_common_to_password_hash', BaseObject.metadata,
+                          Column('password_hash_id',
+                                 Integer, ForeignKey('password_hash.id'), nullable=False),
+                          Column('password_analysis_id',
+                                 Integer, ForeignKey('password_analysis.id'), nullable=False)
+                          )
+
+lower_association_table = Table('analysis_lower_to_password_hash', BaseObject.metadata,
+                          Column('password_hash_id',
+                                 Integer, ForeignKey('password_hash.id'), nullable=False),
+                          Column('password_analysis_id',
+                                 Integer, ForeignKey('password_analysis.id'), nullable=False)
+                          )
+
+upper_association_table = Table('analysis_upper_to_password_hash', BaseObject.metadata,
+                          Column('password_hash_id',
+                                 Integer, ForeignKey('password_hash.id'), nullable=False),
+                          Column('password_analysis_id',
+                                 Integer, ForeignKey('password_analysis.id'), nullable=False)
+                          )
+
+numeric_association_table = Table('analysis_numeric_to_password_hash', BaseObject.metadata,
+                          Column('password_hash_id',
+                                 Integer, ForeignKey('password_hash.id'), nullable=False),
+                          Column('password_analysis_id',
+                                 Integer, ForeignKey('password_analysis.id'), nullable=False)
+                          )
+
+mixed_association_table = Table('analysis_mixed_to_password_hash', BaseObject.metadata,
+                          Column('password_hash_id',
+                                 Integer, ForeignKey('password_hash.id'), nullable=False),
+                          Column('password_analysis_id',
+                                 Integer, ForeignKey('password_analysis.id'), nullable=False)
+                          )
+
+lower_alpha_association_table = Table('analysis_lower_alpha_to_password_hash', BaseObject.metadata,
+                          Column('password_hash_id',
+                                 Integer, ForeignKey('password_hash.id'), nullable=False),
+                          Column('password_analysis_id',
+                                 Integer, ForeignKey('password_analysis.id'), nullable=False)
+                          )
+
+upper_alpha_association_table = Table('analysis_upper_alpha_to_password_hash', BaseObject.metadata,
+                          Column('password_hash_id',
+                                 Integer, ForeignKey('password_hash.id'), nullable=False),
+                          Column('password_analysis_id',
+                                 Integer, ForeignKey('password_analysis.id'), nullable=False)
+                          )
+
+
+mixed_alpha_association_table = Table('analysis_mixed_alpha_to_password_hash', BaseObject.metadata,
+                          Column('password_hash_id',
+                                 Integer, ForeignKey('password_hash.id'), nullable=False),
+                          Column('password_analysis_id',
+                                 Integer, ForeignKey('password_analysis.id'), nullable=False)
                           )
 
 # Import the dbsession instance to execute queries
@@ -54,6 +111,7 @@ from models.Permission import Permission
 from models.User import User
 from models.WeaponSystem import WeaponSystem
 from models.Algorithm import Algorithm
+from models.PasswordAnalysis import PasswordAnalysis
 
 # Calling this will create the tables at the database
 create_tables = lambda: (

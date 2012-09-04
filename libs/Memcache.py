@@ -70,19 +70,19 @@ class MemoryCache(object):
     def get(cls, name):
         ''' Retrieves text from the cache '''
         mem = memcache.Client(['127.0.0.1:11211'], debug=False)
-        return b64decode(mem.get(cls.__key__(name)))
+        return b64decode(mem.get(cls.__key__(str(name))))
 
     @classmethod
     def set(cls, name, data):
         ''' Puts text-like data into the cache '''
         mem = memcache.Client(['127.0.0.1:11211'], debug=False)
-        mem.set(cls.__key__(name), b64encode(data))
+        mem.set(cls.__key__(str(name)), b64encode(data))
 
     @classmethod
     def delete(cls, name):
         ''' Remove data from memory cache '''
         mem = memcache.Client(['127.0.0.1:11211'], debug=False)
-        mem.delete(cls.__key__(name))
+        mem.delete(cls.__key__(str(name)))
 
     @classmethod
     def __key__(cls, data):
