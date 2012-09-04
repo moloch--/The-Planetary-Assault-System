@@ -32,8 +32,8 @@ from models.BaseObject import BaseObject
 
 
 class User(BaseObject):
-    ''' 
-    User class used for authentication/autorization 
+    '''
+    User class used for authentication/autorization
     '''
 
     _user_name = Column(Unicode(64), unique=True, nullable=False)

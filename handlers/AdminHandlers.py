@@ -98,20 +98,23 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
         )
         if form.validate(self.request.arguments):
             if WeaponSystem.by_name(self.get_argument('name')) != None:
-                self.render("admin/create_weaponsystem.html", errors=['That name already exists'])
+                self.render("admin/create_weaponsystem.html",
+                            errors=['That name already exists'])
             elif WeaponSystem.by_ip_address(self.get_argument('ip_address')) != None:
-                self.render("admin/create_weaponsystem.html", errors=['IP Address already in use'])
+                self.render("admin/create_weaponsystem.html",
+                            errors=['IP Address already in use'])
             else:
                 try:
                     if not 1 <= int(self.get_argument('ssh_port')) < 65535:
                         raise ValueError
                     if not 1 <= int(self.get_argument('service_port')) < 65535:
-                        raise ValueError               
+                        raise ValueError
                     weapon_system = self.create_weapon()
                     weapon_system.initialize()
                     self.render("admin/created_weaponsystem.html", errors=None)
                 except ValueError:
-                    self.render("admin/create_weaponsystem.html", errors=["Invalid port number must be 1-65535"])
+                    self.render("admin/create_weaponsystem.html",
+                                errors=["Invalid port number must be 1-65535"])
         else:
             self.render("admin/create_weaponsystem.html", errors=form.errors)
 

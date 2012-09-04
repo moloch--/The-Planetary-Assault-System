@@ -58,11 +58,14 @@ class CreateJobHandler(UserBaseHandler):
             algo = Algorithm.by_uuid(self.get_argument('algorithm'))
             user = self.get_current_user()
             if not self.get_argument('format') in self.parsers.keys():
-                self.render('cracking/create_job.html', errors=['Invalid format'])
+                self.render(
+                    'cracking/create_job.html', errors=['Invalid format'])
             elif algo == None:
-                self.render('cracking/create_job.html', errors=['Invalid algorithm'])
+                self.render(
+                    'cracking/create_job.html', errors=['Invalid algorithm'])
             elif Job.by_job_name(self.get_argument('jobname')) != None:
-                self.render('cracking/create_job.html', errors=['Duplicate job name'])
+                self.render(
+                    'cracking/create_job.html', errors=['Duplicate job name'])
             else:
                 job = self.create_job(user, algo)
                 dispatch = Dispatch.Instance()
@@ -107,14 +110,15 @@ class CreateJobHandler(UserBaseHandler):
             return hashes
         except:
             logging.exception("Exception while parsing hashes.")
-            self.render("cracking/create_job.html", errors=["Failed to correctly parse hashes"])
+            self.render("cracking/create_job.html", errors=[
+                "Failed to correctly parse hashes"])
 
     def parse_pwdump(self):
         pass
 
     def parse_lst(self):
         pass
-        
+
 
 class QueuedJobsHandler(UserBaseHandler):
 
@@ -123,7 +127,8 @@ class QueuedJobsHandler(UserBaseHandler):
         ''' Renders the cracking queue '''
         dispatch = Dispatch.Instance()
         dispatch.refresh()
-        self.render("cracking/queuedjobs.html", all_users=User.all_users(), queue_size=Job.qsize())
+        self.render("cracking/queuedjobs.html", all_users=User.
+                    all_users(), queue_size=Job.qsize())
 
     @authenticated
     def post(self, *args, **kwargs):
@@ -135,7 +140,8 @@ class CompletedJobsHandler(UserBaseHandler):
     @authenticated
     def get(self, *args, **kwargs):
         ''' Renders the completed jobs page '''
-        self.render("cracking/completedjobs.html", user=self.get_current_user())
+        self.render(
+            "cracking/completedjobs.html", user=self.get_current_user())
 
     @authenticated
     def post(self, *args, **kwargs):
@@ -154,7 +160,8 @@ class DeleteJobHandler(UserBaseHandler):
         try:
             job_id = self.get_argument("job_id")
         except:
-            self.render("cracking/ajax_error.html", message="Job does not exist")
+            self.render(
+                "cracking/ajax_error.html", message="Job does not exist")
             return
         job = Job.by_uuid(job_id)
         user = self.get_current_user()
@@ -167,10 +174,12 @@ class DeleteJobHandler(UserBaseHandler):
                 job_name = str(job.job_name)
                 self.dbsession.delete(job)
                 self.dbsession.flush()
-                self.render("cracking/deletejob_success.html", job_name=job_name)
+                self.render(
+                    "cracking/deletejob_success.html", job_name=job_name)
         else:
             logging.warn("%s attempted to delete a non-existant job, or a job he/she does not own." % user.user_name)
-            self.render("cracking/ajax_error.html", message="Job does not exist")
+            self.render(
+                "cracking/ajax_error.html", message="Job does not exist")
 
 
 class AjaxJobDetailsHandler(UserBaseHandler):
@@ -188,7 +197,8 @@ class AjaxJobDetailsHandler(UserBaseHandler):
         job = Job.by_uuid(job_id)
         if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
-            self.render("cracking/ajax_error.html", message="Job does not exist")
+            self.render(
+                "cracking/ajax_error.html", message="Job does not exist")
         else:
             self.render("cracking/ajax_jobdetails.html", job=job)
 
@@ -208,7 +218,8 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
         job = Job.by_uuid(job_id)
         if job == None or user == None or user.id != job.user_id:
             logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
-            self.render("cracking/ajax_error.html", message="Job does not exist")
+            self.render(
+                "cracking/ajax_error.html", message="Job does not exist")
         else:
             self.render("cracking/ajax_jobstatistics.html", job=job)
 
@@ -223,7 +234,8 @@ class AjaxJobDataHandler(UserBaseHandler):
             job = Job.by_uuid(job_id)
             user = self.get_current_user()
             if job == None or user == None or job.user_id != user.id:
-                raise ValueError("Invalid job, user, or the user does not own the job.")
+                raise ValueError(
+                    "Invalid job, user, or the user does not own the job.")
         except:
             logging.warn("Bad argument passed to job data ajax handler.")
             self.write(json.dumps(['error', 0]))

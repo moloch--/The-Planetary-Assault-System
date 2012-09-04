@@ -55,7 +55,7 @@ if platform.system() in ['Linux', 'Darwin']:
     PROMPT = bold + P + "[?] " + W
 
 else:
-    
+
     # === Text Colors ===
     W = ""
     BLA = ""

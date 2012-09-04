@@ -32,8 +32,9 @@ def serve():
     from libs.ConfigManager import ConfigManager  # Sets up logging
     from handlers import start_server
     print(INFO + '%s : Starting application ... ' %
-        current_time())
+          current_time())
     start_server()
+
 
 def create():
     ''' Creates/bootstraps the database '''
@@ -44,8 +45,9 @@ def create():
     create_tables()
     if len(argv) == 3 and (argv[2] == 'bootstrap' or argv[2] == '-b'):
         print('\n\n\n' + INFO +
-            '%s : Bootstrapping the database ... \n' % current_time())
+              '%s : Bootstrapping the database ... \n' % current_time())
         boot_strap()
+
 
 def recovery():
     ''' Starts the recovery console '''
@@ -58,6 +60,7 @@ def recovery():
         console.cmdloop()
     except KeyboardInterrupt:
         print(INFO + "Have a nice day!")
+
 
 def help():
     ''' Displays a helpful message '''

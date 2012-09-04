@@ -29,10 +29,11 @@ from sqlalchemy.types import Unicode, Integer, Boolean, DateTime
 from libs.Memcache import MemoryCache
 from string import ascii_letters, digits
 from models import dbsession, BaseObject
-from models import common_association_table, lower_association_table 
+from models import common_association_table, lower_association_table
 from models import upper_association_table, numeric_association_table
 from models import mixed_association_table, lower_alpha_association_table
 from models import upper_alpha_association_table, mixed_alpha_association_table
+
 
 class PasswordAnalysis(BaseObject):
     '''
@@ -40,20 +41,28 @@ class PasswordAnalysis(BaseObject):
     '''
 
     job_id = Column(Integer, ForeignKey('job.id'), nullable=False)
-    common_passwords = relationship("PasswordHash", secondary=common_association_table, backref="Analysis")
-    lower_case_passwords = relationship("PasswordHash", secondary=lower_association_table, backref="Analysis")
-    upper_case_passwords = relationship("PasswordHash", secondary=upper_association_table, backref="Analysis")
-    numeric_passwords = relationship("PasswordHash", secondary=numeric_association_table, backref="Analysis")
-    mixed_case_passwords = relationship("PasswordHash", secondary=mixed_association_table, backref="Analysis")
-    lower_alpha_numeric_passwords = relationship("PasswordHash", secondary=lower_alpha_association_table, backref="Analysis")
-    upper_alpha_numeric_passwords = relationship("PasswordHash", secondary=upper_alpha_association_table, backref="Analysis")
-    mixed_alpha_numeric_passwords = relationship("PasswordHash", secondary=mixed_alpha_association_table, backref="Analysis")
-    __common__ = ['12345', '123456', '1234567', '12345678','123456789', '654321', 'password',
-                        'abc123', 'nicole', 'daniel', 'babygirl', 'monkey', 'iloveyou', 'princess',
-                        'jessica', 'lovely', 'michael', 'ashley', 'qwerty', 'letmein', 'admin', 'fuck',
-                        'fuckyou', 'dragon', 'pussy', 'baseball', 'football', '696969', 'mustang', '111111', '2000',
-                        'shadow', 'master', 'jennifer', 'jordan', 'superman', 'love', 'sex', 'secret', 'god',
-                        ]
+    common_passwords = relationship("PasswordHash",
+                                    secondary=common_association_table, backref="Analysis")
+    lower_case_passwords = relationship(
+        "PasswordHash", secondary=lower_association_table, backref="Analysis")
+    upper_case_passwords = relationship(
+        "PasswordHash", secondary=upper_association_table, backref="Analysis")
+    numeric_passwords = relationship("PasswordHash",
+                                     secondary=numeric_association_table, backref="Analysis")
+    mixed_case_passwords = relationship(
+        "PasswordHash", secondary=mixed_association_table, backref="Analysis")
+    lower_alpha_numeric_passwords = relationship("PasswordHash",
+                                                 secondary=lower_alpha_association_table, backref="Analysis")
+    upper_alpha_numeric_passwords = relationship("PasswordHash",
+                                                 secondary=upper_alpha_association_table, backref="Analysis")
+    mixed_alpha_numeric_passwords = relationship("PasswordHash",
+                                                 secondary=mixed_alpha_association_table, backref="Analysis")
+    __common__ = ['12345', '123456', '1234567', '12345678', '123456789', '654321', 'password',
+                  'abc123', 'nicole', 'daniel', 'babygirl', 'monkey', 'iloveyou', 'princess',
+                  'jessica', 'lovely', 'michael', 'ashley', 'qwerty', 'letmein', 'admin', 'fuck',
+                  'fuckyou', 'dragon', 'pussy', 'baseball', 'football', '696969', 'mustang', '111111', '2000',
+                  'shadow', 'master', 'jennifer', 'jordan', 'superman', 'love', 'sex', 'secret', 'god',
+                  ]
 
     def analyze_all(self, passwords):
         ''' Run all analysis on a list of password objects '''
@@ -85,35 +94,40 @@ class PasswordAnalysis(BaseObject):
 
     def mixed_case_passwords(self, password):
         ''' Returns all mixed case passwords in the job '''
-        contains_cases = self.__regex__("^(?=.*[a-z])(?=.*[A-Z]).+$", password.clear_text)
+        contains_cases = self.__regex__(
+            "^(?=.*[a-z])(?=.*[A-Z]).+$", password.clear_text)
         only_alpha = self.__regex__("^[a-zA-Z]*$", password.clear_text)
         if contains_cases and only_alpha:
             self.mixed_case.append(password)
 
     def lower_alpha_numeric_passwords(self, password):
         ''' Returns all lower case alpha-numeric passwords in the job '''
-        contains_alph_numeric = self.__regex__("^(?=.*[a-z])(?=.*[0-9]).+$", password.clear_text)
+        contains_alph_numeric = self.__regex__(
+            "^(?=.*[a-z])(?=.*[0-9]).+$", password.clear_text)
         only_alpha_numeric = self.__regex__("^[a-z0-9]*$", password.clear_text)
         if contains_alph_numeric and only_alpha_numeric:
             self.lower_alpha_numeric.append(password)
 
     def upper_alpha_numeric_passwords(self, password):
         ''' Returns all upper case alpha-numeric passwords in the job '''
-        contains_alph_numeric = self.__regex__("^(?=.*[A-Z])(?=.*[0-9]).+$", password.clear_text)
+        contains_alph_numeric = self.__regex__(
+            "^(?=.*[A-Z])(?=.*[0-9]).+$", password.clear_text)
         only_alpha_numeric = self.__regex__("^[A-Z0-9]*$", password.clear_text)
         if contains_alph_numeric and only_alpha_numeric:
             self.upper_case.append(password)
 
     def mixed_alpha_numeric_passwords(self, password):
         ''' Returns all mixed case alpha-numeric passwords in the job '''
-        contains_mixed_alpha_numeric = self.__regex__("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$", password.clear_text)
-        only_mixed_alpha_numeric = self.__regex__("^[a-zA-Z0-9]*$", password.clear_text)
+        contains_mixed_alpha_numeric = self.__regex__(
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$", password.clear_text)
+        only_mixed_alpha_numeric = self.__regex__(
+            "^[a-zA-Z0-9]*$", password.clear_text)
         if contains_mixed_alpha_numeric and only_mixed_alpha_numeric:
             self.mixed_alpha_numeric.append(password)
 
     def common_passwords(self, password):
         ''' Returns all common passwords in the job '''
-        if passwords.clear_text.lower()  in self.__common__:
+        if passwords.clear_text.lower() in self.__common__:
             self.common.append(password)
 
     def __regex__(self, expression, string):

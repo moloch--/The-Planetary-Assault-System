@@ -25,6 +25,7 @@ from sqlalchemy.types import Unicode, Integer
 from models.BaseObject import BaseObject
 from models import dbsession
 
+
 class Algorithm(BaseObject):
     '''
     Holds information about an algorithm, typically

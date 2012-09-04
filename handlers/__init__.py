@@ -65,7 +65,8 @@ app = Application([
                       SettingsHandler, {'dbsession': dbsession}),
                   (r'/logout', LogoutHandler),
 
-                  # Cracking Handlers - Serves password cracking job related pages
+                  # Cracking Handlers - Serves password cracking job related
+                  # pages
                   (r'/cracking/createjob',
                       CreateJobHandler, {'dbsession': dbsession}),
                   (r'/cracking/queuedjobs',

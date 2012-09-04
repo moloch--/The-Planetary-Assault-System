@@ -182,7 +182,8 @@ class RecoveryConsole(cmd.Cmd):
                         INFO + "Removing permission: " + perm.permission_name)
                     dbsession.delete(perm)
             dbsession.flush()
-            print(INFO + "Successfully removed %s's permissions." % user.user_name)
+            print(INFO +
+                  "Successfully removed %s's permissions." % user.user_name)
 
     def do_id(self, user_id):
         '''

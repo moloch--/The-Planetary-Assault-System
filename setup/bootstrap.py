@@ -44,8 +44,8 @@ else:
     if password1 == password2 and 12 <= len(password1):
         password = password1
     else:
-        print(WARN + \
-            'Error: Passwords did not match, or were less than 12 chars')
+        print(WARN +
+              'Error: Passwords did not match, or were less than 12 chars')
         os._exit(1)
 
 ### Initialize algorithms

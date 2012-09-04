@@ -50,7 +50,7 @@ class SessionManager():
 
     def remove_session(self, sid):
         ''' Removes a given session '''
-        sleep(random() / 100) # Prevent remote timing attacks
+        sleep(random() / 100)  # Prevent remote timing attacks
         if sid in self.sessions.keys():
             self.sessions_lock.acquire()
             del self.sessions[sid]
@@ -58,7 +58,7 @@ class SessionManager():
 
     def get_session(self, sid, ip_address):
         ''' Returns a session object if it exists or None '''
-        sleep(random() / 100) # Prevent remote timing attacks
+        sleep(random() / 100)  # Prevent remote timing attacks
         if sid in self.sessions.keys():
             if self.sessions[sid].is_expired():
                 self.remove_session(sid)

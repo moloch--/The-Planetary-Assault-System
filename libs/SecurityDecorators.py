@@ -90,4 +90,3 @@ def rpc(method):
         logging.debug("Destroyed keyfile.")
         return ret_value
     return wrapper
-

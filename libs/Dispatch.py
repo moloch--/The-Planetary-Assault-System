@@ -35,7 +35,6 @@ from libs.ConfigManager import ConfigManager
 from models import dbsession, Job, User, WeaponSystem, Algorithm
 
 
-
 @Singleton
 class Dispatch(object):
     ''' Dispatcher class, handles queue and RPC calls '''
@@ -56,7 +55,7 @@ class Dispatch(object):
         logging.debug("Attempting to acquire queue mutex ...")
         self.mutex.acquire()
         logging.debug("Successfully acquired queue mutex.")
-        queue = list(Job.queue()) # Create a copy of the queue
+        queue = list(Job.queue())  # Create a copy of the queue
         for job in queue:
             logging.info("Dispatching job: %s" % job.job_name)
             if len(job) == 0:
@@ -67,7 +66,8 @@ class Dispatch(object):
                 algo = Algorithm.by_id(job.algorithm_id)
                 weapon_systems = WeaponSystem.system_ready(algo)
                 if weapon_systems != None and 0 < len(weapon_systems):
-                    logging.info("Weapon systems available: %d" % len(weapon_systems))
+                    logging.info(
+                        "Weapon systems available: %d" % len(weapon_systems))
                     thread.start_new_thread(
                         self.__crack__, (job, weapon_systems[0],))
                 else:
@@ -82,7 +82,8 @@ class Dispatch(object):
         results = None
         user = User.by_id(job.user_id)
         if user == None:
-            logging.error("Invalid job passed to dispatcher (no user with id %d)." % job.user_id)
+            logging.error("Invalid job passed to dispatcher (no user with id %d)." %
+                          job.user_id)
         elif job == None:
             logging.error("Invalid job passed to dispatcher (job is None).")
         else:
@@ -97,7 +98,8 @@ class Dispatch(object):
                 rpc_connection = rpyc.ssh_connect(
                     ssh_context, weapon_system.service_port)
                 hashes = job.to_list()
-                logging.info("Sending %s job to %s for cracking." % (job.job_name, weapon_system.weapon_system_name))
+                logging.info("Sending %s job to %s for cracking." %
+                             (job.job_name, weapon_system.weapon_system_name))
                 job.status = u"IN_PROGRESS"
                 dbsession.add(job)
                 dbsession.flush()
@@ -111,7 +113,7 @@ class Dispatch(object):
                 job.save_results(results)
             else:
                 logging.warn("No results returned from weapon system.")
-            job.status = u"COMPLETED";
+            job.status = u"COMPLETED"
             job.finished = datetime.now()
             dbsession.add(job)
             dbsession.flush()

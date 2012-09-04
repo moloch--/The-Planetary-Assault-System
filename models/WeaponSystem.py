@@ -34,7 +34,7 @@ from tempfile import NamedTemporaryFile
 
 
 class WeaponSystem(BaseObject):
-    ''' 
+    '''
     Holds configuration information for remote agents
     '''
 
@@ -47,7 +47,8 @@ class WeaponSystem(BaseObject):
     service_port = Column(Integer, default=31337, nullable=False)
     cpu_count = Column(Integer, default=1, nullable=False)
     gpu_count = Column(Integer, default=0, nullable=False)
-    algorithms = relationship("Algorithm", secondary=algorithm_association_table, backref="WeaponSystem")
+    algorithms = relationship("Algorithm",
+                              secondary=algorithm_association_table, backref="WeaponSystem")
 
     @classmethod
     def by_id(cls, weapon_id):
@@ -126,7 +127,7 @@ class WeaponSystem(BaseObject):
             return rpc_connection.root.exposed_is_busy()
 
     def __connect__(self):
-        ''' 
+        '''
         Creates an ssh connection and returns the rpc_connection object
         The ssh keyfile is destroyed when the object is garbage collected.
         '''

@@ -52,4 +52,5 @@ class Singleton(object):
         of multiple instances of the singleton. The "Instance" method should
         be used instead.
         '''
-        raise TypeError('Singletons must be accessed through the "Instance" method.')
+        raise TypeError(
+            'Singletons must be accessed through the "Instance" method.')

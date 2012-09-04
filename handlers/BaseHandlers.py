@@ -45,7 +45,7 @@ class AdminBaseHandler(RequestHandler):
     @authenticated
     def post(self, *args, **kwargs):
         ''' Renders a 404 in case, will prbly get overloaded '''
-        self.render("public/404.html")  
+        self.render("public/404.html")
 
     @authenticated
     def put(self, *args, **kwargs):
@@ -98,7 +98,7 @@ class UserBaseHandler(RequestHandler):
     @authenticated
     def post(self, *args, **kwargs):
         ''' Renders a 404 in case, will prbly get overloaded '''
-        self.render("public/404.html")      
+        self.render("public/404.html")
 
     @authenticated
     def put(self, *args, **kwargs):

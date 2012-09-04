@@ -68,7 +68,6 @@ class ConfigManager(object):
         self.__security__()
         self.__database__()
 
-
     def __system__(self):
         ''' Load system configurations '''
         self.debug = self.config.getboolean("System", 'debug')
