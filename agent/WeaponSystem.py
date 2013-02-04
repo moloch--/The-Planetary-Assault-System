@@ -46,8 +46,9 @@ if len(argv) == 2:
 else:
     cfg_path = path.abspath("WeaponSystem.cfg")
 if not (path.exists(cfg_path) and path.isfile(cfg_path)):
-    logging.critical(
-        "No configuration file found at %s, cannot continue." % cfg_path)
+    logging.critical("No configuration file found at %s, cannot continue." % (
+        (cfg_path,)
+    )
     _exit(1)
 logging.info('Loading config from: %s' % cfg_path)
 config = ConfigParser.SafeConfigParser()
@@ -182,7 +183,10 @@ class WeaponSystem(rpyc.Service):
 
 if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer
-    agent = ThreadedServer(WeaponSystem, hostname="localhost",
-                           port=config.getint("Network", 'lport'))
+    agent = ThreadedServer(
+        WeaponSystem, 
+        hostname="localhost",
+        port=config.getint("Network", 'lport')
+    )
     logging.info("Weapon system ready, waiting for orbital control uplink ...")
     agent.start()
