@@ -31,22 +31,17 @@ from models.BaseObject import BaseObject
 from string import ascii_letters, digits
 
 
-class PasswordHash(BaseObject):
+class Password(BaseObject):
     '''
     Generic password hash object, can be of any algorithm
     '''
 
     job_id = Column(Integer, ForeignKey('job.id'), nullable=False)
-    algorithm_id = Column(Integer, ForeignKey('algorithm.id'), nullable=False)
-    user_name = Column(Unicode(64))
-    _cipher_text = Column(Unicode(128), nullable=False)
-    cipher_text = synonym('_cipher_text', descriptor=property(
-        lambda self: self._cipher_text,
-        lambda self, cipher_text: setattr(self, '_cipher_text',
-                                          self.__class__._filter_string(cipher_text))
-    ))
-    plain_text = Column(Unicode(64))
-    solved = Column(Boolean, default=False, nullable=False)
+    algorithm_id = Column(Integer, ForeignKey('algorithm.id'))
+    username = Column(Unicode(128))
+    hexdigest = Column(Unicode(128))
+    _preimage = Column(Unicode(128))
+    is_cracked = Column(Boolean, default=False, nullable=False)
 
     @classmethod
     def by_id(cls, hash_id):
@@ -54,14 +49,16 @@ class PasswordHash(BaseObject):
         return dbsession.query(cls).filter_by(id=hash_id).first()
 
     @classmethod
-    def by_cipher_text(cls, cipher_text_value, job_id_value):
+    def by_hexdigest(cls, hexvalue, jid):
         ''' Return the digest based on valud and job_id '''
-        return dbsession.query(cls).filter(and_(cipher_text == cipher_text_value, job_id == job_id_value)).first()
+        return dbsession.query(cls).filter(
+            and_(cls.hexdigest == hexvalue, cls.job_id == jid)
+        ).first()
 
     @classmethod
     def by_algorithm(cls, algo):
         ''' Return all passwordHash objects of a given algorithm id '''
-        if type(algo) == int:
+        if isinstance(algo, int):
             return dbsession.query(cls).filter_by(algorithm_id=algo).all()
         else:
             return dbsession.query(cls).filter_by(algorithm_id=algo.id).all()
@@ -71,6 +68,11 @@ class PasswordHash(BaseObject):
         char_white_list = ascii_letters + digits + extra_chars
         return filter(lambda char: char in char_white_list, string)
 
-    def __len__(self):
-        ''' Returns the length of the digest '''
-        return len(self.digest)
+    @property
+    def preimage(self):
+        return self._preimage
+
+    @preimage.setter
+    def preimage(self, value):
+        self.is_cracked = True
+        self._preimage = value[:128]

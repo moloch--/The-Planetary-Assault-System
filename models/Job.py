@@ -43,8 +43,8 @@ class Job(BaseObject):
         lambda self, job_name: setattr(self, '_job_name',
                                        self.__class__._filter_string(job_name, "-_ "))
     ))
-    status = Column(Unicode(64), default=u"NOT_STARTED",
-                    nullable=False)  # NOT_STARTED / IN_PROGRESS / COMPLETED
+    # NOT_STARTED / IN_PROGRESS / COMPLETED
+    status = Column(Unicode(64), default=u"NOT_STARTED", nullable=False)
     priority = Column(Integer, default=1, nullable=False)
     completed = Column(Boolean, default=False, nullable=False)
     hashes = relationship("PasswordHash", backref=backref(
@@ -92,27 +92,25 @@ class Job(BaseObject):
         ''' Save the results of the cracking session to the database '''
         for password in self.hashes:
             try:
-                password.plain_text = unicode(results[password.cipher_text])
-                if results[password.cipher_text] != "<Not Found>":
-                    password.solved = True
-                dbsession.add(password)
+                if results[password.hexdigest] != "<Not Found>":
+                    password.preimage = unicode(results[password.hexdigest])
+                    dbsession.add(password)
             except KeyError:
-                logging.error("A database hash is missing from the result set (%s)" %
-                              (password.cipher_text,))
+                logging.error("A database hash is missing from the result set (%s)" % (
+                    password.hexdigest,
+                ))
         dbsession.flush()
 
     def to_list(self):
         ''' Returns all hash digests as a Python list '''
-        return [hsh.cipher_text for hsh in self.hashes]
+        return [hsh.hexdigest for hsh in self.hashes]
 
     def __len__(self):
         ''' Returns the number of hashes in the job '''
         return len(self.hashes)
 
     def __str__(self):
-        ''' Returns name when str() is called '''
-        return unicode(self.job_name)
+        return self.job_name
 
     def __repr__(self):
-        ''' Repr impl '''
         return "<(%d) %s: hashes(%d), completed(%s)>" % (self.id, self.name, len(self), str(self.completed))

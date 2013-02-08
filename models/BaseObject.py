@@ -47,9 +47,13 @@ class SimpleDatabaseObject(object):
             re.sub(r'([A-Z])',
                    lambda letter: "_" + letter.group(0).lower(), name[1:])
         )
+    
     id = Column(Integer, primary_key=True, unique=True, nullable=False)
-    uuid = Column(Unicode(
-        36), unique=True, nullable=False, default=lambda: unicode(uuid4()))
+    uuid = Column(Unicode(36), 
+        unique=True, 
+        nullable=False, 
+        default=lambda: unicode(uuid4())
+    )
     created = Column(DateTime, default=datetime.now)
 
 # Create an instance called "BaseObject", inherit from this

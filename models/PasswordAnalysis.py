@@ -95,7 +95,8 @@ class PasswordAnalysis(BaseObject):
     def mixed_case_passwords(self, password):
         ''' Returns all mixed case passwords in the job '''
         contains_cases = self.__regex__(
-            "^(?=.*[a-z])(?=.*[A-Z]).+$", password.clear_text)
+            "^(?=.*[a-z])(?=.*[A-Z]).+$", password.clear_text
+        )
         only_alpha = self.__regex__("^[a-zA-Z]*$", password.clear_text)
         if contains_cases and only_alpha:
             self.mixed_case.append(password)
@@ -103,7 +104,8 @@ class PasswordAnalysis(BaseObject):
     def lower_alpha_numeric_passwords(self, password):
         ''' Returns all lower case alpha-numeric passwords in the job '''
         contains_alph_numeric = self.__regex__(
-            "^(?=.*[a-z])(?=.*[0-9]).+$", password.clear_text)
+            "^(?=.*[a-z])(?=.*[0-9]).+$", password.clear_text
+        )
         only_alpha_numeric = self.__regex__("^[a-z0-9]*$", password.clear_text)
         if contains_alph_numeric and only_alpha_numeric:
             self.lower_alpha_numeric.append(password)
@@ -111,7 +113,8 @@ class PasswordAnalysis(BaseObject):
     def upper_alpha_numeric_passwords(self, password):
         ''' Returns all upper case alpha-numeric passwords in the job '''
         contains_alph_numeric = self.__regex__(
-            "^(?=.*[A-Z])(?=.*[0-9]).+$", password.clear_text)
+            "^(?=.*[A-Z])(?=.*[0-9]).+$", password.clear_text
+        )
         only_alpha_numeric = self.__regex__("^[A-Z0-9]*$", password.clear_text)
         if contains_alph_numeric and only_alpha_numeric:
             self.upper_case.append(password)
@@ -119,9 +122,11 @@ class PasswordAnalysis(BaseObject):
     def mixed_alpha_numeric_passwords(self, password):
         ''' Returns all mixed case alpha-numeric passwords in the job '''
         contains_mixed_alpha_numeric = self.__regex__(
-            "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$", password.clear_text)
+            "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$", password.clear_text
+        )
         only_mixed_alpha_numeric = self.__regex__(
-            "^[a-zA-Z0-9]*$", password.clear_text)
+            "^[a-zA-Z0-9]*$", password.clear_text
+        )
         if contains_mixed_alpha_numeric and only_mixed_alpha_numeric:
             self.mixed_alpha_numeric.append(password)
 
