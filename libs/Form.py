@@ -33,11 +33,13 @@ class Form(object):
         # Iterate over the dictionary
         for name, message in kwargs.iteritems():
             # if we got supplied with a valid pair
-            if type(name) == str and type(message) == str:
+            if isinstance(name, basestring) and isinstance(message, basestring):
                 piece = FormPiece(name, message)
                 self.form_pieces.append(piece)
             else:
-                raise Exception('Forms can only support booleans attached to keyword arguments')
+                raise Exception(
+                    'Forms can only support booleans attached to keyword arguments'
+                )
 
     def __get_piece_names__(self):
         ''' returns peices that are marked with required true '''

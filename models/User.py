@@ -20,9 +20,10 @@ Created on Mar 12, 2012
 '''
 
 
+import bcrypt
+
 from os import urandom
 from base64 import b64encode
-from hashlib import sha256
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean
@@ -47,8 +48,11 @@ class User(BaseObject):
         "User", lazy="joined"), cascade="all, delete-orphan")
     permissions = relationship("Permission", backref=backref(
         "User", lazy="joined"), cascade="all, delete-orphan")
-    salt = Column(
-        Unicode(32), unique=True, nullable=False, default=lambda: unicode(b64encode(urandom(24))))
+    salt = Column(String(10), 
+        unique=True, 
+        nullable=False, 
+        default=lambda: urandom(10).encode('hex')
+    )
     _password = Column('password', Unicode(64))
     password = synonym('_password', descriptor=property(
         lambda self: self._password,
@@ -99,16 +103,9 @@ class User(BaseObject):
 
     @classmethod
     def _hash_password(cls, password, salt):
-        '''
-        Hashes the password using 25,001 rounds of salted SHA-256, come at me bro.
-        This function will always return a unicode string, but can take an arg of
-        any type not just ascii strings, the salt will always be unicode
-        '''
-        sha = sha256()
-        sha.update(password + salt)
-        for count in range(0, 25000):
-            sha.update(sha.hexdigest() + str(count))
-        return unicode(sha.hexdigest())
+        ''' BCrypt; return unicode string '''
+        hashed = bcrypt.hashpw(password, salt)
+        return unicode(hashed)
 
     @property
     def queued_jobs(self):

@@ -65,11 +65,14 @@ class Dispatch(object):
             else:
                 algo = Algorithm.by_id(job.algorithm_id)
                 weapon_systems = WeaponSystem.system_ready(algo)
-                if weapon_systems != None and 0 < len(weapon_systems):
-                    logging.info(
-                        "Weapon systems available: %d" % len(weapon_systems))
+                if weapon_systems is not None and 0 < len(weapon_systems):
+                    logging.info("Weapon systems available: %d" % (
+                        len(weapon_systems),
+                    ))
                     thread.start_new_thread(
-                        self.__crack__, (job, weapon_systems[0],))
+                        self.__crack__, 
+                        (job, weapon_systems[0],)
+                    )
                 else:
                     logging.info("No available weapon systems at this time.")
         self.mutex.release()
@@ -81,9 +84,10 @@ class Dispatch(object):
         '''
         results = None
         user = User.by_id(job.user_id)
-        if user == None:
-            logging.error("Invalid job passed to dispatcher (no user with id %d)." %
-                          job.user_id)
+        if user is None:
+            logging.error("Invalid job passed to dispatcher (no user with id %d)." % (
+                job.user_id,
+            ))
         elif job == None:
             logging.error("Invalid job passed to dispatcher (job is None).")
         else:
@@ -93,23 +97,33 @@ class Dispatch(object):
                 ssh_keyfile = NamedTemporaryFile()
                 ssh_keyfile.write(weapon_system.ssh_key)
                 ssh_keyfile.seek(0)
-                ssh_context = SshContext(weapon_system.ip_address,
-                                         user=weapon_system.ssh_user, keyfile=ssh_keyfile.name)
+                ssh_context = SshContext(
+                    weapon_system.ip_address,
+                    user=weapon_system.ssh_user, 
+                    keyfile=ssh_keyfile.name,
+                )
                 rpc_connection = rpyc.ssh_connect(
-                    ssh_context, weapon_system.service_port)
+                    ssh_context, 
+                    weapon_system.service_port,
+                )
                 hashes = job.to_list()
-                logging.info("Sending %s job to %s for cracking." %
-                             (job.job_name, weapon_system.weapon_system_name))
+                logging.info("Sending %s job to %s for cracking." % (
+                    job.job_name, 
+                    weapon_system.weapon_system_name,
+                ))
                 job.status = u"IN_PROGRESS"
                 dbsession.add(job)
                 dbsession.flush()
                 results = rpc_connection.root.exposed_crack_list(
-                    job.id, job.to_list(), algorithm.algorithm_name)
+                    job.id, 
+                    job.to_list(), 
+                    algorithm.algorithm_name,
+                )
             except:
                 logging.exception("Connection to remote weapon system failed, check parameters.")
             finally:
                 ssh_keyfile.close()
-            if results != None:
+            if results is not None:
                 job.save_results(results)
             else:
                 logging.warn("No results returned from weapon system.")

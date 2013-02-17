@@ -30,10 +30,10 @@ from libs.Form import Form
 from libs.Dispatch import Dispatch
 from libs.Session import SessionManager
 from libs.SecurityDecorators import authenticated
-from BaseHandlers import UserBaseHandler
+from BaseHandlers import BaseHandler
 
 
-class CreateJobHandler(UserBaseHandler):
+class CreateJobHandler(BaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
@@ -57,15 +57,18 @@ class CreateJobHandler(UserBaseHandler):
         if form.validate(self.request.arguments):
             algo = Algorithm.by_uuid(self.get_argument('algorithm'))
             user = self.get_current_user()
-            if not self.get_argument('format') in self.parsers.keys():
-                self.render(
-                    'cracking/create_job.html', errors=['Invalid format'])
-            elif algo == None:
-                self.render(
-                    'cracking/create_job.html', errors=['Invalid algorithm'])
-            elif Job.by_job_name(self.get_argument('jobname')) != None:
-                self.render(
-                    'cracking/create_job.html', errors=['Duplicate job name'])
+            if not self.get_argument('format') in self.parsers:
+                self.render('cracking/create_job.html', 
+                    errors=['Invalid format']
+                )
+            elif algo is None:
+                self.render('cracking/create_job.html', 
+                    errors=['Invalid algorithm']
+                )
+            elif Job.by_job_name(self.get_argument('jobname')) is not None:
+                self.render('cracking/create_job.html', 
+                    errors=['Duplicate job name']
+                )
             else:
                 job = self.create_job(user, algo)
                 dispatch = Dispatch.Instance()
@@ -120,7 +123,7 @@ class CreateJobHandler(UserBaseHandler):
         pass
 
 
-class QueuedJobsHandler(UserBaseHandler):
+class QueuedJobsHandler(BaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
@@ -135,7 +138,7 @@ class QueuedJobsHandler(UserBaseHandler):
         self.render("public/404.html")
 
 
-class CompletedJobsHandler(UserBaseHandler):
+class CompletedJobsHandler(BaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
@@ -143,12 +146,8 @@ class CompletedJobsHandler(UserBaseHandler):
         self.render(
             "cracking/completedjobs.html", user=self.get_current_user())
 
-    @authenticated
-    def post(self, *args, **kwargs):
-        pass
 
-
-class DeleteJobHandler(UserBaseHandler):
+class DeleteJobHandler(BaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
@@ -182,7 +181,7 @@ class DeleteJobHandler(UserBaseHandler):
                 "cracking/ajax_error.html", message="Job does not exist")
 
 
-class AjaxJobDetailsHandler(UserBaseHandler):
+class AjaxJobDetailsHandler(BaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
@@ -203,7 +202,7 @@ class AjaxJobDetailsHandler(UserBaseHandler):
             self.render("cracking/ajax_jobdetails.html", job=job)
 
 
-class AjaxJobStatisticsHandler(UserBaseHandler):
+class AjaxJobStatisticsHandler(BaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
@@ -224,7 +223,7 @@ class AjaxJobStatisticsHandler(UserBaseHandler):
             self.render("cracking/ajax_jobstatistics.html", job=job)
 
 
-class AjaxJobDataHandler(UserBaseHandler):
+class AjaxJobDataHandler(BaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
@@ -246,13 +245,8 @@ class AjaxJobDataHandler(UserBaseHandler):
         self.finish()
 
 
-class DownloadHandler(UserBaseHandler):
+class DownloadHandler(BaseHandler):
 
     @authenticated
     def get(self, *args, **kwargs):
         self.render("public/404.html")
-
-    @authenticated
-    def post(self, *args, **kwargs):
-        ''' Download a job as a file  '''
-        pass

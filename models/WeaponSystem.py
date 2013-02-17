@@ -48,7 +48,9 @@ class WeaponSystem(BaseObject):
     cpu_count = Column(Integer, default=1, nullable=False)
     gpu_count = Column(Integer, default=0, nullable=False)
     algorithms = relationship("Algorithm",
-                              secondary=algorithm_association_table, backref="WeaponSystem")
+        secondary=algorithm_association_table, 
+        backref="WeaponSystem"
+    )
 
     @classmethod
     def by_id(cls, weapon_id):
@@ -73,31 +75,40 @@ class WeaponSystem(BaseObject):
     @classmethod
     def by_name(cls, weapon_name):
         ''' Return the WeaponSystem object whose name is 'weapon_name' '''
-        return dbsession.query(cls).filter_by(weapon_system_name=unicode(weapon_name)).first()
+        return dbsession.query(cls).filter_by(
+            weapon_system_name=unicode(weapon_name)
+        ).first()
 
     @classmethod
     def by_ip_address(cls, weapon_ip_address):
         ''' Return the WeaponSystem object whose ip_address is 'weapon_ip_address' '''
-        return dbsession.query(cls).filter_by(ip_address=unicode(weapon_ip_address)).first()
+        return dbsession.query(cls).filter_by(
+            ip_address=unicode(weapon_ip_address)
+        ).first()
 
     @classmethod
     def all_idle(cls):
         ''' Returns a list of systems that are initialized, online and not busy '''
-        online_systems = filter(lambda weapon_system:
-                                weapon_system.is_online() == True, cls.get_all())
-        return filter(lambda weapon_system: weapon_system.is_busy() == False, online_systems)
+        online_systems = filter(
+            lambda weapon_system: weapon_system.is_online() == True, cls.get_all()
+        )
+        return filter(
+            lambda weapon_system: weapon_system.is_busy() == False, online_systems
+        )
 
     @classmethod
     def system_ready(cls, algo):
         ''' Returns list of ready systems based on algo '''
-        return filter(lambda weapon_system: algo in weapon_system.algorithms, cls.all_idle())
+        return filter(
+            lambda weapon_system: algo in weapon_system.algorithms, cls.all_idle()
+        )
 
     def initialize(self, *args):
         ''' One time initialization, gathers system information '''
         logging.info(
             "Preforming weapon system initialization, please wait ... ")
         rpc_connection = self.__connect__()
-        if rpc_connection == None:
+        if rpc_connection is None:
             logging.info("Failed to connect to remote system.")
             return False
         else:
@@ -115,7 +126,7 @@ class WeaponSystem(BaseObject):
     def is_online(self):
         ''' Checks if a system is online '''
         rpc_connection = self.__connect__()
-        if rpc_connection != None:
+        if rpc_connection is not None:
             return rpc_connection.root.exposed_ping() == "PONG"
         else:
             return False
@@ -123,7 +134,7 @@ class WeaponSystem(BaseObject):
     def is_busy(self):
         ''' Checks to see if a remote system is busy returns bool, or none '''
         rpc_connection = self.__connect__()
-        if rpc_connection != None:
+        if rpc_connection is not None:
             return rpc_connection.root.exposed_is_busy()
 
     def __connect__(self):
@@ -136,8 +147,11 @@ class WeaponSystem(BaseObject):
             self.ssh_keyfile.write(self.ssh_key)
             self.ssh_keyfile.seek(0)
             ssh_context = SshContext(self.ip_address,
-                                     user=self.ssh_user, keyfile=self.ssh_keyfile.name)
+                user=self.ssh_user, 
+                keyfile=self.ssh_keyfile.name
+            )
             return rpyc.ssh_connect(ssh_context, self.service_port)
         except:
             logging.exception(
-                "Connection to remote weapon system failed, check parameters.")
+                "Connection to remote weapon system failed, check parameters."
+            )

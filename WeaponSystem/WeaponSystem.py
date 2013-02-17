@@ -48,7 +48,7 @@ else:
 if not (path.exists(cfg_path) and path.isfile(cfg_path)):
     logging.critical("No configuration file found at %s, cannot continue." % (
         (cfg_path,)
-    )
+    ))
     _exit(1)
 logging.info('Loading config from: %s' % cfg_path)
 config = ConfigParser.SafeConfigParser()
@@ -104,10 +104,15 @@ class WeaponSystem(rpyc.Service):
         self.current_job_id = job_id
         self.mutex.release()
         tables = self.rainbow_tables[hash_type].encode('ascii', 'ignore')
-        logging.info(
-            "Recieved new assignment, now targeting %d hashes with %d thread(s)" % (len(hashes), self.threads))
+        logging.info("Recieved new assignment, now targeting %d hashes with %d thread(s)" % (
+            len(hashes), self.threads,
+        ))
         results = RainbowCrack.hash_list(
-            len(ascii_hashes), ascii_hashes, tables, maxThreads=self.threads, debug=self.debug)
+            len(ascii_hashes), 
+            ascii_hashes, tables, 
+            maxThreads=self.threads, 
+            debug=self.debug
+        )
         self.mutex.acquire()
         self.is_busy = False
         self.mutex.release()
@@ -118,7 +123,7 @@ class WeaponSystem(rpyc.Service):
         logging.info("Method called: exposed_get_capabilities")
         capabilities = []
         for algo in self.algorithms:
-            if self.rainbow_tables[algo] != None:
+            if self.rainbow_tables[algo] is not None:
                 capabilities.append(algo)
         return capabilities
 
@@ -150,21 +155,19 @@ class WeaponSystem(rpyc.Service):
 
     def __cpu__(self):
         ''' Detects the number of CPU cores on a system (including virtual cores) '''
-        if cpu_count != None:
+        if cpu_count is not None:
             try:
                 self.cpu_cores = cpu_count()
                 logging.info("Detected %d CPU core(s)" % self.cpu_cores)
             except NotImplementedError:
-                logging.error(
-                    "Could not detect number of processors; assuming 1")
+                logging.error("Could not detect number of processors; assuming 1")
                 self.cpu_cores = 1
         else:
             try:
                 self.cpu_cores = sysconf("SC_NPROCESSORS_CONF")
                 logging.info("Detected %d CPU core(s)" % self.cpu_cores)
             except ValueError:
-                logging.error(
-                    "Could not detect number of processors; assuming 1")
+                logging.error("Could not detect number of processors; assuming 1")
                 self.cpu_cores = 1
 
     def __tables__(self):
@@ -175,18 +178,18 @@ class WeaponSystem(rpyc.Service):
                 if table_path.lower() != 'none':
                     self.rainbow_tables[algo] = table_path
                     if not path.exists(self.rainbow_tables[algo]):
-                        logging.warn("%s rainbow table directory not found (%s)" %
-                                     (algo, self.rainbow_tables[algo]))
+                        logging.warn("%s rainbow table directory not found (%s)" % (
+                            algo, self.rainbow_tables[algo],
+                        ))
             except:
-                logging.exception(
-                    "Failed to read %s configuration from file" % algo)
+                logging.exception("Failed to read %s configuration from file" % algo)
 
 if __name__ == "__main__":
     from rpyc.utils.server import ThreadedServer
     agent = ThreadedServer(
         WeaponSystem, 
         hostname="localhost",
-        port=config.getint("Network", 'lport')
+        port=config.getint("Network", 'lport'),
     )
     logging.info("Weapon system ready, waiting for orbital control uplink ...")
     agent.start()

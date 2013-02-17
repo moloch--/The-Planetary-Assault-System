@@ -32,5 +32,6 @@ echo "[*] Installing Python libs ..."
 /usr/local/bin/pip install sqlalchemy
 /usr/local/bin/pip install rpyc
 /usr/local/bin/pip install python-memcached
+/usr/local/bin/pip install py-bcrypt
 
 echo "[*] Setup Completed."

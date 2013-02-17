@@ -32,8 +32,10 @@ from libs.Singleton import Singleton
 
 # .basicConfig must be called prior to ANY call to logging.XXXX so make sure
 # this module gets imported prior to any logging!
-logging.basicConfig(format='\r[%(levelname)s] %(asctime)s - %(message)s',
-                    level=logging.DEBUG)
+logging.basicConfig(
+    format='\r[%(levelname)s] %(asctime)s - %(message)s',
+    level=logging.DEBUG
+)
 
 
 @Singleton
@@ -56,8 +58,9 @@ class ConfigManager(object):
     def __init__(self):
         self.cfg_path = os.path.abspath("PlanetaryAssaultSystem.cfg")
         if not (os.path.exists(self.cfg_path) or os.path.isdir(self.cfg_path)):
-            logging.critical("No configuration file found at %s, cannot continue." %
-                             cfg_path)
+            logging.critical("No configuration file found at %s, cannot continue." % (
+                cfg_path,
+            ))
             os._exit(1)
         logging.info('Loading config from %s' % self.cfg_path)
         self.config = ConfigParser.SafeConfigParser(self.defaults)

@@ -1,6 +1,0 @@
-[submodule "agent/CrackPy"]
-	path = agent/CrackPy
-	url = https://github.com/moloch--/CrackPy
-[submodule "agent/RCrackPy"]
-	path = agent/RCrackPy
-	url = https://github.com/moloch--/RCrackPy

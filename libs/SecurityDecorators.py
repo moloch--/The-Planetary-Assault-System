@@ -3,7 +3,7 @@ Created on Mar 13, 2012
 
 @author: moloch
 
-    Copyright [2012] [Redacted Labs]
+    Copyright 2012 Root the Box
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ Created on Mar 13, 2012
 import logging
 import functools
 
+from threading import Thread
 from models.User import User
-from libs.Session import SessionManager
 
 
 def authenticated(method):
@@ -31,14 +31,21 @@ def authenticated(method):
 
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        session_manager = SessionManager.Instance()
-        session = session_manager.get_session(
-            self.get_secure_cookie('auth'), self.request.remote_ip)
-        if session != None:
-            return method(self, *args, **kwargs)
-        # Just render a 404 page, instead of redirecting - this prevents people
-        # from enumerating legitimate URLs based on if the page is a 200 or 302
-        self.render("public/404.html")
+        if self.session is not None:
+            if self.session.ip_address == self.request.remote_ip:
+                if not self.get_current_user().locked: 
+                    return method(self, *args, **kwargs)
+                else:
+                    self.session.delete()
+                    self.clear_all_cookies()
+                    self.redirect('/403?locked=true')
+            else:
+                logging.warn("Session hijack attempt from %s?" % (
+                    self.request.remote_ip,
+                ))
+                self.redirect(self.application.settings['login_url'])
+        else:
+            self.redirect(self.application.settings['login_url'])
     return wrapper
 
 
@@ -50,43 +57,54 @@ def restrict_ip_address(method):
         if self.request.remote_ip in self.application.settings['admin_ips']:
             return method(self, *args, **kwargs)
         else:
-            logging.warn("Attempted unauthorized access from %s to %s (restricted ip)" %
-                         (self.request.remote_ip, self.request.uri))
+            logging.warn("Attempted unauthorized access from %s to %s" % (
+                self.request.remote_ip, self.request.uri,
+            ))
             self.redirect(self.application.settings['forbidden_url'])
     return wrapper
 
 
 def authorized(permission):
-    ''' Checks user's permissions for a given value '''
+    ''' Checks user's permissions '''
 
     def func(method):
+
         @functools.wraps(method)
         def wrapper(self, *args, **kwargs):
-            session_manager = SessionManager.Instance()
-            session = session_manager.get_session(
-                self.get_secure_cookie('auth'), self.request.remote_ip)
-            if session != None:
-                user = User.by_user_name(session.data['user_name'])
-                if user != None and user.has_permission(permission):
+            if self.session is not None:
+                user = User.by_handle(self.session['handle'])
+                if user is not None and user.has_permission(permission):
                     return method(self, *args, **kwargs)
-            logging.warn("Attempted unauthorized access from %s to %s (no permission)" %
-                         (self.request.remote_ip, self.request.uri))
+            logging.warn("Attempted unauthorized access from %s to %s" % (
+                self.request.remote_ip, self.request.uri,
+            ))
             self.redirect(self.application.settings['forbidden_url'])
         return wrapper
     return func
 
 
-def rpc(method):
-    ''' Ensure the ssh keyfile is destroyed after an rpc function returns '''
+def async(method):
+    ''' Quick and easy async functions'''
 
     @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        logging.debug("Wrapping rpc call.")
-        type(method)
-        method.__self__.ssh_keyfile = None
-        ret_value = method(self, *args, **kwargs)
-        if method.__self__.ssh_keyfile != None:
-            method.__self__.ssh_keyfile.close()
-        logging.debug("Destroyed keyfile.")
-        return ret_value
+    def __async__(*args, **kwargs):
+        worker = Thread(target=method, args=args, kwargs=kwargs)
+        worker.start()
+    #return __async__
+
+
+def debug(method):
+    ''' Logs a method call/return '''
+
+    @functools.wraps(method)
+    def wrapper(*args, **kwargs):
+        class_name = args[0].__class__.__name__
+        logging.debug("Call to -> %s.%s()" % (
+            class_name, method.__name__,
+        ))
+        value = method(*args, **kwargs)
+        logging.debug("Return from <- %s.%s()" % (
+            class_name, method.__name__,
+        ))
+        return value
     return wrapper

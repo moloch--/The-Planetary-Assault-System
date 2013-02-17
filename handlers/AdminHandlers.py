@@ -24,13 +24,13 @@ import thread
 import logging
 
 from models import dbsession, User, WeaponSystem
-from handlers.BaseHandlers import AdminBaseHandler
+from handlers.BaseHandlers import BaseHandler
 from libs.Form import Form
 from libs.SecurityDecorators import *
 from string import ascii_letters, digits
 
 
-class ManageUsersHandler(AdminBaseHandler):
+class ManageUsersHandler(BaseHandler):
 
     @authenticated
     @authorized('admin')
@@ -38,27 +38,29 @@ class ManageUsersHandler(AdminBaseHandler):
     def get(self, *args, **kwargs):
         ''' Renders the manage users page '''
         self.render("admin/manage_users.html",
-                    unapproved_users=User.get_unapproved(),
-                    approved_users=User.get_approved(),
-                    )
+            unapproved_users=User.get_unapproved(),
+            approved_users=User.get_approved(),
+        )
 
     @authenticated
     @authorized('admin')
     @restrict_ip_address
     def post(self, *args, **kwargs):
         ''' Approves users '''
-        try:
-            user_name = self.get_argument("username")
-        except:
-            self.render("admin/error.html", errors=["User does not exist"])
+        user_name = self.get_argument("username", '')
         user = User.by_user_name(user_name)
-        user.approved = True
-        self.dbsession.add(user)
-        self.dbsession.flush()
-        self.render("admin/approved_user.html", user=user)
+        if user is not None:
+            user.approved = True
+            self.dbsession.add(user)
+            self.dbsession.flush()
+            self.render("admin/approved_user.html", user=user)
+        else:
+            self.render("admin/manage_users.html",
+                errors=["User does not exist"]
+            )
 
 
-class ManageJobsHandler(AdminBaseHandler):
+class ManageJobsHandler(BaseHandler):
 
     @authenticated
     @authorized('admin')
@@ -73,15 +75,16 @@ class ManageJobsHandler(AdminBaseHandler):
         pass
 
 
-class AddWeaponSystemsHandler(AdminBaseHandler):
+class AddWeaponSystemsHandler(BaseHandler):
 
     @authenticated
     @authorized('admin')
     @restrict_ip_address
     def get(self, *args, **kwargs):
         ''' Renders the create weapon system page '''
-        self.render(
-            "admin/create_weaponsystem.html", errors=None)
+        self.render("admin/create_weaponsystem.html", 
+            errors=None
+        )
 
     @authenticated
     @authorized('admin')
@@ -97,18 +100,20 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
             service_port="Please enter a service port",
         )
         if form.validate(self.request.arguments):
-            if WeaponSystem.by_name(self.get_argument('name')) != None:
+            if WeaponSystem.by_name(self.get_argument('name')) is not None:
                 self.render("admin/create_weaponsystem.html",
-                            errors=['That name already exists'])
-            elif WeaponSystem.by_ip_address(self.get_argument('ip_address')) != None:
+                    errors=['That name already exists']
+                )
+            elif WeaponSystem.by_ip_address(self.get_argument('ip_address')) is not None:
                 self.render("admin/create_weaponsystem.html",
-                            errors=['IP Address already in use'])
+                    errors=['IP Address already in use']
+                )
             else:
                 try:
                     if not 1 <= int(self.get_argument('ssh_port')) < 65535:
-                        raise ValueError
+                        raise ValueError("SSh port not in range")
                     if not 1 <= int(self.get_argument('service_port')) < 65535:
-                        raise ValueError
+                        raise ValueError("Service port not in range")
                     weapon_system = self.create_weapon()
                     weapon_system.initialize()
                     self.render("admin/created_weaponsystem.html", errors=None)
@@ -133,7 +138,7 @@ class AddWeaponSystemsHandler(AdminBaseHandler):
         return weapon_system
 
 
-class InitializeHandler(AdminBaseHandler):
+class InitializeHandler(BaseHandler):
 
     @authenticated
     @authorized('admin')
@@ -152,7 +157,7 @@ class InitializeHandler(AdminBaseHandler):
             self.render("admin/initialize_failure.html")
 
 
-class EditWeaponSystemsHandler(AdminBaseHandler):
+class EditWeaponSystemsHandler(BaseHandler):
 
     @authenticated
     @authorized('admin')
@@ -160,11 +165,7 @@ class EditWeaponSystemsHandler(AdminBaseHandler):
     def get(self, *args, **kwargs):
         ''' Renders the create weapon system page '''
         self.render("admin/edit_weaponsystem.html",
-                    uninit_systems=WeaponSystem.get_uninitialized(),
-                    weapon_systems=WeaponSystem.get_all())
+            uninit_systems=WeaponSystem.get_uninitialized(),
+            weapon_systems=WeaponSystem.get_all()
+        )
 
-    @authenticated
-    @authorized('admin')
-    @restrict_ip_address
-    def post(self, *args, **kwargs):
-        pass

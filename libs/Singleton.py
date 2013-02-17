@@ -53,4 +53,5 @@ class Singleton(object):
         be used instead.
         '''
         raise TypeError(
-            'Singletons must be accessed through the "Instance" method.')
+            'Singletons must be accessed through the "Instance" method.'
+        )

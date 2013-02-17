@@ -56,47 +56,33 @@ else:
 app = Application([
                   # Static Handlers - Serves static CSS, JavaScript and
                   # image files
-                  (r'/static/(.*)',
-                      StaticFileHandler, {'path': 'static'}),
+                  (r'/static/(.*)', StaticFileHandler, {'path': 'static'}),
 
                   # User Handlers - Serves user related pages
-                  (r'/user', HomeHandler, {'dbsession': dbsession}),
-                  (r'/settings',
-                      SettingsHandler, {'dbsession': dbsession}),
+                  (r'/user', HomeHandler),
+                  (r'/settings', SettingsHandler),
                   (r'/logout', LogoutHandler),
 
                   # Cracking Handlers - Serves password cracking job related
                   # pages
-                  (r'/cracking/createjob',
-                      CreateJobHandler, {'dbsession': dbsession}),
-                  (r'/cracking/queuedjobs',
-                      QueuedJobsHandler, {'dbsession': dbsession}),
-                  (r'/cracking/deletejob',
-                      DeleteJobHandler, {'dbsession': dbsession}),
-                  (r'/cracking/completedjobs',
-                      CompletedJobsHandler, {'dbsession': dbsession}),
-                  (r'/cracking/ajax/jobdetails(.*)', AjaxJobDetailsHandler, {
-                      'dbsession': dbsession}),
-                  (r'/cracking/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler, {
-                      'dbsession': dbsession}),
-                  (r'/cracking/ajax/jobdata(.*)',
-                      AjaxJobDataHandler, {'dbsession': dbsession}),
+                  (r'/cracking/createjob', CreateJobHandler),
+                  (r'/cracking/queuedjobs', QueuedJobsHandler),
+                  (r'/cracking/deletejob', DeleteJobHandler),
+                  (r'/cracking/completedjobs', CompletedJobsHandler),
+                  (r'/cracking/ajax/jobdetails(.*)', AjaxJobDetailsHandler),
+                  (r'/cracking/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler),
+                  (r'/cracking/ajax/jobdata(.*)', AjaxJobDataHandler),
 
                   # Admin Handlers - Admin only pages
-                  (r'/manageusers', ManageUsersHandler, {
-                      'dbsession':dbsession}),
-                  (r'/addweaponsystem', AddWeaponSystemsHandler, {
-                      'dbsession':dbsession}),
-                  (r'/editweaponsystem', EditWeaponSystemsHandler, {
-                      'dbsession':dbsession}),
-                  (r'/initialize(.*)', InitializeHandler, {
-                      'dbsession':dbsession}),
+                  (r'/manageusers', ManageUsersHandler),
+                  (r'/addweaponsystem', AddWeaponSystemsHandler),
+                  (r'/editweaponsystem', EditWeaponSystemsHandler),
+                  (r'/initialize(.*)', InitializeHandler),
 
                   # Public handlers - Serves all public pages
                   (r'/', WelcomeHandler),
-                  (r'/login', LoginHandler, {'dbsession': dbsession}),
-                  (r'/register',
-                      RegistrationHandler, {'dbsession': dbsession}),
+                  (r'/login', LoginHandler),
+                  (r'/register', RegistrationHandler),
                   (r'/about', AboutHandler),
 
                   # Error handlers - Serves error pages
@@ -108,7 +94,7 @@ app = Application([
                   ],
 
                   # Randomly generated 64-byte secret key
-                  cookie_secret=b64encode(urandom(64)),
+                  cookie_secret=b64encode(urandom(32)),
 
                   # Ip addresses that access the admin interface
                   admin_ips=config.admin_ips,
@@ -121,13 +107,13 @@ app = Application([
                   forbidden_url='/403',
 
                   # UI Modules
-                  ui_modules={"Menu": Menu, "Recaptcha": Recaptcha},
+                  ui_modules={
+                      "Menu": Menu, 
+                      "Recaptcha": Recaptcha,
+                  },
 
                   # Enable XSRF forms (not optional)
                   xsrf_cookies=True,
-
-                  # Milli-Seconds between session clean up
-                  clean_up_timeout=int(60 * 1000),
 
                   # Debug mode
                   debug=config.debug,
@@ -143,12 +129,6 @@ def start_server():
     server = HTTPServer(app)
     server.add_sockets(sockets)
     io_loop = IOLoop.instance()
-    session_manager = SessionManager.Instance()
-    session_clean_up = PeriodicCallback(
-        session_manager.clean_up,
-        app.settings['clean_up_timeout'],
-        io_loop=io_loop
-    )
     try:
         logging.info("Orbital control is now online.")
         io_loop.start()
