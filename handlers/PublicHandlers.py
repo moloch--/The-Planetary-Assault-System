@@ -73,20 +73,14 @@ class LoginHandler(BaseHandler):
         logging.info("Successful login: %s from %s" % (
             user.username, self.request.remote_ip,
         ))
-        session_manager = SessionManager.Instance()
-        sid, session = session_manager.start_session()
-        self.set_secure_cookie(
-            name='auth', 
-            value=sid, 
-            expires_days=1, 
-            HttpOnly=True
-        )
-        session.data['user_name'] = str(user.username)
-        session.data['ip'] = str(self.request.remote_ip)
+        self.start_session()
+        self.session['username'] = str(user.username)
+        self.session['remote_ip'] = str(self.request.remote_ip)
         if user.has_permission('admin'):
-            session.data['menu'] = "admin"
+            self.session.data['menu'] = "admin"
         else:
-            session.data['menu'] = "user"
+            self.session.data['menu'] = "user"
+        self.session.save()
 
     def failed_login(self):
         ''' Called when someone fails to login '''
@@ -118,7 +112,7 @@ class RegistrationHandler(BaseHandler):
                 self.render('public/registration.html',
                     errors=['Account name already taken']
                 )
-            elif len(user_name) < 3 or 15 < len(user_name):
+            elif len(username) < 3 or 15 < len(username):
                 self.render('public/registration.html',
                     errors=['Username must be 3-15 characters']
                 )
@@ -133,15 +127,13 @@ class RegistrationHandler(BaseHandler):
             else:
                 user = self.create_user(user_name, self.get_argument('pass1'))
                 self.render("public/account_created.html", 
-                    user_name=user.user_name
+                    username=user.username
                 )
         else:
             self.render("public/registration.html", errors=['Invalid captcha'])
 
     def create_user(self, username, password):
-        user = User(
-            user_name=unicode(username),
-        )
+        user = User(username=unicode(username))
         self.dbsession.add(user)
         self.dbsession.flush()
         user.password = password
@@ -155,8 +147,8 @@ class RegistrationHandler(BaseHandler):
             response = None
             try:
                 response = captcha.submit(
-                    self.get_argument('recaptcha_challenge_field'),
-                    self.get_argument('recaptcha_response_field'),
+                    self.get_argument('recaptcha_challenge_field', ''),
+                    self.get_argument('recaptcha_response_field', ''),
                     self.config.recaptcha_private_key,
                     self.request.remote_ip
                 )

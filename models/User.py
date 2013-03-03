@@ -33,7 +33,7 @@ from models.BaseObject import BaseObject
 
 
 ### Constants
-ADMIN_PERMISSION = 'admin'
+ADMIN_PERMISSION = u'admin'
 
 
 class User(BaseObject):
@@ -43,7 +43,7 @@ class User(BaseObject):
 
     _username = Column(Unicode(64), unique=True, nullable=False)
     username = synonym('_username', descriptor=property(
-        lambda self: self._user_name,
+        lambda self: self._username,
         lambda self, username: setattr(self, '_username',
             self.__class__._filter_string(username)
         )
@@ -55,10 +55,10 @@ class User(BaseObject):
     permissions = relationship("Permission", 
         backref=backref("User", lazy="joined"), cascade="all, delete-orphan"
     )
-    salt = Column(String(10), 
+    salt = Column(String(32), 
         unique=True, 
         nullable=False, 
-        default=lambda: urandom(10).encode('hex')
+        default=lambda: bcrypt.gensalt(16)
     )
     _password = Column('password', Unicode(64))
     password = synonym('_password', descriptor=property(

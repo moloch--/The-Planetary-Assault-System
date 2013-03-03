@@ -53,6 +53,7 @@ class ConfigManager(object):
         'db_name': 'PlanetaryAssaultSystem',
         'db_user': 'RUNTIME',
         'db_password': 'RUNTIME',
+        'log_sql': 'false',
     }
 
     def __init__(self):
@@ -69,6 +70,7 @@ class ConfigManager(object):
         self.__network__()
         self.__recaptcha__()
         self.__security__()
+        self.__sessions__()
         self.__database__()
 
     def __system__(self):
@@ -93,8 +95,17 @@ class ConfigManager(object):
             ips.append('127.0.0.1')
         self.admin_ips = tuple(ips)
 
+    def __sessions__(self):
+        ''' Session settings '''
+        self.memcached_server = self.config.get("Sessions", 'memcached')
+        self.session_age = self.config.getint("Sessions", 'session_age')
+        self.session_regeneration_interval = self.config.getint("Sessions",
+            'session_regeneration_interval'
+        )
+
     def __database__(self):
         ''' Loads database connection information '''
+        self.log_sql = self.config.getboolean("Database", 'log_sql')
         self.db_server = self.config.get("Database", 'db_server')
         self.db_name = self.config.get("Database", 'db_name')
         user = self.config.get("Database", 'db_user')

@@ -56,7 +56,7 @@ class BaseHandler(RequestHandler):
         ''' Get current user object from database '''
         if self.session is not None:
             try:
-                return User.by_handle(self.session['handle'])
+                return User.by_username(self.session['username'])
             except KeyError:
                 logging.exception(
                     "Malformed session: %r" % self.session

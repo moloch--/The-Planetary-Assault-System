@@ -26,11 +26,11 @@ class Menu(UIModule):
 
     def render(self, *args, **kwargs):
         if self.handler.session is not None:
-            if self.handler.session.data['menu'] == 'user':
+            if self.handler.session['menu'] == 'user':
                 dispatch = Dispatch.Instance()
                 return self.render_string('menu/user.html',
-                        user_name=self.handler.session.data['user_name']
+                        username=self.handler.session['username']
                     )
-            elif self.handler.session.data['menu'] == 'admin':
+            elif self.handler.session['menu'] == 'admin':
                 return self.render_string('menu/admin.html')
         return self.render_string('menu/public.html')

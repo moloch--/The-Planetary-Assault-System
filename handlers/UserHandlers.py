@@ -36,7 +36,7 @@ class HomeHandler(BaseHandler):
     @authenticated
     def get(self, *args, **kwargs):
         ''' Display the default user page '''
-        user = User.by_user_name(self.session.data['user_name'])
+        user = User.by_username(self.session.data['username'])
         dispatch = Dispatch.Instance()
         self.render('user/home.html', 
             user=user, 
@@ -50,7 +50,7 @@ class SettingsHandler(BaseHandler):
     @authenticated
     def get(self, *args, **kwargs):
         ''' Display the user settings '''
-        user = User.by_user_name(self.session.data['user_name'])
+        user = User.by_username(self.session.data['username'])
         self.render('user/settings.html', user=user, message=None)
 
     @authenticated
@@ -118,7 +118,7 @@ class LogoutHandler(BaseHandler):
 
     def get(self, *args, **kwargs):
         ''' Clears cookies and session data '''
-        session_manager = SessionManager.Instance()
-        session_manager.remove_session(self.get_secure_cookie('auth'))
         self.clear_all_cookies()
+        if self.session is not None:
+            self.session.delete()
         self.redirect("/")

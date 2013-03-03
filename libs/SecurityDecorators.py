@@ -72,7 +72,7 @@ def authorized(permission):
         @functools.wraps(method)
         def wrapper(self, *args, **kwargs):
             if self.session is not None:
-                user = User.by_handle(self.session['handle'])
+                user = User.by_username(self.session['username'])
                 if user is not None and user.has_permission(permission):
                     return method(self, *args, **kwargs)
             logging.warn("Attempted unauthorized access from %s to %s" % (

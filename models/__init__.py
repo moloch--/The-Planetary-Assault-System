@@ -32,9 +32,14 @@ metadata = BaseObject.metadata
 
 config = ConfigManager.Instance()
 db_connection = 'mysql://%s:%s@%s/%s' % (
-    config.db_user, config.db_password, config.db_server, config.db_name)
+    config.db_user, config.db_password, config.db_server, config.db_name
+)
+
+# Setup the database session
 engine = create_engine(db_connection)
+setattr(engine, 'echo', config.log_sql)
 Session = sessionmaker(bind=engine, autocommit=True)
+dbsession = Session(autoflush=True)
 
 algorithm_association_table = Table('weapon_system_to_algorithm', BaseObject.metadata,
                                     Column('weapon_system_id',
@@ -113,12 +118,9 @@ from models.WeaponSystem import WeaponSystem
 from models.Algorithm import Algorithm
 from models.PasswordAnalysis import PasswordAnalysis
 
-# Calling this will create the tables at the database
-create_tables = lambda: (
-    setattr(engine, 'echo', True), metadata.create_all(engine))
+# calling this will create the tables at the database
+create_tables = lambda: (setattr(engine, 'echo', config.log_sql), metadata.create_all(engine))
 
-# Bootstrap the databases
-
-
+# Bootstrap the database with some shit
 def boot_strap():
     import setup.bootstrap

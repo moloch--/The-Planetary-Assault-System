@@ -25,6 +25,7 @@ import getpass
 from libs.ConsoleColors import *
 from libs.ConfigManager import ConfigManager
 from models import dbsession, User, Permission, Algorithm
+from models.User import ADMIN_PERMISSION
 
 
 # Fills the database with some startup data.
@@ -71,8 +72,7 @@ dbsession.flush()
 
 ### Create admin account
 user = User(
-    user_name=unicode(username),
-    approved=True
+    username=unicode(username),
 )
 dbsession.add(user)
 dbsession.flush()
@@ -80,7 +80,7 @@ user.password = password
 dbsession.add(user)
 dbsession.flush()
 permission = Permission(
-    permission_name=user.user_name,
+    permission_name=ADMIN_PERMISSION,
     user_id=user.id
 )
 dbsession.add(permission)
