@@ -119,7 +119,8 @@ class AddWeaponSystemsHandler(BaseHandler):
                     self.render("admin/created_weaponsystem.html", errors=None)
                 except ValueError:
                     self.render("admin/create_weaponsystem.html",
-                                errors=["Invalid port number must be 1-65535"])
+                        errors=["Invalid port number must be 1-65535"]
+                    )
         else:
             self.render("admin/create_weaponsystem.html", errors=form.errors)
 
@@ -144,13 +145,12 @@ class InitializeHandler(BaseHandler):
     @authorized('admin')
     @restrict_ip_address
     def get(self, *args, **kwargs):
+        success = False
         try:
             weapon_system = WeaponSystem.by_uuid(self.get_argument('uuid'))
             success = weapon_system.initialize()
         except:
             logging.exception("Error while initializing weapon system.")
-            self.render("admin/initialize_failure.html")
-            return
         if success:
             self.render("admin/initialize_success.html")
         else:

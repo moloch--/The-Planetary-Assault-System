@@ -26,10 +26,14 @@ from os import urandom
 from base64 import b64encode
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import synonym, relationship, backref
-from sqlalchemy.types import Unicode, Integer, Boolean
+from sqlalchemy.types import Unicode, Integer, Boolean, String
 from string import ascii_letters, digits
 from models import dbsession, Job, Permission
 from models.BaseObject import BaseObject
+
+
+### Constants
+ADMIN_PERMISSION = 'admin'
 
 
 class User(BaseObject):
@@ -37,17 +41,20 @@ class User(BaseObject):
     User class used for authentication/autorization
     '''
 
-    _user_name = Column(Unicode(64), unique=True, nullable=False)
-    user_name = synonym('_user_name', descriptor=property(
+    _username = Column(Unicode(64), unique=True, nullable=False)
+    username = synonym('_username', descriptor=property(
         lambda self: self._user_name,
-        lambda self, user_name: setattr(self, '_user_name',
-                                        self.__class__._filter_string(user_name))
+        lambda self, username: setattr(self, '_username',
+            self.__class__._filter_string(username)
+        )
     ))
-    approved = Column(Boolean, default=False)
-    jobs = relationship("Job", backref=backref(
-        "User", lazy="joined"), cascade="all, delete-orphan")
-    permissions = relationship("Permission", backref=backref(
-        "User", lazy="joined"), cascade="all, delete-orphan")
+    _locked = Column(Boolean, default=True)
+    jobs = relationship("Job", 
+        backref=backref("User", lazy="joined"), cascade="all, delete-orphan"
+    )
+    permissions = relationship("Permission", 
+        backref=backref("User", lazy="joined"), cascade="all, delete-orphan"
+    )
     salt = Column(String(10), 
         unique=True, 
         nullable=False, 
@@ -57,7 +64,8 @@ class User(BaseObject):
     password = synonym('_password', descriptor=property(
         lambda self: self._password,
         lambda self, password: setattr(self, '_password',
-                                       self.__class__._hash_password(password, self.salt))
+            self.__class__._hash_password(password, self.salt)
+        )
     ))
 
     @classmethod
@@ -91,9 +99,9 @@ class User(BaseObject):
         return filter(lambda user: user.has_permission('admin') == False, cls.all())
 
     @classmethod
-    def by_user_name(cls, user_name):
+    def by_username(cls, user_name):
         ''' Return the user object whose user name is 'user_name' '''
-        return dbsession.query(cls).filter_by(user_name=unicode(user_name)).first()
+        return dbsession.query(cls).filter_by(username=unicode(user_name)).first()
 
     @classmethod
     def _filter_string(cls, string, extra_chars=""):
@@ -127,6 +135,24 @@ class User(BaseObject):
         ''' Return a list with all permissions names granted to the user '''
         return [permission.permission_name for permission in self.permissions]
 
+    @property
+    def locked(self):
+        ''' 
+        Determines if an admin has locked an account, accounts with
+        administrative permissions cannot be locked.
+        '''
+        if self.has_permission(ADMIN_PERMISSION):
+            return False  # Admin accounts cannot be locked
+        else:
+            return self._locked
+
+    @locked.setter
+    def locked(self, value):
+        ''' Setter method for _lock '''
+        assert isinstance(value, bool)
+        if not self.has_permission(ADMIN_PERMISSION):
+            self._locked = value
+
     def has_permission(self, permission):
         ''' Return True if 'permission' is in permissions_names '''
         return True if permission in self.permissions_names else False
@@ -136,7 +162,7 @@ class User(BaseObject):
         return self.password == self._hash_password(attempt, self.salt)
 
     def __repr__(self):
-        return unicode('<User - user_name: %s, jobs: %d>' % (self.user_name, len(self.jobs)))
+        return '<User - user_name: %s, jobs: %d>' % (self.user_name, len(self.jobs))
 
     def __str__(self):
-        return unicode(self.user_name)
+        return self.username

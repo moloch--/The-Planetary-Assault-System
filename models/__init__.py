@@ -44,59 +44,59 @@ algorithm_association_table = Table('weapon_system_to_algorithm', BaseObject.met
                                     )
 
 # Association tables for the analysis
-common_association_table = Table('analysis_common_to_password_hash', BaseObject.metadata,
+common_association_table = Table('analysis_common_to_password', BaseObject.metadata,
                                  Column('password_hash_id',
-                                 Integer, ForeignKey('password_hash.id'), nullable=False),
+                                 Integer, ForeignKey('password.id'), nullable=False),
                                  Column('password_analysis_id',
                                  Integer, ForeignKey('password_analysis.id'), nullable=False)
                                  )
 
-lower_association_table = Table('analysis_lower_to_password_hash', BaseObject.metadata,
+lower_association_table = Table('analysis_lower_to_password', BaseObject.metadata,
                                 Column('password_hash_id',
-                                       Integer, ForeignKey('password_hash.id'), nullable=False),
+                                       Integer, ForeignKey('password.id'), nullable=False),
                                 Column('password_analysis_id',
                                        Integer, ForeignKey('password_analysis.id'), nullable=False)
                                 )
 
-upper_association_table = Table('analysis_upper_to_password_hash', BaseObject.metadata,
-                                Column('password_hash_id',
-                                       Integer, ForeignKey('password_hash.id'), nullable=False),
+upper_association_table = Table('analysis_upper_to_password', BaseObject.metadata,
+                                Column('password_id',
+                                       Integer, ForeignKey('password.id'), nullable=False),
                                 Column('password_analysis_id',
                                        Integer, ForeignKey('password_analysis.id'), nullable=False)
                                 )
 
-numeric_association_table = Table('analysis_numeric_to_password_hash', BaseObject.metadata,
+numeric_association_table = Table('analysis_numeric_to_password', BaseObject.metadata,
                                   Column('password_hash_id',
-                                         Integer, ForeignKey('password_hash.id'), nullable=False),
+                                         Integer, ForeignKey('password.id'), nullable=False),
                                   Column('password_analysis_id',
                                          Integer, ForeignKey('password_analysis.id'), nullable=False)
                                   )
 
-mixed_association_table = Table('analysis_mixed_to_password_hash', BaseObject.metadata,
+mixed_association_table = Table('analysis_mixed_to_password', BaseObject.metadata,
                                 Column('password_hash_id',
-                                       Integer, ForeignKey('password_hash.id'), nullable=False),
+                                       Integer, ForeignKey('password.id'), nullable=False),
                                 Column('password_analysis_id',
                                        Integer, ForeignKey('password_analysis.id'), nullable=False)
                                 )
 
-lower_alpha_association_table = Table('analysis_lower_alpha_to_password_hash', BaseObject.metadata,
-                                      Column('password_hash_id',
-                                             Integer, ForeignKey('password_hash.id'), nullable=False),
+lower_alpha_association_table = Table('analysis_lower_alpha_to_password', BaseObject.metadata,
+                                      Column('password_id',
+                                             Integer, ForeignKey('password.id'), nullable=False),
                                       Column('password_analysis_id',
                                              Integer, ForeignKey('password_analysis.id'), nullable=False)
                                       )
 
-upper_alpha_association_table = Table('analysis_upper_alpha_to_password_hash', BaseObject.metadata,
+upper_alpha_association_table = Table('analysis_upper_alpha_to_password', BaseObject.metadata,
                                       Column('password_hash_id',
-                                             Integer, ForeignKey('password_hash.id'), nullable=False),
+                                             Integer, ForeignKey('password.id'), nullable=False),
                                       Column('password_analysis_id',
                                              Integer, ForeignKey('password_analysis.id'), nullable=False)
                                       )
 
 
-mixed_alpha_association_table = Table('analysis_mixed_alpha_to_password_hash', BaseObject.metadata,
-                                      Column('password_hash_id',
-                                             Integer, ForeignKey('password_hash.id'), nullable=False),
+mixed_alpha_association_table = Table('analysis_mixed_alpha_to_password', BaseObject.metadata,
+                                      Column('password_id',
+                                             Integer, ForeignKey('password.id'), nullable=False),
                                       Column('password_analysis_id',
                                              Integer, ForeignKey('password_analysis.id'), nullable=False)
                                       )
@@ -106,7 +106,7 @@ dbsession = Session(autoflush=True)
 
 # Import models (or the tables won't get created)
 from models.Job import Job
-from models.PasswordHash import PasswordHash
+from models.Password import Password
 from models.Permission import Permission
 from models.User import User
 from models.WeaponSystem import WeaponSystem

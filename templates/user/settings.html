@@ -1,57 +1,37 @@
 {% extends "../main.html" %}
 
-{% block header %}
-<script type="text/javascript" src="https://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
-{% end %}
-
 {% block title %}Settings{% end %}
 
 {% block content %}
-	<!-- Wrapping the Recaptcha create method in a javascript function -->
-	<script type="text/javascript">
-		function showRecaptcha(element) {
-	    	Recaptcha.create("6LcJJ88SAAAAAFzcmQqDPWGKRQXmJ0DCiZoPWTZf", element, {
-	    	theme: "blackglass",
-	    	callback: null
-	   		});
-		}
-		$(document).ready(function() {
-			showRecaptcha('recaptcha_div'); 
-		});
-	</script>
-
-	<h1>User Settings</h1>
-  <div class="well">
-	{% if message != None %}
-		<h2>{{ message }}</h2>
-	{% end %}
-    <form action="/settings" method="post" autocomplete="off">  
-      {% raw xsrf_form_html() %}
-      <fieldset>
-      	<legend>Change Password</legend>
-        <p>
-          <br />
-          <label for="old_password">Old Password</label>
-          <input placeholder="Old Password" type="password" name="old_password" id="old_password" />
-        </p>  
-        <p>
-          <label for="new_password">New Password</label>
-          <input placeholder="New Password" type="password" name="new_password" id="new_password" size="7" />
-        </p>
-        <p>
-          <label for="new_password2">Confirm Password</label>
-          <input placeholder="Confirm Password" type="password" name="new_password2" id="new_password2" size="7" />
-        </p>
-        <p>
-          <label for="recaptch_div">
-            What is love?
-          </label>
-          <div id="recaptcha_div"></div>
-        </p>      
-      </fieldset>
-      <p class="submit">
-        <button class="btn btn-primary btn-large" type="submit"> Change Password </button>
-      </p>   
-    </form>
-  </div>
+    <h1>User Settings</h1>
+    <div class="well">
+        <h2>Change Password</h2>
+        <form action="/settings" method="post" autocomplete="off">  
+            {% raw xsrf_form_html() %}
+            <div class="control-group">
+              <label class="control-label" for="passwd">Password</label>
+              <div class="controls">
+                <input required placeholder="Old Password" type="password" name="old_password" id="old_password" />
+              </div>
+            </div> 
+              <p>
+                <label for="new_password">New Password</label>
+                <input required placeholder="New Password" type="password" name="new_password" id="new_password" />
+              </p>
+              <p>
+                <label for="new_password2">Confirm Password</label>
+                <input required placeholder="Confirm Password" type="password" name="new_password2" id="new_password2" />
+              </p>
+              <p>
+                <label for="recaptch_div">
+                  What is love?
+                </label>
+                <div id="recaptcha_div"></div>
+              </p>      
+            </fieldset>
+            <p class="submit">
+              <button class="btn btn-primary btn-large" type="submit"> Change Password </button>
+            </p>   
+        </form>
+    </div>
 {% end %}

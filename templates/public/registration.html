@@ -3,46 +3,67 @@
 {% block title %}Registration{% end %}
 
 {% block content %}
-  <h2>Register a New Account</h2>
-  <br />
-    {% if errors != None and len(errors) != 0 %}
-      {% for error in errors %}
-        <div class="alert alert-error">
-          <a class="close" data-dismiss="alert" href="#">×</a>
-          <h4 class="alert-heading">ERROR</h4>
-          {{ error }}
+    <div class="container">
+        <h1>Registration</h1>
+        <br />
+        {% if errors is not None and len(errors) != 0 %}
+            {% for error in errors %}
+                <div class="alert alert-error">
+                    <a class="close" data-dismiss="alert" href="#">×</a>
+                    <h4 class="alert-heading">ERROR</h4>
+                    {{ error }}
+                </div>
+            {% end %}
+        {% end %}
+        <div class="well">
+            <legend>Orbital Control Registration</legend>
+            <form class="form-horizontal" action="/registration" method="post">  
+                {% raw xsrf_form_html() %}
+                <div class="control-group">
+                    <label class="control-label" for="userame">Username</label>
+                    <div class="controls">
+                        <input autofocus required id="username" name="username" placeholder="Username" type="text"
+                            rel="popover" pattern="^[a-zA-Z0-9 ]{3,15}$"
+                            data-original-title="Username Selection"
+                            data-content="Your username must be 3-15 alpha-numeric characters" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="pass1">Password</label>
+                    <div class="controls">
+                        <input required id="pass1" name="pass1" placeholder="Password" type="password" 
+                            autocomplete="off" data-storage="false"
+                            rel="popover"
+                            data-original-title="Password"
+                            data-content="Your password much contain only ascii chars" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="pass2">Confirm Password</label>
+                    <div class="controls">
+                        <input required id="pass2" name="pass2" placeholder="Confirm Password" type="password" 
+                            autocomplete="off" data-storage="false"
+                            rel="popover"
+                            data-original-title="Confirm Password"
+                            data-content="Enter the same password as before" />
+                    </div>
+                </div>
+                {% module Recaptcha() %}
+                <div class="control-group">
+                    <div class="controls">
+                        <button class="btn btn-primary" type="submit">&nbsp;Register Account&nbsp;</button>
+                    </div>
+                </div>
+            </form>
         </div>
-      {% end %}
-    {% end %}
-    <div class="well">
-      <form action="/register" method="post" autocomplete="off">  
-        {% raw xsrf_form_html() %}
-        <fieldset>
-          <legend>Register a New Account</legend>
-          <p>
-            <label for="username">Username</label>
-            <input placeholder="Username" type="text" name="username" id="username" rel="popover" data-content="Your username must be 3-15 alpha-numeric characters" data-original-title="Username Selection" />
-          </p>
-          <p>
-            <label for="pass1">Password</label>
-            <input placeholder="Password" type="password" name="pass1" id="pass1" rel="popover" data-content="Your password must be at least 12 characters long" data-original-title="Password Security" />
-          </p>
-          <p>
-            <label for="pass2">Confirm Password</label>
-            <input placeholder="Confirm Password" type="password" name="pass2" id="pass2" />
-          </p>
-          {% module Recaptcha() %}
-        </fieldset>
-        <p class="submit">
-          <button class="btn btn-primary btn-large" type="submit">&nbsp;Register Account&nbsp;</button>
-        </p>
-      </form>
-      <script>
-        document.getElementById('username').focus();
-        $(function () {
-          $("#pass1").popover({placement:'right'});
-          $("#username").popover({placement:'right'});
-        });
-      </script>
     </div>
+    <script>
+        $(function() {
+            $("#username").popover({placement:'right', trigger:'focus'});
+            $("#handle").popover({placement:'right', trigger:'focus'});
+            $("#pass1").popover({placement:'right', trigger:'focus'});
+            $("#pass2").popover({placement:'right', trigger:'focus'});
+        });
+        $('[rel=persist]').garlic();
+    </script>
 {% end %}

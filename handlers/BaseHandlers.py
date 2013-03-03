@@ -41,7 +41,6 @@ class BaseHandler(RequestHandler):
     def initialize(self):
         self.session = None
         self.dbsession = dbsession
-        self.event_manager = self.application.settings['event_manager']
         self.config = ConfigManager.Instance()
         session_id = self.get_secure_cookie('session_id')
         if session_id is not None:

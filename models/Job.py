@@ -25,15 +25,14 @@ import logging
 from sqlalchemy import Column, ForeignKey, and_
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean, DateTime
-from libs.Memcache import MemoryCache
-from models import dbsession, PasswordHash, Algorithm
+from models import dbsession, Password, Algorithm
 from models.BaseObject import BaseObject
 from string import ascii_letters, digits
 
 
 class Job(BaseObject):
     '''
-    Cracking job, holds refs to all the PasswordHash objects
+    Cracking job, holds refs to all the Password objects
     '''
 
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
@@ -41,14 +40,15 @@ class Job(BaseObject):
     job_name = synonym('_job_name', descriptor=property(
         lambda self: self._job_name,
         lambda self, job_name: setattr(self, '_job_name',
-                                       self.__class__._filter_string(job_name, "-_ "))
+            self.__class__._filter_string(job_name, "-_ "))
     ))
     # NOT_STARTED / IN_PROGRESS / COMPLETED
     status = Column(Unicode(64), default=u"NOT_STARTED", nullable=False)
     priority = Column(Integer, default=1, nullable=False)
     completed = Column(Boolean, default=False, nullable=False)
-    hashes = relationship("PasswordHash", backref=backref(
-        "Job", lazy="joined"), cascade="all, delete-orphan")
+    hashes = relationship(
+        "Password", backref=backref("Job", lazy="joined"), cascade="all, delete-orphan"
+    )
     algorithm_id = Column(Integer, ForeignKey('algorithm.id'), nullable=False)
     started = Column(DateTime)
     finished = Column(DateTime)

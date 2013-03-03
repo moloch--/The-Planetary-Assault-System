@@ -26,7 +26,6 @@ import logging
 from sqlalchemy import Column, ForeignKey, and_
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean, DateTime
-from libs.Memcache import MemoryCache
 from string import ascii_letters, digits
 from models import dbsession, BaseObject
 from models import common_association_table, lower_association_table

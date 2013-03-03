@@ -24,7 +24,6 @@ import os
 import logging
 
 from tornado.web import RequestHandler
-from BaseHandlers import UserBaseHandler
 from recaptcha.client import captcha
 from libs.Form import Form
 from libs.ConfigManager import ConfigManager
@@ -53,15 +52,13 @@ class LoginHandler(BaseHandler):
         form = Form(
             username="Please enter a username",
             password="Please enter a password",
-            recaptcha_challenge_field="Invalid captcha",
-            recaptcha_response_field="Invalid captcha",
         )
         if not form.validate(self.request.arguments):
             self.render("public/login.html", errors=form.errors)
-        elif self.check_recaptcha():
-            user = User.by_user_name(self.get_argument('username'))
+        else:
+            user = User.by_username(self.get_argument('username'))
             if user is not None and user.validate_password(self.get_argument('password')):
-                if not user.approved:
+                if user.locked:
                     self.render("public/login.html",
                         errors=["Your account must be approved by an administrator."]
                     )
@@ -70,35 +67,11 @@ class LoginHandler(BaseHandler):
                     self.redirect('/user')
             else:
                 self.failed_login()
-        else:
-            self.render('public/login.html', 
-                errors=["Invalid captcha, try again"]
-            )
-
-    def check_recaptcha(self):
-        ''' Checks recaptcha '''
-        if self.config.recaptcha_enable:
-            response = None
-            try:
-                response = captcha.submit(
-                    self.get_argument('recaptcha_challenge_field'),
-                    self.get_argument('recaptcha_response_field'),
-                    self.config.recaptcha_private_key,
-                    self.request.remote_ip
-                )
-            except:
-                logging.exception("Recaptcha API called failed")
-            if response is not None and response.is_valid:
-                return True
-            else:
-                return False
-        else:
-            return True
 
     def successful_login(self, user):
         ''' Called when a user successfully authenticates '''
         logging.info("Successful login: %s from %s" % (
-            user.user_name, self.request.remote_ip,
+            user.username, self.request.remote_ip,
         ))
         session_manager = SessionManager.Instance()
         sid, session = session_manager.start_session()
@@ -108,7 +81,7 @@ class LoginHandler(BaseHandler):
             expires_days=1, 
             HttpOnly=True
         )
-        session.data['user_name'] = str(user.user_name)
+        session.data['user_name'] = str(user.username)
         session.data['ip'] = str(self.request.remote_ip)
         if user.has_permission('admin'):
             session.data['menu'] = "admin"
@@ -136,14 +109,12 @@ class RegistrationHandler(BaseHandler):
             username="Please enter a username",
             pass1="Please enter a password",
             pass2="Please confirm your password",
-            recaptcha_challenge_field="Invalid captcha",
-            recaptcha_response_field="Invalid captcha",
         )
         if not form.validate(self.request.arguments):
             self.render("public/registration.html", errors=form.errors)
         elif self.check_recaptcha():
-            user_name = self.get_argument('username')
-            if User.by_user_name(user_name) is not None:
+            username = self.get_argument('username')
+            if User.by_username(username) is not None:
                 self.render('public/registration.html',
                     errors=['Account name already taken']
                 )

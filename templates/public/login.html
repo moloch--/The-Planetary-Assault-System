@@ -3,38 +3,39 @@
 {% block title %}Login{% end %}
 
 {% block content %}
-  <h2>Login</h2>
-  <br />
-  {% if errors != None and len(errors) != 0 %}
-    {% for error in errors %}
-      <div class="alert alert-error">
-        <a class="close" data-dismiss="alert" href="#">×</a>
-        <h4 class="alert-heading">ERROR</h4>
-        {{ error }}
-      </div>
+    <h2>Login</h2>
+    <br />
+    {% if errors is not None and len(errors) != 0 %}
+      {% for error in errors %}
+          <div class="alert alert-error">
+              <a class="close" data-dismiss="alert" href="#">×</a>
+              <h4 class="alert-heading">ERROR</h4>
+              {{ error }}
+          </div>
+      {% end %}
     {% end %}
-  {% end %}
-  <div class="well">
-    <form action="/login" method="post" autocomplete="off">  
-      {% raw xsrf_form_html() %}
-      <fieldset>
-      <legend>Login</legend>
-        <p>
-          <label for="username">Username</label>
-          <input id="username" name="username"  placeholder="Username" type="text" />
-        </p>
-        <p>
-          <label for="password">Password</label>
-          <input name="password" placeholder="Password" type="password" />
-        </p>
-        {% module Recaptcha() %}
-      </fieldset>
-      <p class="submit">
-        <button class="btn btn-primary btn-large" type="submit"> Authenticate </button>
-      </p>   
-    </form>
-    <script>
-      document.getElementById('username').focus();
-    </script>
-  </div>
+    <div class="well">
+        <form class="form-horizontal" action="/login" method="post" autocomplete="off">  
+            {% raw xsrf_form_html() %}
+            <legend>Orbital Command Authentication</legend>
+            <div class="control-group">
+                <label class="control-label" for="username">Username</label>
+                <div class="controls">
+                    <input autofocus required name="username" id="username" placeholder="Username" type="text"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="passwd">Password</label>
+                <div class="controls">
+                    <input required name="password" id="passwd" placeholder="Password" type="password" />
+                </div>
+            </div>
+            {% module Recaptcha() %}
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-primary" type="submit">Authenticate</button>
+                </div>
+            </div>
+        </form>
+    </div>
 {% end %}

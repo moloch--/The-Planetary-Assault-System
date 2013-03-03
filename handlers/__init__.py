@@ -31,9 +31,8 @@ from models import dbsession
 from modules.Menu import Menu
 from modules.Recaptcha import Recaptcha
 from libs.ConfigManager import ConfigManager as ConfigMan
-from libs.Session import SessionManager
 from tornado import netutil, options, process
-from tornado.web import Application
+from tornado.web import Application, StaticFileHandler
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop, PeriodicCallback
 from handlers.CrackingHandlers import *
@@ -46,81 +45,75 @@ from handlers.PublicHandlers import *
 ### Load configuration
 config = ConfigMan.Instance()
 
-### Setup static file handler
-if config.static_cache:
-    from handlers.StaticFileHandler import StaticFileHandler
-else:
-    from tornado.web import StaticFileHandler
-
 ### Application setup
 app = Application([
-                  # Static Handlers - Serves static CSS, JavaScript and
-                  # image files
-                  (r'/static/(.*)', StaticFileHandler, {'path': 'static'}),
+    # Static Handlers - Serves static CSS, JavaScript and
+    # image files
+    (r'/static/(.*)', StaticFileHandler, {'path': 'static/'}),
 
-                  # User Handlers - Serves user related pages
-                  (r'/user', HomeHandler),
-                  (r'/settings', SettingsHandler),
-                  (r'/logout', LogoutHandler),
+    # User Handlers - Serves user related pages
+    (r'/user', HomeHandler),
+    (r'/settings', SettingsHandler),
+    (r'/logout', LogoutHandler),
 
-                  # Cracking Handlers - Serves password cracking job related
-                  # pages
-                  (r'/cracking/createjob', CreateJobHandler),
-                  (r'/cracking/queuedjobs', QueuedJobsHandler),
-                  (r'/cracking/deletejob', DeleteJobHandler),
-                  (r'/cracking/completedjobs', CompletedJobsHandler),
-                  (r'/cracking/ajax/jobdetails(.*)', AjaxJobDetailsHandler),
-                  (r'/cracking/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler),
-                  (r'/cracking/ajax/jobdata(.*)', AjaxJobDataHandler),
+    # Cracking Handlers - Serves password cracking job related
+    # pages
+    (r'/cracking/createjob', CreateJobHandler),
+    (r'/cracking/queuedjobs', QueuedJobsHandler),
+    (r'/cracking/deletejob', DeleteJobHandler),
+    (r'/cracking/completedjobs', CompletedJobsHandler),
+    (r'/cracking/ajax/jobdetails(.*)', AjaxJobDetailsHandler),
+    (r'/cracking/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler),
+    (r'/cracking/ajax/jobdata(.*)', AjaxJobDataHandler),
 
-                  # Admin Handlers - Admin only pages
-                  (r'/manageusers', ManageUsersHandler),
-                  (r'/addweaponsystem', AddWeaponSystemsHandler),
-                  (r'/editweaponsystem', EditWeaponSystemsHandler),
-                  (r'/initialize(.*)', InitializeHandler),
+    # Admin Handlers - Admin only pages
+    (r'/manageusers', ManageUsersHandler),
+    (r'/addweaponsystem', AddWeaponSystemsHandler),
+    (r'/editweaponsystem', EditWeaponSystemsHandler),
+    (r'/initialize(.*)', InitializeHandler),
 
-                  # Public handlers - Serves all public pages
-                  (r'/', WelcomeHandler),
-                  (r'/login', LoginHandler),
-                  (r'/register', RegistrationHandler),
-                  (r'/about', AboutHandler),
+    # Public handlers - Serves all public pages
+    (r'/', WelcomeHandler),
+    (r'/login', LoginHandler),
+    (r'/register', RegistrationHandler),
+    (r'/about', AboutHandler),
 
-                  # Error handlers - Serves error pages
-                  (r'/403', UnauthorizedHandler),
-                  (r'/robots.txt', RobotsHandler),
-                  (r'/(.*).php(.*)', PhpHandler),
-                  (r'/(.*)etc/passwd(.*)', PasswdHandler),
-                  (r'/(.*)', NotFoundHandler)
-                  ],
+    # Error handlers - Serves error pages
+    (r'/403', UnauthorizedHandler),
+    (r'/robots.txt', RobotsHandler),
+    (r'/(.*).php(.*)', PhpHandler),
+    (r'/(.*)etc/passwd(.*)', PasswdHandler),
+    (r'/(.*)', NotFoundHandler)
+    ],
 
-                  # Randomly generated 64-byte secret key
-                  cookie_secret=b64encode(urandom(32)),
+    # Randomly generated 64-byte secret key
+    cookie_secret=b64encode(urandom(32)),
 
-                  # Ip addresses that access the admin interface
-                  admin_ips=config.admin_ips,
+    # Ip addresses that access the admin interface
+    admin_ips=config.admin_ips,
 
-                  # Template directory
-                  template_path='templates',
+    # Template directory
+    template_path='templates',
 
-                  # Requests that do not pass @authorized will be
-                  # redirected here
-                  forbidden_url='/403',
+    # Requests that do not pass @authorized will be
+    # redirected here
+    forbidden_url='/403',
 
-                  # UI Modules
-                  ui_modules={
-                      "Menu": Menu, 
-                      "Recaptcha": Recaptcha,
-                  },
+    # UI Modules
+    ui_modules={
+        "Menu": Menu, 
+        "Recaptcha": Recaptcha,
+    },
 
-                  # Enable XSRF forms (not optional)
-                  xsrf_cookies=True,
+    # Enable XSRF forms (not optional)
+    xsrf_cookies=True,
 
-                  # Debug mode
-                  debug=config.debug,
+    # Debug mode
+    debug=config.debug,
 
-                  # Application version
-                  version='0.1'
-                  )
+    # Application version
+    version='0.1'
+)
 
 
 def start_server():
@@ -132,10 +125,8 @@ def start_server():
     try:
         logging.info("Orbital control is now online.")
         io_loop.start()
-        session_clean_up.start()
     except KeyboardInterrupt:
         logging.warn("Keyboard interrupt, shutdown everything!")
-        session_clean_up.stop()
         io_loop.stop()
     except:
         logging.exception("Main I/O Loop threw an excetion!")

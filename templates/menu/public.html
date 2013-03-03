@@ -1,35 +1,15 @@
 <div class="nav-collapse">
     <ul class="nav">
-    	{% if uri == "/" %}
-        	<li class="active">
-        {% else %}
-        	<li>
-        {% end %}
+        <li>
             <a href="/">Home</a>
         </li>
-
-        {% if uri == "/login" %}
-        	<li class="active">
-        {% else %}
-        	<li>
-        {% end %}
+        <li>
         	<a href="/login">Login</a>
         </li>
-
-        {% if uri == "/register" %}
-        	<li class="active">
-        {% else %}
-        	<li>
-        {% end %}
-            	<a href="/register">Register</a>
+        <li>
+            <a href="/register">Register</a>
         </li>
-
-
-        {% if uri == "/about" %}
-        	<li class="active">
-        {% else %}
-            <li>
-        {% end %}
+        <li>
         	<a href="/about">About</a>
         </li>
     </ul>

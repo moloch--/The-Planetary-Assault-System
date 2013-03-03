@@ -24,11 +24,10 @@ import os
 import json
 import logging
 
-from models import Job, User, PasswordHash, Algorithm
+from models import Job, User, Password, Algorithm
 from string import ascii_letters, digits
 from libs.Form import Form
 from libs.Dispatch import Dispatch
-from libs.Session import SessionManager
 from libs.SecurityDecorators import authenticated
 from BaseHandlers import BaseHandler
 

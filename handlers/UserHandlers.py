@@ -25,7 +25,6 @@ import logging
 
 from models import User, WeaponSystem
 from libs.Dispatch import Dispatch
-from libs.Session import SessionManager
 from libs.SecurityDecorators import authenticated
 from tornado.web import RequestHandler
 from BaseHandlers import BaseHandler
