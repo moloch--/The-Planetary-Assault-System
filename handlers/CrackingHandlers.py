@@ -20,7 +20,6 @@ Created on June 30, 2012
 '''
 
 
-import os
 import json
 import logging
 
@@ -163,7 +162,7 @@ class DeleteJobHandler(BaseHandler):
             return
         job = Job.by_uuid(job_id)
         user = self.get_current_user()
-        if job != None and user != None and job.user_id == user.id:
+        if job is not None and user is not None and job.user_id == user.id:
             dispather = Dispatch.Instance()
             if job.status == u'IN_PROGRESS':
                 self.render("cracking/ajax_error.html",
@@ -193,10 +192,13 @@ class AjaxJobDetailsHandler(BaseHandler):
             return
         user = self.get_current_user()
         job = Job.by_uuid(job_id)
-        if job == None or user == None or user.id != job.user_id:
-            logging.warn("%s submitted request for non-existant job, or does not own job." % user.user_name)
-            self.render(
-                "cracking/ajax_error.html", message="Job does not exist")
+        if job is None or user is None or user.id != job.user_id:
+            logging.warn(
+                "%s submitted request for non-existant job, or does not own job." % user.user_name
+            )
+            self.render("cracking/ajax_error.html", 
+                message="Job does not exist"
+            )
         else:
             self.render("cracking/ajax_jobdetails.html", job=job)
 

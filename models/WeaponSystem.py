@@ -90,10 +90,10 @@ class WeaponSystem(BaseObject):
     def all_idle(cls):
         ''' Returns a list of systems that are initialized, online and not busy '''
         online_systems = filter(
-            lambda weapon_system: weapon_system.is_online() == True, cls.get_all()
+            lambda weapon_system: weapon_system.is_online(), cls.get_all()
         )
         return filter(
-            lambda weapon_system: weapon_system.is_busy() == False, online_systems
+            lambda weapon_system: not weapon_system.is_busy(), online_systems
         )
 
     @classmethod
@@ -106,7 +106,8 @@ class WeaponSystem(BaseObject):
     def initialize(self, *args):
         ''' One time initialization, gathers system information '''
         logging.info(
-            "Preforming weapon system initialization, please wait ... ")
+            "Preforming weapon system initialization, please wait ... "
+        )
         rpc_connection = self.__connect__()
         if rpc_connection is None:
             logging.info("Failed to connect to remote system.")

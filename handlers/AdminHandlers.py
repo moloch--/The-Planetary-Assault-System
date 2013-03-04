@@ -81,6 +81,7 @@ class ManageUsersHandler(BaseHandler):
         dbsession.add(user)
         dbsession.flush()
 
+
 class AdminLockHandler(BaseHandler):
     ''' Used to manually lock/unlocked accounts '''
 
@@ -105,6 +106,7 @@ class AdminLockHandler(BaseHandler):
         dbsession.flush()
         self.finish()
 
+
 class AdminAjaxUsersHandler(BaseHandler):
     ''' Handles AJAX data for admin handlers '''
 
@@ -126,13 +128,13 @@ class AdminAjaxUsersHandler(BaseHandler):
 class ManageJobsHandler(BaseHandler):
 
     @authenticated
-    @authorized('admin')
+    @authorized(ADMIN_PERMISSION)
     @restrict_ip_address
     def get(self, *args, **kwargs):
         pass
 
     @authenticated
-    @authorized('admin')
+    @authorized(ADMIN_PERMISSION)
     @restrict_ip_address
     def post(self, *args, **kwargs):
         pass
@@ -141,7 +143,7 @@ class ManageJobsHandler(BaseHandler):
 class AddWeaponSystemsHandler(BaseHandler):
 
     @authenticated
-    @authorized('admin')
+    @authorized(ADMIN_PERMISSION)
     @restrict_ip_address
     def get(self, *args, **kwargs):
         ''' Renders the create weapon system page '''
@@ -150,7 +152,7 @@ class AddWeaponSystemsHandler(BaseHandler):
         )
 
     @authenticated
-    @authorized('admin')
+    @authorized(ADMIN_PERMISSION)
     @restrict_ip_address
     def post(self, *args, **kwargs):
         ''' Creates a new weapon system, and yes the form validation is shit '''
@@ -182,7 +184,7 @@ class AddWeaponSystemsHandler(BaseHandler):
                     self.render("admin/created_weaponsystem.html", errors=None)
                 except ValueError:
                     self.render("admin/create_weaponsystem.html",
-                        errors=["Invalid port number must be 1-65535"]
+                        errors=["Invalid port number; must be 1-65535"]
                     )
         else:
             self.render("admin/create_weaponsystem.html", errors=form.errors)
@@ -205,12 +207,12 @@ class AddWeaponSystemsHandler(BaseHandler):
 class InitializeHandler(BaseHandler):
 
     @authenticated
-    @authorized('admin')
+    @authorized(ADMIN_PERMISSION)
     @restrict_ip_address
     def get(self, *args, **kwargs):
         success = False
         try:
-            weapon_system = WeaponSystem.by_uuid(self.get_argument('uuid'))
+            weapon_system = WeaponSystem.by_uuid(self.get_argument('uuid', ''))
             success = weapon_system.initialize()
         except:
             logging.exception("Error while initializing weapon system.")
@@ -223,7 +225,7 @@ class InitializeHandler(BaseHandler):
 class EditWeaponSystemsHandler(BaseHandler):
 
     @authenticated
-    @authorized('admin')
+    @authorized(ADMIN_PERMISSION)
     @restrict_ip_address
     def get(self, *args, **kwargs):
         ''' Renders the create weapon system page '''

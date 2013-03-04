@@ -20,7 +20,6 @@ Created on June 30, 2012
 '''
 
 
-import os
 import rpyc
 import thread
 import logging
