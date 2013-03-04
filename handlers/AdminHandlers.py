@@ -4,7 +4,7 @@ Created on Mar 13, 2012
 
 @author: moloch
 
-    Copyright [2012] [Redacted Labs]
+    Copyright 2012
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -20,10 +20,12 @@ Created on Mar 13, 2012
 '''
 
 
+import bcrypt
 import thread
 import logging
 
 from models import dbsession, User, WeaponSystem
+from models.User import ADMIN_PERMISSION
 from handlers.BaseHandlers import BaseHandler
 from libs.Form import Form
 from libs.SecurityDecorators import *
@@ -33,31 +35,92 @@ from string import ascii_letters, digits
 class ManageUsersHandler(BaseHandler):
 
     @authenticated
-    @authorized('admin')
+    @authorized(ADMIN_PERMISSION)
     @restrict_ip_address
     def get(self, *args, **kwargs):
         ''' Renders the manage users page '''
-        self.render("admin/manage_users.html",
-            unapproved_users=User.get_unapproved(),
-            approved_users=User.get_approved(),
-        )
-
+        self.render("admin/manage_users.html", errors=None)
+    
     @authenticated
-    @authorized('admin')
+    @authorized(ADMIN_PERMISSION)
     @restrict_ip_address
     def post(self, *args, **kwargs):
-        ''' Approves users '''
-        user_name = self.get_argument("username", '')
-        user = User.by_user_name(user_name)
+        user_uuid = self.get_argument('uuid', '')
+        user = User.by_uuid(user_uuid)
         if user is not None:
-            user.approved = True
-            self.dbsession.add(user)
-            self.dbsession.flush()
-            self.render("admin/approved_user.html", user=user)
+            errors = []
+            username = self.get_argument('username', None)
+            password = self.get_argument('password', None)
+            if password is not None:
+                if 12 <= len(password) <= 100:
+                    self.change_user_password(user)
+                else:
+                    errors.append("Password invalid length (12-100)")
+            if username is not None and username != user.username:
+                if 3 <= len(username) <= 15:
+                    if User.by_username(username) is None:
+                        user.username = username
+                        dbsession.add(user)
+                        dbsession.flush()
+                    else:
+                        errors.append("Username already exists")
+                else:
+                    errors.append("Username is an invalid length (3-15)")
+            self.render("admin/manage_users.html", errors=errors)
         else:
             self.render("admin/manage_users.html",
                 errors=["User does not exist"]
             )
+
+    def change_user_password(user):
+        ''' Update user password and salt '''
+        user.salt = bcrypt.salt(16)
+        dbsession.add(user)
+        dbsession.flush()
+        user.password = password
+        dbsession.add(user)
+        dbsession.flush()
+
+class AdminLockHandler(BaseHandler):
+    ''' Used to manually lock/unlocked accounts '''
+
+    @authenticated
+    @authorized(ADMIN_PERMISSION)
+    @restrict_ip_address
+    def get(self, *args, **kwargs):
+        ''' Toggle account lock '''
+        uuid = self.get_argument('uuid', '')
+        user = User.by_uuid(uuid)
+        if user is not None:
+            if user.locked:
+                user.locked = False
+                dbsession.add(user)
+                self.write({'success': 'unlocked'})
+            else:
+                user.locked = True
+                dbsession.add(user)
+                self.write({'success': 'locked'})
+        else:
+            self.write({'error': 'User does not exist'})
+        dbsession.flush()
+        self.finish()
+
+class AdminAjaxUsersHandler(BaseHandler):
+    ''' Handles AJAX data for admin handlers '''
+
+    @restrict_ip_address
+    @authenticated
+    @authorized(ADMIN_PERMISSION)
+    def get(self, *args, **kwargs):
+        uuid = self.get_argument('uuid', '')
+        user = User.by_uuid(uuid)
+        if user is not None:
+           self.write({
+                'username': user.username,
+            })
+        else:
+            self.write({'Error': 'User does not exist.'})
+        self.finish()
 
 
 class ManageJobsHandler(BaseHandler):

@@ -67,10 +67,12 @@ app = Application([
     (r'/cracking/ajax/jobdata(.*)', AjaxJobDataHandler),
 
     # Admin Handlers - Admin only pages
-    (r'/manageusers', ManageUsersHandler),
-    (r'/addweaponsystem', AddWeaponSystemsHandler),
-    (r'/editweaponsystem', EditWeaponSystemsHandler),
-    (r'/initialize(.*)', InitializeHandler),
+    (r'/admin/manageusers', ManageUsersHandler),
+    (r'/admin/lock', AdminLockHandler),
+    (r'/admin/ajax/users(.*)', AdminAjaxUsersHandler),
+    (r'/admin/addweaponsystem', AddWeaponSystemsHandler),
+    (r'/admin/editweaponsystem', EditWeaponSystemsHandler),
+    (r'/admin/initialize(.*)', InitializeHandler),
 
     # Public handlers - Serves all public pages
     (r'/', WelcomeHandler),

@@ -112,7 +112,7 @@ class RegistrationHandler(BaseHandler):
                 self.render('public/registration.html',
                     errors=['Account name already taken']
                 )
-            elif len(username) < 3 or 15 < len(username):
+            elif 3 <= len(username) <= 15:
                 self.render('public/registration.html',
                     errors=['Username must be 3-15 characters']
                 )
@@ -125,7 +125,7 @@ class RegistrationHandler(BaseHandler):
                     errors=['Password must be 12-100 characters']
                 )
             else:
-                user = self.create_user(user_name, self.get_argument('pass1'))
+                user = self.create_user(username, self.get_argument('pass1'))
                 self.render("public/account_created.html", 
                     username=user.username
                 )
