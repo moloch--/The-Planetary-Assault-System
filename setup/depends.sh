@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright [2012] [Redacted Labs]
+# Copyright 2012
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -15,23 +15,15 @@
 #   limitations under the License.
 
 if [ "$(id -u)" != "0" ]; then
-	echo "[!] This script must be run as root." 1>&2
+	echo -e "\033[31m\033[1m[!]\033[0m This script must be run as root." 1>&2
 	exit 1
 fi
 
-echo "[*] Installing python, pip, and gcc ..."
-apt-get install python python-dev python-pip build-essential && 
-pip install --upgrade pip &&
-pip install --upgrade virtualenv
+echo -e "\033[1m\033[36m[*]\033[0m Installing packages ..."
+apt-get install python python-dev python-pip build-essential mysql-server memcached python-mysqldb python-mysqldb-dbg python-pycurl python-recaptcha
 
-echo "[*] Installing packages ..."
-apt-get install mysql-server memcached python-mysqldb python-mysqldb-dbg python-pycurl python-recaptcha
+echo -e "\033[1m\033[36m[*]\033[0m Installing Python libs ..."
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+sh "$DIR/python-depends.sh"
 
-echo "[*] Installing Python libs ..."
-/usr/local/bin/pip install tornado
-/usr/local/bin/pip install sqlalchemy
-/usr/local/bin/pip install rpyc
-/usr/local/bin/pip install python-memcached
-/usr/local/bin/pip install py-bcrypt
-
-echo "[*] Setup Completed."
+echo -e "\033[1m\033[36m[*]\033[0m Setup Completed."

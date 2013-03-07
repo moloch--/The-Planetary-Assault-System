@@ -4,3 +4,9 @@
 [submodule "WeaponSystem/RCrackPy"]
 	path = WeaponSystem/RCrackPy
 	url = git@github.com:moloch--/RCrackPy.git
+[submodule "WeaponSystem/plugins/CrackPy-plugin/CrackPy"]
+	path = WeaponSystem/plugins/CrackPy-plugin/CrackPy
+	url = git@github.com:moloch--/CrackPy.git
+[submodule "WeaponSystem/plugins/RCrackPy-plugin/RCrackPy"]
+	path = WeaponSystem/plugins/RCrackPy-plugin/RCrackPy
+	url = git@github.com:moloch--/RCrackPy.git

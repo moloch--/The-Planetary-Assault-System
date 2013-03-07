@@ -64,9 +64,7 @@ class WeaponSystem(rpyc.Service):
 
     is_initialized = False
     mutex = Lock()
-    rainbow_tables = {'LM': None, 'NTLM': None, 'MD5': None}
     is_busy = False
-    debug = config.getboolean("RCrack", 'debug')
 
     def initialize(self):
         ''' Initializes variables, this should only be called once '''
