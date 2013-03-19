@@ -1,0 +1,9 @@
+[Core]
+Name = RCrackPy
+Module = rcrackpy
+
+[Documentation]
+Author = moloch
+Version = 0.1
+Website = http://planetaryassaultsystem.com
+Description = Rainbow table cracking plugin

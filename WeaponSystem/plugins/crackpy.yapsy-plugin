@@ -1,0 +1,9 @@
+[Core]
+Name = CrackPy
+Module = crackpy
+
+[Documentation]
+Author = moloch
+Version = 0.1
+Website = http://planetaryassaultsystem.com
+Description = Simple brute-force cracking plugin

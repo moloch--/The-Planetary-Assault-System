@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright [2012] [Redacted Labs]
+# Copyright [2012]
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -20,14 +20,11 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 echo "[*] Installing python, pip, and gcc ..."
-apt-get install python python-dev python-pip build-essential && 
-pip install --upgrade pip &&
-pip install --upgrade virtualenv
-
-echo "[*] Installing packages ..."
-apt-get install libboost1.46-all-dev
+# Newer versions of boost should work too, but have not been tested
+apt-get install python python-dev python-pip build-essential libboost1.46-all-dev
+pip install --upgrade pip
 
 echo "[*] Installing Python libs ..."
-/usr/local/bin/pip install rpyc
+/usr/local/bin/pip install rpyc yapsy
 
 echo "[*] Setup Completed."
