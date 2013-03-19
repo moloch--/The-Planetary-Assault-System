@@ -13,23 +13,28 @@ Requirements
 * Tornado Web v2.x
 * SQL Alchemy v0.7.x
 * RPyC v3.x
-* Debian/Ubuntu recommened, but should run on any Linux or BSD system
+* For the server Debian/Ubuntu recommened, but should run on any Linux, OSX, or BSD system
+* The clients can (theoretically) run on Windows, Linux, OSX, or BSD (only tested on Linux)
 
-Orbital Control Setup
-=====================
-* Run __/setup/depends.sh__ (Debian/Ubuntu only) to automatically install all required libs
-* Edit __PlanetaryAssaultSystem.cfg__
-	* Set __debug__ to __false__ for production systems
-	* Edit database settings, set user and/or pass to __RUNTIME__ for production systems
-* Run __"python . create bootstrap"__ to initialize the database, you only need to run this once
-* Run __"python . serve"__ to start the application
-* Run __"python . recovery"__  to start a recovery console (reset account passwords, etc)
+Setup
+=======
+See the [wiki](https://github.com/moloch--/The-Planetary-Assault-System/wiki)
 
-Weapon System Setup
-====================
-* Edit the RainbowTables section to point to your rainbow table directories
-	* You can download tables from: http://freerainbowtables.com/en/tables2/
-* Setup SSH to allow key auth with a __limited__ user account
-	* Recommended that you disable password auth entirely
-* Pair with orbital command via admin interface
-* Linux only at this point, supports both x86/x64
+Source Code
+=============
+```
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+C++                             29           1200           1378           8190
+CSS                              5            642            124           5850
+Python                          37            709            109           3213
+HTML                            35             56             25           1116
+C/C++ Header                    32            281            773           1043
+Javascript                       6             18             19            341
+make                             2             66             56            181
+Bourne Shell                     4             14             41             37
+-------------------------------------------------------------------------------
+SUM:                           150           2986           2525          19971
+-------------------------------------------------------------------------------
+```
