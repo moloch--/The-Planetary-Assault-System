@@ -6,6 +6,11 @@ __This is a work in progress, please keep that in mind!__
 
 The “Planetary Assault System” is a software project that aims to allow small organizations to roll their own private password cracking cloud/cluster, which can combine a variety of password cracking methods such as time-memory tradeoff, wordlists, and brute-forcing.  The system can also preform word and character frequency analysis of cracked passwords and leverage that information to crack additional passwords from the same organization.  The idea being that password policies force users to create similar passwords, and by leveraging this information the system automatically can adapt its attack to target the organization’s policy.  The entire system is automated after you submit the hashes.  It’s a work in progress, and is open source.
 
+Random Screenshots
+====================
+![Login Screen](http://i.imgur.com/LSOTEe3.png "Login Screen")
+
+
 Requirements
 ===============
 * Python v2.5.x - v2.7.x
