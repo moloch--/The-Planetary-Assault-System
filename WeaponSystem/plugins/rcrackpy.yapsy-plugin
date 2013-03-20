@@ -1,6 +1,7 @@
 [Core]
 Name = RCrackPy
 Module = rcrackpy
+precomputation = true
 
 [Documentation]
 Author = moloch

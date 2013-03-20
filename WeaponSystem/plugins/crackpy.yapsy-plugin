@@ -1,6 +1,7 @@
 [Core]
 Name = CrackPy
 Module = crackpy
+precomputation = false
 
 [Documentation]
 Author = moloch

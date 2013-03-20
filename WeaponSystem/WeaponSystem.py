@@ -179,7 +179,7 @@ class WeaponSystem(rpyc.Service):
         info['version'] = plugin.details.get('Documentation', 'version')
         info['description'] = plugin.details.get('Documentation', 'description')
         info['copyright'] = plugin.details.get('Documentation', 'copyright')
-        info['precomputation'] = plugin.is_precomputation
+        info['precomputation'] = plugin.getboolean('Core', 'precomputation')
         return info
 
     def exposed_ping(self):
