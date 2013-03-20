@@ -14,28 +14,37 @@
           </div>
       {% end %}
     {% end %}
-    <div class="well">
-        <form class="form-horizontal" action="/login" method="post" autocomplete="off">  
-            {% raw xsrf_form_html() %}
-            <legend>Orbital Command Authentication</legend>
-            <div class="control-group">
-                <label class="control-label" for="username">Username</label>
-                <div class="controls">
-                    <input autofocus required name="username" id="username" placeholder="Username" type="text"/>
+    <div class="row">
+        <div class="well span10" style="background-image: url(/static/images/earthfire.jpg); background-size:contain; background-size:100%;">
+            <br />
+            <form class="form-horizontal" action="/login" method="post" autocomplete="off">  
+                {% raw xsrf_form_html() %}
+                <legend>Authentication Required</legend>
+                <div class="control-group">
+                    <label class="control-label" for="username">Username</label>
+                    <div class="controls">
+                        <input autofocus required name="username" id="username" placeholder="Username" type="text"/>
+                    </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="passwd">Password</label>
-                <div class="controls">
-                    <input required name="password" id="passwd" placeholder="Password" type="password" />
+                <div class="control-group">
+                    <label class="control-label" for="passwd">Password</label>
+                    <div class="controls">
+                        <input required name="password" id="passwd" placeholder="Password" type="password" />
+                    </div>
                 </div>
-            </div>
-            {% module Recaptcha() %}
-            <div class="control-group">
-                <div class="controls">
-                    <button class="btn btn-primary" type="submit">Authenticate</button>
+                {% module Recaptcha() %}
+                <div class="control-group">
+                    <div class="controls">
+                        <button class="btn btn-primary" type="submit">Authenticate</button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+        </div>
     </div>
 {% end %}

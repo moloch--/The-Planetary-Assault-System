@@ -20,9 +20,6 @@ Created on Mar 12, 2012
 '''
 
 
-import json
-import logging
-
 from sqlalchemy import Column, ForeignKey, and_
 from sqlalchemy.orm import synonym, relationship, backref
 from sqlalchemy.types import Unicode, Integer, Boolean, DateTime
@@ -34,45 +31,33 @@ from models import common_association_table, lower_association_table, \
     upper_alpha_association_table, mixed_alpha_association_table
 
 
-class PasswordAnalysis(BaseObject):
-    ''' Complexity analysis of a job '''
+class AnalysisReport(BaseObject):
+    ''' Complexity AnalysisReport of a job '''
 
     job_id = Column(Integer, ForeignKey('job.id'), nullable=False)
-    common_passwords = relationship("PasswordHash",
+    common_passwords = relationship("Password",
         secondary=common_association_table, 
-        backref="Analysis"
     )
-    lower_case_passwords = relationship("PasswordHash", 
+    lower_case_passwords = relationship("Password", 
         secondary=lower_association_table, 
-        backref="Analysis"
     )
-    upper_case_passwords = relationship("PasswordHash", 
+    upper_case_passwords = relationship("Password", 
         secondary=upper_association_table, 
-        backref="Analysis"
     )
-    numeric_passwords = relationship("PasswordHash",
+    numeric_passwords = relationship("Password",
         secondary=numeric_association_table, 
-        backref="Analysis"
     )
-    mixed_case_passwords = relationship("PasswordHash", 
+    mixed_case_passwords = relationship("Password", 
         secondary=mixed_association_table, 
-        backref="Analysis"
     )
-    lower_alpha_numeric_passwords = relationship("PasswordHash",
+    lower_alpha_numeric_passwords = relationship("Password",
         secondary=lower_alpha_association_table, 
-        backref="Analysis"
     )
-    upper_alpha_numeric_passwords = relationship("PasswordHash",
+    upper_alpha_numeric_passwords = relationship("Password",
         secondary=upper_alpha_association_table, 
-        backref="Analysis"
     )
-    mixed_alpha_numeric_passwords = relationship("PasswordHash",
+    mixed_alpha_numeric_passwords = relationship("Password",
         secondary=mixed_alpha_association_table, 
-        backref="Analysis"
-    )
-    common_passwords = relationship("PasswordHash",
-        secondary=common_passwords_association_table, 
-        backref="Analysis"
     )
     __common__ = ['12345', '123456', '1234567', '12345678', '123456789', '654321', 'password',
         'abc123', 'nicole', 'daniel', 'babygirl', 'monkey', 'iloveyou', 'princess',
@@ -82,7 +67,7 @@ class PasswordAnalysis(BaseObject):
     ]
 
     def analyze_all(self, passwords):
-        ''' Run all analysis on a list of password objects '''
+        ''' Run all AnalysisReport on a list of password objects '''
         for index, password in enumerate(passwords):
             logging.debug("Analyzing password %d of %d" % (index, len(passwords)))
             self.test_lower_case_passwords(password)

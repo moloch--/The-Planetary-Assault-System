@@ -20,23 +20,22 @@ Created on Mar 12, 2012
 '''
 
 
-from sqlalchemy import Column
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import synonym, relationship
 from sqlalchemy.types import Unicode, Boolean, Integer
 from models import dbsession
 from models.BaseObject import BaseObject
 
 
-
 class PluginDetails(BaseObject):
 
-    weapon_system_id = Column(Integer, ForeignKey('weapon_system.id'), nullable=False)
     name = Column(Unicode(32), nullable=False)
     author = Column(Unicode(32))
     website = Column(Unicode(256))
     description = Column(Unicode(1024))
     copyright = Column(Unicode(32))
     precomputation = Column(Boolean, nullable=False)
+    algorithm_id = Column(Integer, ForeignKey('algorithm.id'), nullable=False)
 
     @classmethod
     def by_id(cls, pid):

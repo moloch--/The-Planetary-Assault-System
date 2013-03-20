@@ -57,7 +57,7 @@ class Password(BaseObject):
 
     @classmethod
     def by_algorithm(cls, algo):
-        ''' Return all passwordHash objects of a given algorithm id '''
+        ''' Return all passwords objects of a given algorithm id '''
         if isinstance(algo, int):
             return dbsession.query(cls).filter_by(algorithm_id=algo).all()
         else:

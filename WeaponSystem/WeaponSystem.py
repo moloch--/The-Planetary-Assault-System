@@ -130,13 +130,13 @@ class WeaponSystem(rpyc.Service):
                 self.cpu_cores = 1
         else:
             try:
-                self.cpu_cores = sysconf("SC_NPROCESSORS_CONF")
+                self.cpu_cores = int(sysconf("SC_NPROCESSORS_CONF"))
                 logging.info("Detected %d CPU core(s)" % self.cpu_cores)
             except ValueError:
                 logging.error("Could not detect number of processors; assuming 1")
                 self.cpu_cores = 1
 
-    ######################## [ EXPOSED METHODS ] ########################
+    ############################ [ EXPOSED METHODS ] ############################
     @atomic
     def exposed_crack(self, plugin_name, job_id, hashes, **kwargs):
         ''' Exposes plugins calls '''

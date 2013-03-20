@@ -52,56 +52,50 @@ algorithm_association_table = Table('weapon_system_to_algorithm', BaseObject.met
 # Association tables for the analysis
 common_association_table = Table('analysis_common_to_password', 
     BaseObject.metadata,
-    Column('password_hash_id', Integer, ForeignKey('password.id'), nullable=False),
-    Column('password_analysis_id', Integer, ForeignKey('password_analysis.id'), nullable=False)
+    Column('password_id', Integer, ForeignKey('password.id'), nullable=False),
+    Column('analysis_report_id', Integer, ForeignKey('analysis_report.id'), nullable=False)
 )
 
 lower_association_table = Table('analysis_lower_to_password', 
     BaseObject.metadata,
-    Column('password_hash_id', Integer, ForeignKey('password.id'), nullable=False),
-    Column('password_analysis_id', Integer, ForeignKey('password_analysis.id'), nullable=False)
+    Column('password_id', Integer, ForeignKey('password.id'), nullable=False),
+    Column('analysis_report_id', Integer, ForeignKey('analysis_report.id'), nullable=False)
 )
 
 upper_association_table = Table('analysis_upper_to_password', 
     BaseObject.metadata,
     Column('password_id', Integer, ForeignKey('password.id'), nullable=False),
-    Column('password_analysis_id', Integer, ForeignKey('password_analysis.id'), nullable=False)
+    Column('analysis_report_id', Integer, ForeignKey('analysis_report.id'), nullable=False)
 )
 
 numeric_association_table = Table('analysis_numeric_to_password', 
     BaseObject.metadata,
-    Column('password_hash_id', Integer, ForeignKey('password.id'), nullable=False),
-    Column('password_analysis_id', Integer, ForeignKey('password_analysis.id'), nullable=False)
+    Column('password_id', Integer, ForeignKey('password.id'), nullable=False),
+    Column('analysis_report_id', Integer, ForeignKey('analysis_report.id'), nullable=False)
 )
 
 mixed_association_table = Table('analysis_mixed_to_password', 
     BaseObject.metadata,
-    Column('password_hash_id', Integer, ForeignKey('password.id'), nullable=False),
-    Column('password_analysis_id', Integer, ForeignKey('password_analysis.id'), nullable=False)
+    Column('password_id', Integer, ForeignKey('password.id'), nullable=False),
+    Column('analysis_report_id', Integer, ForeignKey('analysis_report.id'), nullable=False)
 )
 
 lower_alpha_association_table = Table('analysis_lower_alpha_to_password', 
     BaseObject.metadata,
     Column('password_id', Integer, ForeignKey('password.id'), nullable=False),
-    Column('password_analysis_id', Integer, ForeignKey('password_analysis.id'), nullable=False)
+    Column('analysis_report_id', Integer, ForeignKey('analysis_report.id'), nullable=False)
 )
 
 upper_alpha_association_table = Table('analysis_upper_alpha_to_password', 
     BaseObject.metadata,
-    Column('password_hash_id', Integer, ForeignKey('password.id'), nullable=False),
-    Column('password_analysis_id', Integer, ForeignKey('password_analysis.id'), nullable=False)
+    Column('password_id', Integer, ForeignKey('password.id'), nullable=False),
+    Column('analysis_report_id', Integer, ForeignKey('analysis_report.id'), nullable=False)
 )
 
 mixed_alpha_association_table = Table('analysis_mixed_alpha_to_password', 
     BaseObject.metadata,
     Column('password_id', Integer, ForeignKey('password.id'), nullable=False),
-    Column('password_analysis_id', Integer, ForeignKey('password_analysis.id'), nullable=False)
-)
-
-common_passwords_association_table = Table('analysis_common_passwords_to_password', 
-    BaseObject.metadata,
-    Column('password_id', Integer, ForeignKey('password.id'), nullable=False),
-    Column('password_analysis_id', Integer, ForeignKey('password_analysis.id'), nullable=False)
+    Column('analysis_report_id', Integer, ForeignKey('analysis_report.id'), nullable=False)
 )
 
 # Import the dbsession instance to execute queries
@@ -114,7 +108,8 @@ from models.Permission import Permission
 from models.User import User
 from models.WeaponSystem import WeaponSystem
 from models.Algorithm import Algorithm
-from models.PasswordAnalysis import PasswordAnalysis
+from models.AnalysisReport import AnalysisReport
+from models.PluginDetails import PluginDetails
 
 # calling this will create the tables at the database
 create_tables = lambda: (setattr(engine, 'echo', config.log_sql), metadata.create_all(engine))

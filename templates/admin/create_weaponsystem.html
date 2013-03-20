@@ -3,51 +3,87 @@
 {% block title %}Orbital Control Uplink{% end %}
 
 {% block content %}
-  <h2>Orbital Control Uplink</h2>
-  <br />
-    {% if errors != None and len(errors) != 0 %}
-      {% for error in errors %}
-        <div class="alert alert-error">
-          <a class="close" data-dismiss="alert" href="#">×</a>
-          <h4 class="alert-heading">ERROR</h4>
-          {{ error }}
-        </div>
-      {% end %}
+    <h2>Orbital Control Uplink</h2>
+    <br />
+    {% if errors is not None and len(errors) != 0 %}
+        {% for error in errors %}
+            <div class="alert alert-error">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            <h4 class="alert-heading">ERROR</h4>
+                {{ error }}
+            </div>
+        {% end %}
     {% end %}
     <div class="well">
-      <form action="/addweaponsystem" method="post" autocomplete="off">  
-        {% raw xsrf_form_html() %}
-        <fieldset>
-          <legend>Uplink</legend>
-          <p>
-            <label for="name">Weapon System Name</label>
-            <input placeholder="Weapon System Name" type="text" name="name" />
-          </p>
-          <p>
-            <label for="ipaddress">IP Address</label>
-            <input placeholder="IP Address" type="text" name="ip_address" />
-          </p>
-          <p>
-            <label for="sshuser">SSH User Name</label>
-            <input placeholder="SSH User Name" type="text" name="ssh_user" />
-          </p>
-          <p>
-            <label for="sshkey">SSH Key Authentication</label>
-            <textarea placeholder="SSH Private Key" style="width:auto" name="ssh_key" rows="10" cols="70">
-            </textarea>
-          </p>
-          <p>
-            <label for="sshport">SSH Listen Port (Default 22)</label>
-            <input placeholder="SSH Listen Port" type="text" name="ssh_port" value="22" />
-          </p>
-          <p>
-            <label for="lport">Service Listen Port (Default 31337)</label>
-            <input placeholder="Service Listen Port" type="text" name="service_port" value="31337"/>
-          </p>
-        <br />
-        <p class="submit">
-          <button class="btn btn-primary btn-large" type="submit">&nbsp;Add Weapon System&nbsp;</button>
-        </p>
-      </form>
+        <legend>Uplink Configuration</legend>
+        <form class="form-horizontal" action="/addweaponsystem" method="post" autocomplete="off">  
+            {% raw xsrf_form_html() %}
+            <div class="control-group">
+                <label class="control-label" for="name">Name</label>
+                <div class="controls">
+                    <input autofocus required id="name" placeholder="Weapon System Name" type="text" name="name"
+                        rel="popover" pattern="^[a-zA-Z0-9 ]{3,15}$"
+                        data-original-title="Username Selection"
+                        data-content="Your weapon system name must be 3-15 alpha-numeric characters" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="ip_address">IP Address</label>
+                <div class="controls">
+                    <input required id="ip_address" placeholder="IP Address" type="text" name="ip_address"
+                        rel="popover"
+                        data-original-title="IP Address"
+                        data-content="Public IP address of weapon system" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="ssh_user">SSH User</label>
+                <div class="controls">
+                    <input required id="ssh_user" placeholder="SSH User Name" type="text" name="ssh_user"
+                        rel="popover"
+                        data-original-title="SSH User"
+                        data-content="Public IP address of weapon system" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="ssh_key">SSH Private Key</label>
+                <div class="controls">
+                    <textarea placeholder="SSH Private Key (Yes this is scary)" style="width:auto" name="ssh_key" rows="10" cols="70">
+                    </textarea>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="ssh_port">SSH Listen Port</label>
+                <div class="controls">
+                    <input required id="ssh_port" placeholder="SSH Listen Port" type="text" name="ssh_port" value="22"
+                        rel="popover"
+                        data-original-title="SSH Port"
+                        data-content="Remote listen port for SSH" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="ssh_port">Service Listen Port</label>
+                <div class="controls">
+                    <input required id="service_port" placeholder="Service Listen Port" type="text" name="service_port" value="31337"
+                        rel="popover"
+                        data-original-title="SSH Port"
+                        data-content="Remote listen port for SSH" />
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-primary" type="submit">&nbsp;Save Configuration&nbsp;</button>
+                </div>
+            </div>
+        </form>
+        <script>
+            $(function() {
+                $("#name").popover({placement:'right', trigger:'focus'});
+                $("#ip_address").popover({placement:'right', trigger:'focus'});
+                $("#ssh_user").popover({placement:'right', trigger:'focus'});
+                $("#ssh_port").popover({placement:'right', trigger:'focus'});
+                $("#service_port").popover({placement:'right', trigger:'focus'});
+            });
+        </script>
     </div>
 {% end %}

@@ -112,7 +112,7 @@ class RegistrationHandler(BaseHandler):
                 self.render('public/registration.html',
                     errors=['Account name already taken']
                 )
-            elif 3 <= len(username) <= 15:
+            elif not 3 <= len(username) <= 15:
                 self.render('public/registration.html',
                     errors=['Username must be 3-15 characters']
                 )
