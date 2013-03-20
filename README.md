@@ -9,7 +9,7 @@ The “Planetary Assault System” is a software project that aims to allow smal
 Random Screenshots
 ====================
 ![Login Screen](http://i.imgur.com/LSOTEe3.png "Login Screen")
-
+![Home Screen](http://i.imgur.com/jsVlmgL.png "Home Screen")
 
 Requirements
 ===============

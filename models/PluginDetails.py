@@ -32,6 +32,7 @@ class PluginDetails(BaseObject):
     name = Column(Unicode(32), nullable=False)
     author = Column(Unicode(32))
     website = Column(Unicode(256))
+    version = Column(Unicode(32))
     description = Column(Unicode(1024))
     copyright = Column(Unicode(32))
     precomputation = Column(Boolean, nullable=False)

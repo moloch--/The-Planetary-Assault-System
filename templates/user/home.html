@@ -3,18 +3,20 @@
 {% block title %}Home{% end %}
 
 {% block content %}
-	<h1>Welcome {{ user.username }}</h1>
-	<br />
-	<div class="well" style="background-image: url(/static/images/planetary2.jpg); background-size:contain; background-size:100%;">
-		<h2>Your Cracking Jobs</h2>
-		<div class="well">
-			<br />
-			<p>
-				<h4>Queued Jobs: {{ len(user.queued_jobs) }} </h4>
-				<br />
-				<br />
-				<h4>Completed Jobs: {{ len(user.completed_jobs) }}</h4>
-			</p>
-		</div>
-	</div>
+    <h1>Welcome {{ user.username }}</h1>
+    <br />
+    <div class="well" style="background-image: url(/static/images/planetary2.jpg); background-size:contain; background-size:100%;">
+        <h2>Account Summary</h2>
+        <br />
+        <div class="row">
+            <div class="well span4">
+                <h4>Password  Cracking  Jobs</h4>
+                <hr>
+                <p>
+                    <h5>Queued Jobs: {{ len(user.queued_jobs) }} </h5>
+                    <h5>Completed Jobs: {{ len(user.completed_jobs) }}</h5>
+                </p>
+            </div>
+        </div>
+    </div>
 {% end %}

@@ -12,14 +12,58 @@
         <div class="modal-body">
             <form id="edit-system" method="post" action="/admin/weapsonsystem/edit">
                 {% raw xsrf_form_html() %}
-                <input type="hidden" name="edit-sys" id="edit-sys" />
-                <input placeholder="Weapon System Name" type="text" name="edit-name" id="edit-name" /><br />
-                <input placeholder="IP Address" type="text" name="edit-ipaddress" id="edit-ipaddress" /><br />
-                <input placeholder="SSH User Name" type="text" name="edit-sshuser" id="edit-sshuser" /><br />
-                <textarea placeholder="SSH Private Key" style="width:auto" name="edit-sshkey" id="edit-sshkey" rows="10" cols="60">
-                </textarea><br />
-                <input placeholder="SSH Listen Port" type="text" name="edit-sshport" id="edit-sshport" />
-                <input placeholder="Service Listen Port" type="text" name="edit-srvport" id="edit-srvport" />
+                <div class="control-group">
+                    <label class="control-label" for="name">Name</label>
+                    <div class="controls">
+                        <input autofocus required id="name" placeholder="Weapon System Name" type="text" name="name"
+                            rel="popover" pattern="^[a-zA-Z0-9 ]{3,15}$"
+                            data-original-title="Username Selection"
+                            data-content="Your weapon system name must be 3-15 alpha-numeric characters" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="ip_address">IP Address</label>
+                    <div class="controls">
+                        <input required id="ip_address" placeholder="IP Address" type="text" name="ip_address"
+                            rel="popover"
+                            data-original-title="IP Address"
+                            data-content="Public IP address of weapon system" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="ssh_user">SSH User</label>
+                    <div class="controls">
+                        <input required id="ssh_user" placeholder="SSH User Name" type="text" name="ssh_user"
+                            rel="popover"
+                            data-original-title="SSH User"
+                            data-content="Public IP address of weapon system" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="ssh_key">SSH Private Key</label>
+                    <div class="controls">
+                        <textarea placeholder="SSH Private Key (Yes this is scary)" style="width:auto" name="ssh_key" rows="10" cols="70">
+                        </textarea>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="ssh_port">SSH Listen Port</label>
+                    <div class="controls">
+                        <input required id="ssh_port" placeholder="SSH Listen Port" type="text" name="ssh_port" value="22"
+                            rel="popover"
+                            data-original-title="SSH Port"
+                            data-content="Remote listen port for SSH" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="ssh_port">Service Listen Port</label>
+                    <div class="controls">
+                        <input required id="service_port" placeholder="Service Listen Port" type="text" name="service_port" value="31337"
+                            rel="popover"
+                            data-original-title="SSH Port"
+                            data-content="Remote listen port for SSH" />
+                    </div>
+                </div>      
             </form>
         </div>
         <div class="modal-footer">
@@ -75,7 +119,7 @@
                 {% from models import WeaponSystem %}
                 {% for index, wsys in enumerate(WeaponSystem.get_all()) %}
                     <tr>
-                        <td>{{ index }}</td>
+                        <td>{{ index + 1 }}</td>
                         <td>{{ wsys.name }}</td>
                         <td>{{ wsys.ip_address }}</td>
                         <td>{{ len(wsys.plugins) }}</td>

@@ -24,7 +24,7 @@ import bcrypt
 import thread
 import logging
 
-from models import dbsession, WeaponSystem, Algorithm
+from models import dbsession, WeaponSystem, Algorithm, PluginDetails
 from models.User import User, ADMIN_PERMISSION
 from handlers.BaseHandlers import BaseHandler
 from libs.Form import Form
@@ -196,7 +196,6 @@ class AddWeaponSystemsHandler(BaseHandler):
             ssh_port=int(self.get_argument('ssh_port')),
             service_port=int(self.get_argument('service_port')),
         )
-        print 'GOT:', weapon_system
         dbsession.add(weapon_system)
         dbsession.flush()
         return weapon_system
@@ -214,47 +213,57 @@ class InitializeHandler(BaseHandler):
         try:
             weapon_system = WeaponSystem.by_uuid(self.get_argument('uuid', ''))
             if weapon_system is not None:
-                success = self.init_weapon_system(weapon_system)
+                self.init_weapon_system(weapon_system)
+                success = True
             else:
                 raise ValueError("WeaponSystem uuid does not exist")
         except Exception as error:
             self.output += "\n[!] Error: " + str(error)
             logging.exception("Error while initializing weapon system.")
         finally:
+            weapon_system.initialized = success
             dbsession.add(weapon_system)
             dbsession.flush()
         self.render("admin/weaponsystem/initialize.html", success=success, output=self.output)
 
     def init_weapon_system(self, weapon_system):
-        success = False
         self.output = '[*] Attempting to obtain rpc connection to %s:%d ... ' % (
             weapon_system.ip_address, weapon_system.ssh_port,
         )
         rpc = weapon_system.get_rpc_connection()
         if rpc is None:
             self.output += "failure\n"
-            success = False
+            raise Exception("RPC connection failed")
         else:
             self.output += "done!\n"
-            if not self.query_plugins(weapon_system, rpc):
-                success = False
-            if not self.query_hardware(weapon_system, rpc):
-                success = False
-        if success:
-            weapon_system.initialized = True
-        return success
+            self.query_plugins(weapon_system, rpc)
+            self.query_hardware(weapon_system, rpc)
 
     def query_plugins(self, weapon_system, rpc):
+        if 0 < len(weapon_system.plugins):
+            self.output += "[-] Clearing old plugin(s) ...\n"
+            for old_plugin in weapon_system.plugins:
+                dbsession.delete(old_plugin)
+            dbsession.flush()
         self.output += "[*] Attempting to detect remote plugin(s) ...\n"
-        for algo in Algorithm.all_names():
+        for algo in Algorithm.all():
             self.output += "[+] Looking for %s plugins ..." % algo
-            plugin_names = rpc.root.exposed_get_category_plugins(algo)
+            plugin_names = rpc.root.exposed_get_category_plugins(algo.name)
             self.output += " found %d\n" % len(plugin_names)
             for plugin_name in plugin_names:
                 self.output += "[+] Query info from remote plugin '%s'\n" % plugin_name
-                plugin = rpc.root.exposed_get_plugin_details(algo, plugin_name)
-                details = PluginDetails(**plugin)
-                weapon_system.plugins.append(details)
+                details = rpc.root.exposed_get_plugin_details(algo.name, plugin_name)
+                plugin = PluginDetails(
+                    name=unicode(plugin_name),
+                    author=unicode(details['author']),
+                    website=unicode(details['website']),
+                    version=unicode(details['version']),
+                    description=unicode(details['description']),
+                    copyright=unicode(details['copyright']),
+                )
+                plugin.precomputation = details['precomputation']
+                plugin.algorithm_id = algo.id
+                weapon_system.plugins.append(plugin)
 
     def query_hardware(self, weapon_system, rpc):
         self.output += "[*] Detecting CPU core(s) ..."

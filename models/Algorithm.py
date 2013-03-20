@@ -57,9 +57,9 @@ class Algorithm(BaseObject):
         return dbsession.query(cls).filter_by(uuid=unicode(uuid)).first()
 
     @classmethod
-    def by_name(cls, name):
+    def by_name(cls, algo_name):
         ''' Return a algorithm object based on name '''
-        return dbsession.query(cls).filter_by(algorithm_name=name).first()
+        return dbsession.query(cls).filter_by(name=algo_name).first()
 
     def __len__(self):
         ''' Returns length of the hash output '''
@@ -67,7 +67,7 @@ class Algorithm(BaseObject):
 
     def __str__(self):
         ''' Returns the name of the algorithm '''
-        return self.algorithm_name
+        return self.name
 
     def __eq__(self, other):
         ''' Equality '''
