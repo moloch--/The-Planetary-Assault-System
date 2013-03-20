@@ -26,8 +26,7 @@ from uuid import uuid4
 from datetime import datetime
 from sqlalchemy import Column
 from sqlalchemy.types import DateTime, Integer, Unicode
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declared_attr, declarative_base
 
 
 class SimpleDatabaseObject(object):
@@ -35,7 +34,7 @@ class SimpleDatabaseObject(object):
     All database objects inherit from this object, it automatically
     converts the class name to a table name, creates a primary key,
     and a 'created' datetime column, your models should inherit from
-    'BaseObject' not 'SimpleDatabaseObject'
+    'BaseObject' (see below) not 'SimpleDatabaseObject' directly
     '''
 
     @declared_attr

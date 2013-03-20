@@ -6,22 +6,8 @@
 	<h1>Welcome {{ user.username }}</h1>
 	<br />
 	<div class="well" style="background-image: url(/static/images/planetary2.jpg); background-size:contain; background-size:100%;">
+		<h2>Your Cracking Jobs</h2>
 		<div class="well">
-			<h2>Planetary Assault System Status</h2>
-			<br />
-			<p>
-				<strong> Weapon Systems </strong>
-				{% for ws in all_weapons %}
-					{% if ws.is_online() %}
-						<h4>{{ ws.weapon_system_name }}: <code> ONLINE </code> </h4>
-					{% else %}
-						<h4>{{ ws.weapon_system_name }}: <code> OFFLINE </code> </h4>
-					{% end %}
-				{% end %}
-			</p>
-		</div>
-		<div class="well">
-			<h2>Your Cracking Jobs</h2>
 			<br />
 			<p>
 				<h4>Queued Jobs: {{ len(user.queued_jobs) }} </h4>

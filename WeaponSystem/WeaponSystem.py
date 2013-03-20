@@ -168,9 +168,9 @@ class WeaponSystem(rpyc.Service):
     def exposed_get_category_plugins(self, category):
         ''' Get plugin names for a category '''
         plugins = self.plugin_manager.getPluginsOfCategory(category)
-        return [(plugin.name for plugin in plugins]
+        return [plugin.name for plugin in plugins]
 
-    def exposed_get_plugin_details(self, plugin_name, category):
+    def exposed_get_plugin_details(self, category, plugin_name):
         ''' Get plugin based on name details '''
         plugin = self.plugin_manager.getPluginByName(plugin_name, category)
         info = {'name': plugin.name}

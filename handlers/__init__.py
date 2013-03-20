@@ -70,9 +70,11 @@ app = Application([
     (r'/admin/manageusers', ManageUsersHandler),
     (r'/admin/lock', AdminLockHandler),
     (r'/admin/ajax/users(.*)', AdminAjaxUsersHandler),
-    (r'/admin/addweaponsystem', AddWeaponSystemsHandler),
-    (r'/admin/editweaponsystem', EditWeaponSystemsHandler),
-    (r'/admin/initialize(.*)', InitializeHandler),
+    (r'/admin/weaponsystem/add', AddWeaponSystemsHandler),
+    (r'/admin/weaponsystem/view', ViewWeaponSystemsHandler),
+    (r'/admin/weaponsystem/details', DetailsWeaponSystemsHandler),
+    (r'/admin/weaponsystem/edit', EditWeaponSystemsHandler),
+    (r'/admin/weaponsystem/init', InitializeHandler),
 
     # Public handlers - Serves all public pages
     (r'/', WelcomeHandler),

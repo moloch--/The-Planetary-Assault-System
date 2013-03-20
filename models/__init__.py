@@ -44,9 +44,16 @@ setattr(engine, 'echo', config.log_sql)
 Session = sessionmaker(bind=engine, autocommit=True)
 dbsession = Session(autoflush=True)
 
+# Association tables for weapon systems
 algorithm_association_table = Table('weapon_system_to_algorithm', BaseObject.metadata,
     Column('weapon_system_id', Integer, ForeignKey('weapon_system.id'), nullable=False),
     Column('algorithm_id', Integer, ForeignKey('algorithm.id'), nullable=False)
+)
+
+plugin_association_table = Table('weapon_system_to_plugin_details', 
+    BaseObject.metadata,
+    Column('plugin_details_id', Integer, ForeignKey('plugin_details.id'), nullable=False),
+    Column('weapon_system_id', Integer, ForeignKey('weapon_system.id'), nullable=False)
 )
 
 # Association tables for the analysis

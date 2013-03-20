@@ -26,7 +26,8 @@ import logging
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import synonym, relationship
 from sqlalchemy.types import Unicode, Boolean, Integer
-from models import dbsession, algorithm_association_table
+from models import dbsession, algorithm_association_table, \
+    plugin_association_table
 from models.BaseObject import BaseObject
 from models.Algorithm import Algorithm
 from rpyc.utils.ssh import SshContext
@@ -38,20 +39,23 @@ class WeaponSystem(BaseObject):
     Holds configuration information for remote agents
     '''
 
-    weapon_system_name = Column(Unicode(64), unique=True, nullable=False)
+    name = Column(Unicode(16), unique=True, nullable=False)
     initialized = Column(Boolean, default=False, nullable=False)
     ssh_user = Column(Unicode(64), nullable=False)
     ssh_key = Column(Unicode(4096), nullable=False)
     ip_address = Column(Unicode(64), unique=True, nullable=False)
     ssh_port = Column(Integer, default=22, nullable=False)
     service_port = Column(Integer, default=31337, nullable=False)
-    cpu_count = Column(Integer, default=1, nullable=False)
-    gpu_count = Column(Integer, default=0, nullable=False)
+    cpu_count = Column(Integer, default=1)
+    gpu_count = Column(Integer, default=0)
     algorithms = relationship("Algorithm",
         secondary=algorithm_association_table, 
         backref="WeaponSystem"
     )
-    plugins = Column(Integer, ForeignKey('plugin_details.id'), nullable=False)
+    plugins = relationship("PluginDetails",
+        secondary=plugin_association_table, 
+        backref="WeaponSystem"
+    )
 
     @classmethod
     def by_id(cls, weapon_id):
@@ -66,7 +70,7 @@ class WeaponSystem(BaseObject):
     @classmethod
     def get_all(cls):
         ''' Get all WeaponSystem objects that have been initialized '''
-        return dbsession.query(cls).filter_by(initialized=True).all()
+        return dbsession.query(cls).all()
 
     @classmethod
     def get_uninitialized(cls):
@@ -76,9 +80,7 @@ class WeaponSystem(BaseObject):
     @classmethod
     def by_name(cls, weapon_name):
         ''' Return the WeaponSystem object whose name is 'weapon_name' '''
-        return dbsession.query(cls).filter_by(
-            weapon_system_name=unicode(weapon_name)
-        ).first()
+        return dbsession.query(cls).filter_by(name=unicode(weapon_name)).first()
 
     @classmethod
     def by_ip_address(cls, weapon_ip_address):
@@ -104,20 +106,10 @@ class WeaponSystem(BaseObject):
             lambda weapon_system: algo in weapon_system.algorithms, cls.all_idle()
         )
 
-    def initialize(self, *args):
+    def get_rpc_connection(self, *args):
         ''' initialization, gathers system information '''
         logging.info("Preforming weapon system initialization")
-        rpc_connection = self.__connect__()
-        if rpc_connection is None:
-            logging.info("Failed to connect to remote system.")
-            return False
-        else:
-            self.__plugins__(rpc_connection)
-            self.cpu_count = rpc_connection.root.exposed_cpu_count()
-            self.initialized = True
-            dbsession.add(self)
-            dbsession.flush()
-            return True
+        return self.__connect__()
 
     def is_online(self):
         ''' Checks if a system is online '''
@@ -162,3 +154,8 @@ class WeaponSystem(BaseObject):
                 plugin_info = PluginDetails(**details)
                 dbsession.add(plugin_info)
                 self.plugins.append(plugin_info)
+
+    def __repr__(self):
+        return "<(WeaponSystem) Name: %s, SSh User: %s, LPort: %d, SrvPort: %d>" % (
+            self.name, self.ssh_user, self.ssh_port, self.service_port
+        )

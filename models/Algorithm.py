@@ -32,7 +32,7 @@ class Algorithm(BaseObject):
     this is a read-only object but that is not enforced
     '''
 
-    algorithm_name = Column(Unicode(64), nullable=False)
+    name = Column(Unicode(64), nullable=False)
     length = Column(Integer, nullable=False)
     chars = Column(Unicode(64), nullable=False)
 
