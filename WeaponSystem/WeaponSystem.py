@@ -157,10 +157,23 @@ class WeaponSystem(rpyc.Service):
         plugins = self.plugin_manager.getAllPlugins()
         return [plugin.name for plugin in plugins]
 
-    def exposed_get_plugin_details(self, plugin_name):
-        ''' Get plugin details '''
-        plugin = self.plugin_manager.getPluginByName(plugin_name)
-        info = {'name':plugin.name}
+    def exposed_get_categories(self):
+        ''' Return categories for which we have plugins '''
+        categories = []
+        for category in self.plugin_manager.getCategories():
+            if 0 < len(self.plugin_manager.getPluginsOfCategory(category)):
+                categories.append(category)
+        return categories
+
+    def exposed_get_category_plugins(self, category):
+        ''' Get plugin names for a category '''
+        plugins = self.plugin_manager.getPluginsOfCategory(category)
+        return [(plugin.name for plugin in plugins]
+
+    def exposed_get_plugin_details(self, plugin_name, category):
+        ''' Get plugin based on name details '''
+        plugin = self.plugin_manager.getPluginByName(plugin_name, category)
+        info = {'name': plugin.name}
         info['author'] = plugin.details.get('Documentation', 'author')
         info['website'] = plugin.details.get('Documentation', 'website')
         info['version'] = plugin.details.get('Documentation', 'version')
@@ -169,31 +182,12 @@ class WeaponSystem(rpyc.Service):
         info['precomputation'] = plugin.is_precomputation
         return info
 
-    def exposed_get_categories(self):
-        categories = []
-        for category in self.plugin_manager.getCategories():
-            if 0 < len(self.plugin_manager.getPluginsOfCategory(category)):
-                categories.append(category)
-        return categories
-
-    def exposed_get_computation_plugins(self):
-        
-
-    def exposed_get_precomputation_plugins(self):
-        pass
-
-    def exposed_get_category_plugins(self, category):
-        plugins = self.plugin_manager.getPluginsOfCategory(category)
-        return [(plugin.name for plugin in plugins]
-
     def exposed_ping(self):
         ''' Returns a pong message '''
-        logging.info("Method called: exposed_ping")
         return "PONG"
 
     def exposed_is_busy(self):
         ''' Returns True/False if the current system is busy (thread safe) '''
-        logging.info("Method called: is_busy")
         return self.is_busy
 
     def exposed_current_job_id(self):
@@ -202,7 +196,6 @@ class WeaponSystem(rpyc.Service):
 
     def exposed_cpu_count(self):
         ''' Returns the number of detected cpu cores '''
-        logging.info("Method called: exposed_cpu_count")
         return self.cpu_cores
 
 

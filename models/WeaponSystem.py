@@ -23,7 +23,7 @@ Created on Mar 12, 2012
 import rpyc
 import logging
 
-from sqlalchemy import Column
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import synonym, relationship
 from sqlalchemy.types import Unicode, Boolean, Integer
 from models import dbsession, algorithm_association_table
@@ -51,6 +51,7 @@ class WeaponSystem(BaseObject):
         secondary=algorithm_association_table, 
         backref="WeaponSystem"
     )
+    plugins = Column(Integer, ForeignKey('plugin_details.id'), nullable=False)
 
     @classmethod
     def by_id(cls, weapon_id):
@@ -104,20 +105,14 @@ class WeaponSystem(BaseObject):
         )
 
     def initialize(self, *args):
-        ''' One time initialization, gathers system information '''
-        logging.info(
-            "Preforming weapon system initialization, please wait ... "
-        )
+        ''' initialization, gathers system information '''
+        logging.info("Preforming weapon system initialization")
         rpc_connection = self.__connect__()
         if rpc_connection is None:
             logging.info("Failed to connect to remote system.")
             return False
         else:
-            algorithms = Algorithm.all()
-            capabilities = rpc_connection.root.exposed_get_capabilities()
-            for algo in algorithms:
-                if algo.algorithm_name in capabilities:
-                    self.algorithms.append(algo)
+            self.__plugins__(rpc_connection)
             self.cpu_count = rpc_connection.root.exposed_cpu_count()
             self.initialized = True
             dbsession.add(self)
@@ -153,6 +148,17 @@ class WeaponSystem(BaseObject):
             )
             return rpyc.ssh_connect(ssh_context, self.service_port)
         except:
-            logging.exception(
-                "Connection to remote weapon system failed, check parameters."
-            )
+            logging.exception("Connection to remote weapon system failed")
+
+    def __plugin__(self, rpc_connection):
+        categories = rpc_connection.root.exposed_get_categories()
+        for category in categories:
+            logging.debug("Query weapon system for plugin category: %s" % category)
+            plugins = rpc_connection.root.exposed_get_category_plugins(category)
+            logging.debug("Found %d plugin(s) loaded by remote agent" % len(plugins))
+            for plugin_name in plugins:
+                logging.debug("Query details for plugin '%s'" % plugin_name)
+                details = rpc_connection.root.exposed_get_plugin_details(plugin_name)
+                plugin_info = PluginDetails(**details)
+                dbsession.add(plugin_info)
+                self.plugins.append(plugin_info)
