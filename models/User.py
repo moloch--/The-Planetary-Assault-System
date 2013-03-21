@@ -20,9 +20,8 @@ Created on Mar 12, 2012
 '''
 
 
-import bcrypt
-
 from os import urandom
+from pbkdf2 import PBKDF2
 from base64 import b64encode
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import synonym, relationship, backref
@@ -34,6 +33,7 @@ from models.BaseObject import BaseObject
 
 ### Constants
 ADMIN_PERMISSION = u'admin'
+ITERATE = 1337  # Hashing iterations with PBKDF2
 
 
 class User(BaseObject):
@@ -58,7 +58,7 @@ class User(BaseObject):
     salt = Column(String(32), 
         unique=True, 
         nullable=False, 
-        default=lambda: bcrypt.gensalt(16)
+        default=lambda: urandom(16).encode('hex')
     )
     _password = Column('password', Unicode(64))
     password = synonym('_password', descriptor=property(
@@ -111,8 +111,8 @@ class User(BaseObject):
 
     @classmethod
     def _hash_password(cls, password, salt):
-        ''' BCrypt; return unicode string '''
-        hashed = bcrypt.hashpw(password, salt)
+        ''' PBKDF2; return unicode string '''
+        hashed = PBKDF2(password, salt, iterations=ITERATE).read(32).encode('hex')
         return unicode(hashed)
 
     @property
