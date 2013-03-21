@@ -35,14 +35,14 @@
     <script>
         function get_details(uuid) {
             $("#user_uuid").val(uuid);
-            $.getJSON('/admin/ajax/users?uuid=' + uuid, function(data) {
+            $.getJSON('/admin/users/ajax?uuid=' + uuid, function(data) {
                 $.each(data, function(key, value) {
                     $("#user_" + key).val(value);
                 });
             });
         }
         function toggle_lock(uuid) {
-            $.getJSON('/admin/lock?uuid=' + uuid, function(response) {
+            $.getJSON('/admin/users/lock?uuid=' + uuid, function(response) {
                 if ('success' in response) {
                     if ('locked' == response['success']) {
                         $("#lock_button_" + uuid).removeClass('btn-danger');

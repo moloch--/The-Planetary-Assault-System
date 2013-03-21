@@ -20,7 +20,7 @@
             <form class="form-horizontal" action="/register" method="post">  
                 {% raw xsrf_form_html() %}
                 <div class="control-group">
-                    <label class="control-label" for="userame">Username</label>
+                    <label class="control-label" for="username">Username</label>
                     <div class="controls">
                         <input autofocus required id="username" name="username" placeholder="Username" type="text"
                             rel="popover" pattern="^[a-zA-Z0-9 ]{3,15}$"
@@ -64,6 +64,5 @@
             $("#pass1").popover({placement:'right', trigger:'focus'});
             $("#pass2").popover({placement:'right', trigger:'focus'});
         });
-        $('[rel=persist]').garlic();
     </script>
 {% end %}

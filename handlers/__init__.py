@@ -58,18 +58,18 @@ app = Application([
 
     # Cracking Handlers - Serves password cracking job related
     # pages
-    (r'/cracking/createjob', CreateJobHandler),
-    (r'/cracking/queuedjobs', QueuedJobsHandler),
-    (r'/cracking/deletejob', DeleteJobHandler),
-    (r'/cracking/completedjobs', CompletedJobsHandler),
-    (r'/cracking/ajax/jobdetails(.*)', AjaxJobDetailsHandler),
-    (r'/cracking/ajax/jobstatistics(.*)', AjaxJobStatisticsHandler),
-    (r'/cracking/ajax/jobdata(.*)', AjaxJobDataHandler),
+    (r'/cracking/jobs/create', CreateJobHandler),
+    (r'/cracking/jobs/queued', QueuedJobsHandler),
+    (r'/cracking/jobs/delete', DeleteJobHandler),
+    (r'/cracking/jobs/completed', CompletedJobsHandler),
+    (r'/cracking/jobs/ajax/details(.*)', AjaxJobDetailsHandler),
+    (r'/cracking/jobs/ajax/statistics(.*)', AjaxJobStatisticsHandler),
+    (r'/cracking/jobs/ajax/data(.*)', AjaxJobDataHandler),
 
     # Admin Handlers - Admin only pages
-    (r'/admin/manageusers', ManageUsersHandler),
-    (r'/admin/lock', AdminLockHandler),
-    (r'/admin/ajax/users(.*)', AdminAjaxUsersHandler),
+    (r'/admin/users/manage', ManageUsersHandler),
+    (r'/admin/users/ajax(.*)', AdminAjaxUsersHandler),
+    (r'/admin/users/lock', AdminLockHandler),
     (r'/admin/weaponsystem/add', AddWeaponSystemsHandler),
     (r'/admin/weaponsystem/view', ViewWeaponSystemsHandler),
     (r'/admin/weaponsystem/details', DetailsWeaponSystemsHandler),

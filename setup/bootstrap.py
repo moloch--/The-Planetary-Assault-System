@@ -71,9 +71,7 @@ dbsession.add(ntlm)
 dbsession.flush()
 
 ### Create admin account
-user = User(
-    username=unicode(username),
-)
+user = User(username=unicode(username))
 dbsession.add(user)
 dbsession.flush()
 user.password = password

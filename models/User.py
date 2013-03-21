@@ -50,15 +50,17 @@ class User(BaseObject):
     ))
     _locked = Column(Boolean, default=True)
     jobs = relationship("Job", 
-        backref=backref("User", lazy="joined"), cascade="all, delete-orphan"
+        backref=backref("User", lazy="joined"), 
+        cascade="all, delete-orphan"
     )
     permissions = relationship("Permission", 
-        backref=backref("User", lazy="joined"), cascade="all, delete-orphan"
+        backref=backref("User", lazy="joined"), 
+        cascade="all, delete-orphan"
     )
-    salt = Column(String(32), 
+    salt = Column(String(16), 
         unique=True, 
         nullable=False, 
-        default=lambda: urandom(16).encode('hex')
+        default=lambda: urandom(8).encode('hex')
     )
     _password = Column('password', Unicode(64))
     password = synonym('_password', descriptor=property(
@@ -96,7 +98,7 @@ class User(BaseObject):
     @classmethod
     def all_users(cls):
         ''' Return all non-admin user objects '''
-        return filter(lambda user: user.has_permission('admin') == False, cls.all())
+        return filter(lambda user: not user.has_permission(ADMIN_PERMISSION), cls.all())
 
     @classmethod
     def by_username(cls, user_name):

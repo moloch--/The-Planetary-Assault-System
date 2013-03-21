@@ -1,0 +1,78 @@
+{% extends "../../main.html" %}
+
+{% block title %}Create Job{% end %}
+
+{% block content %}
+    <h2>Targeting System</h2>
+    <br />
+    {% if errors != None and len(errors) != 0 %}
+        {% for error in errors %}
+            <div class="alert alert-error">
+                <a class="close" data-dismiss="alert" href="#">×</a>
+                <h4 class="alert-heading">ERROR</h4>
+                {{ error }}
+            </div>
+        {% end %}
+    {% end %}
+    <div class="well">
+        <legend>Create a New Job</legend>
+        <form action="/cracking/jobs/create" method="post" autocomplete="off">  
+            {% raw xsrf_form_html() %}
+            <div class="control-group">
+                <label class="control-label" for="jobname">Job Name</label>
+                <div class="controls">
+                    <input autofocus required id="jobname" name="jobname" placeholder="Job Name" type="text"
+                        rel="popover" pattern="^[a-zA-Z0-9 ]{3,15}$"
+                        data-original-title="Job Name Selection"
+                        data-content="Your job name must be 3-15 alpha-numeric characters" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="algorithm">Algorithm</label>
+                <div class="controls">
+                    <select id="algorithm" name="algorithm_uuid">
+                        <option value=""></option>
+                        {% from models import Algorithm %}
+                        {% for algorithm in Algorithm.all() %}
+                            <option value="{{ algorithm.uuid }}">{{ algorithm.name }}</option>
+                        {% end %}
+                    </select>
+                </div>
+            </div>
+            <!-- placeholders -->
+            <div class="control-group">
+                <label class="control-label" for="format">Hash Format</label>
+                <div class="controls">
+                    <select name="format">
+                        <option value="newline">Line Seperated</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="encoding">Encoding</label>
+                <div class="controls">
+                    <select name="encoding">
+                        <option value="hex">Hexadecimal</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="hashes">Password Hashes</label>
+                <div class="controls">
+                    <textarea name="hashes" placeholder="Copy &amp; Paste Hashes" style="width:auto" rows="15" cols="45">
+                    </textarea>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="controls">
+                    <button class="btn btn-primary" type="submit">&nbsp;Create New Job&nbsp;</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        $(function() {
+            $("#jobname").popover({placement:'right', trigger:'focus'});
+        });
+    </script>
+{% end %}

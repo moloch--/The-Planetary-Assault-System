@@ -1,10 +1,6 @@
-{% extends "../main.html" %}
+{% extends "../../main.html" %}
 
 {% block title %}Queued Jobs{% end %}
-
-{% block head %}
-	<script src='/static/js/bootstrap-collapse.js' type='text/javascript'></script>
-{% end %}
 
 {% block content %}
 	<h2>Queued Jobs</h2>
@@ -19,7 +15,7 @@
 			                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" 
 			                	href="#collapse{{ user.jobs.index(job) }}">
 			                	{% from models import Algorithm %}
-			                  <strong>{{ user.queued_jobs.index(job) + 1 }}. {{ user.user_name }} - {{ job.job_name }} ({{ Algorithm.by_id(job.algorithm_id) }})</strong>
+			                  <strong>{{ user.queued_jobs.index(job) + 1 }}. {{ user.username }} - {{ job.job_name }} ({{ Algorithm.by_id(job.algorithm_id) }})</strong>
 			                </a>
 			              </div>
 			              <div id="collapse{{ user.jobs.index(job) }}" class="accordion-body collapse" style="height: 0px; ">
