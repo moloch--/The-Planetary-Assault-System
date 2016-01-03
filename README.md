@@ -1,6 +1,6 @@
 The-Planetary-Assault-System
 ============================
-Fire and forget password cracking and complexity analysis.  The Planetary assault system is basically a role-you-own password cracking CPU/GPU cluster managerment system.  Additionally it can preform character and word frequency analysis to improve cracking results.  It's a mix of Python, C++, and JavaScript. 
+Fire and forget password cracking and complexity analysis.  The Planetary assault system is basically a roll-your-own password cracking CPU/GPU cluster managerment system.  Additionally it can preform character and word frequency analysis to improve cracking results.  It's a mix of Python, C++, and JavaScript. 
 
 __This is a work in progress, please keep that in mind!__
 
